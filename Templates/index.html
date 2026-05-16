@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja ÉdeCasa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        *{
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        body{
+            margin: 0;
+            font-family: "Segoe UI", Arial;
+            background:#f4f6f9;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .body_principal{
+            display: flex;
+            flex-direction: row;
+            flex: 1;   
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding-top: 10px;
+            overflow: visible;
+        }
+
+        .telhado {
+            width: 54px;
+            height: 60px;
+            border-top: 6px solid white;
+            border-right: 6px solid white;
+            transform: rotate(-40deg);
+            position: absolute;
+            top: -5px;
+            right: 17px; 
+        }
+
+        h1 {
+            margin: 0;
+            font-family: 'Pacifico', cursive;
+            color: white;
+            font-size: 28px;
+            font-weight: 550;
+            text-transform: none;
+            letter-spacing: 0;
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitulo {
+            color: white;
+            font-family: "Segoe UI", Arial;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -5px;
+        }
+
+        .painel_superior {
+            background: #1f2126; 
+            display: flex;
+            width: 100%;
+            height: 90px; 
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 10;
+            position: relative;
+        }
+
+        .painel_lateral{
+            background: linear-gradient(180deg,#1f2126,#2b2f34);
+            display: flex;
+            width: 13.5%;
+            height: 100%;
+            margin-top: auto;
+            padding-top: 30px;
+            box-sizing: border-box;
+            flex-direction: column;
+            box-shadow:3px 0 15px rgba(0,0,0,0.2);      
+        }
+        
+        .bt_painel {
+            display: block;
+            align-items: center;
+            width: 100%;
+            height: 55px;
+            line-height: 55px;
+            text-decoration: none;
+            color: #d7d7d7;
+            padding-left: 40px;
+            padding-right: 10px;
+            text-overflow: ellipsis;
+        }
+
+        .bt_painel:hover{
+            cursor: pointer;
+            background: #3a3d45;
+            color: white;
+        }
+
+        .bt_painel.ativo{
+            background:#35393f;
+            color:white;
+            border-left: 4px solid #5aa2ff;
+        }
+
+        .container{
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        #config{
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head> 
+
+<body>
+    <div class="painel_superior">
+        <div class="logo-container">
+            <div class="telhado"></div>
+            <h1>É de casa</h1>
+            <div class="subtitulo">Cama, Mesa e Banho</div>
+        </div>
+    </div>
+
+    <div class="body_principal">
+        <div class="painel_lateral">
+            <a href="{% url 'front_end:dashboard' %}" class="bt_painel ativo" target="conteudo">Dashboard</a>
+            <a href="{% url 'front_end:produtos' %}" class="bt_painel" target="conteudo">Produtos</a>
+            <a href="{% url 'front_end:clientes' %}" class="bt_painel" target="conteudo">Clientes</a>
+            <a href="{% url 'front_end:vendas' %}" class="bt_painel" target="conteudo">Vendas</a>
+            <a id="config" href="{% url 'front_end:configuracoes' %}" class="bt_painel" target="conteudo">Configurações</a> 
+        </div>
+
+        <div class="container">
+            <iframe name="conteudo" src="{% url 'front_end:dashboard' %}" width="100%" height="100%" style="border: none;"></iframe>
+        </div>
+    </div>
+</body>
+
+<script>
+document.querySelectorAll(".bt_painel").forEach(botao => {
+
+    botao.addEventListener("click", function(){
+
+        document.querySelectorAll(".bt_painel").forEach(b=>{
+            b.classList.remove("ativo")
+        })
+
+        this.classList.add("ativo")
+
+    })
+
+})  
+</script>
+</html> 

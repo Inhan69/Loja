@@ -1,0 +1,224 @@
+    <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Produtos</title>
+
+<style>
+
+*{
+    box-sizing: border-box;
+}
+
+body{
+    margin:0;
+    font-family: "Segoe UI", Arial;
+    background:#f4f6f9;
+    display:flex;
+}
+
+/* MENU LATERAL */
+
+#painel_lateral{
+    width:260px;
+    height:100vh;
+    background:linear-gradient(180deg,#2c2f36,#1f2126);
+    padding-top:30px;
+    box-shadow:3px 0 15px rgba(0,0,0,0.2);
+}
+
+.logo{
+    color:white;
+    font-size:22px;
+    text-align:center;
+    margin-bottom:40px;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+
+.bt_painel{
+    width:100%;
+    height:55px;
+    border:0;
+    background:transparent;
+    color:#d7d7d7;
+    text-align:left;
+    padding-left:40px;
+    font-size:16px;
+    transition:0.2s;
+}
+
+.bt_painel:hover{
+    background:#3a3d45;
+    color:white;
+    cursor:pointer;
+}
+
+/* ÁREA PRINCIPAL */
+
+#conteudo{
+    flex:1;
+    padding:40px;
+}
+
+/* TOPO */
+
+#topo{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+}
+
+.titulo{
+    font-size:28px;
+    font-weight:600;
+    color:#2c2c2c;
+}
+
+/* PESQUISA */
+
+#pesquisa{
+    width:300px;
+    padding:12px 15px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    font-size:15px;
+}
+
+/* BOTÃO */
+
+#bt_adicionar{
+    background:#4a6cf7;
+    border:0;
+    color:white;
+    padding:12px 22px;
+    border-radius:8px;
+    font-size:16px;
+    transition:0.2s;
+}
+
+#bt_adicionar:hover{
+    background:#3555d6;
+    cursor:pointer;
+}
+
+/* CARD */
+
+.card{
+    background:white;
+    padding:25px;
+    width: 100%;
+    border-radius:12px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* TABELA */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    text-align:left;
+    padding:15px;
+    color:#666;
+    font-weight:600;
+    border-bottom:1px solid #eee;
+}
+
+td{
+    padding:15px;
+    border-bottom:1px solid #eee;
+}
+
+tr:hover{
+    background:#f7f8fc;
+}
+</style>
+</head>
+
+<body>
+
+<div id="painel_lateral">
+
+<div class="logo">
+ESTOQUE
+</div>
+
+<button class="bt_painel">Dashboard</button>
+<button class="bt_painel">Produtos</button>
+<button class="bt_painel">Categorias</button>
+<button class="bt_painel">Clientes</button>
+<button class="bt_painel">Relatórios</button>
+<button class="bt_painel">Configurações</button>
+
+</div>
+
+
+<div id="conteudo">
+
+<div id="topo">
+
+<div class="titulo">
+Produtos
+</div>
+
+<div>
+
+<input id="pesquisa" placeholder="Pesquisar produto...">
+
+<button id="bt_adicionar">
++ Novo Produto
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Produto</th>
+<th>Categoria</th>
+<th>Estoque</th>
+<th>Preço</th>
+</tr>
+
+<tr>
+<td>001</td>
+<td>Mouse Gamer RGB</td>            
+<td>Periféricos</td>
+<td>24</td>
+<td>R$120</td>
+</tr>
+
+<tr>
+<td>002</td>
+<td>Teclado Mecânico</td>
+<td>Periféricos</td>
+<td>15</td>
+<td>R$350</td>
+</tr>
+
+<tr>
+<td>003</td>
+<td>Monitor 24"</td>
+<td>Hardware</td>
+<td>9</td>
+<td>R$900</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+</body>
+</html>

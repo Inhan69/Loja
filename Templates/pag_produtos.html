@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{
+      font-family: "Segoe UI", Arial;
+    }
+
+    body{
+      margin:0;
+      padding: 0;
+      padding-bottom: 20px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #f6f8fd 0%, #eef2fb 100%);
+    }
+
+    .toolbar{
+      background: white;
+      padding: 0px 25px;
+      border-radius: 8px;
+      width: 90%;
+      margin: 15px auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1{
+      height: 38px;
+      color: #2c2c2c;
+      overflow: visible;
+    }
+    
+    h2{
+      margin-bottom: 25px; 
+      color: #333; 
+      font-size: 50px; 
+      padding-bottom: 20px; 
+      text-align: center;
+    }
+
+    .card{
+      background:white;
+      padding:0 25px 25px;
+      border-radius:12px;
+      width: 90%;
+      margin: 10px auto;
+      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+      height: min(78vh, 820px);
+      min-height: 320px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: 1px solid #e7ebf4;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .card::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .card::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    .card::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 12px;
+    }
+
+    .card::-webkit-scrollbar-thumb {
+      background: #c4cada;
+      border-radius: 12px;
+      border: 5px solid transparent;
+      background-clip: padding-box;
+    }
+
+    table{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      position: relative;
+    }
+
+    thead{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #ffffff;
+    }
+
+    thead tr{
+      position: relative;
+      z-index: 101;
+    }
+
+    th{
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 102;
+      text-align:center;
+      padding:15px;
+      color:#666;
+      font-weight:700;
+      font-size: 23px;
+      font-family: "Segoe UI", Arial;
+      border-bottom:1px solid #eee;
+      box-shadow: 0 2px 0 #eef2fb;
+      background-clip: padding-box;
+    }
+
+    tbody td{
+      position: relative;
+      z-index: 1;
+    }
+
+    td{
+      padding:15px;
+      border-bottom:1px solid #eee;
+      text-align: center;
+    }
+
+    tr:hover{
+      background:#f7f8fc;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      height: 45px;
+      background: #2b87ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    input[type="submit"]:hover {
+      background: #2c7ae0;
+    }
+
+    #form-adicionar{
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    #form-editar{
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    #btn-adicionar{
+      width: 200px;
+      padding: 8px 10px;
+      border-radius:8px;
+      border: 1px solid #ddd;
+      color: white;
+      background:#2b87ff;
+      margin: auto 0 auto auto;
+      font-size:15px;
+    }
+
+    .search-form{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .search-box{
+      position: relative;
+    }
+
+    .search-form input[type="search"]{
+      width: 280px;
+      max-width: 45vw;
+      height: 38px;
+      border: 1px solid #d7dfef;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 14px;
+      background: #f8faff;
+      outline: none;
+    }
+
+    .search-suggestions{
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: 6px;
+      list-style: none;
+      border: 1px solid #d7dfef;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .search-suggestions li{
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2c2c2c;
+    }
+
+    .search-suggestions li:hover{
+      background: #f2f7ff;
+    }
+
+    .search-suggestions .codigo{
+      color: #6d778f;
+      font-size: 13px;
+      margin-left: 6px;
+    }
+
+    .search-form input[type="search"]:focus{
+      border-color: #2b87ff;
+      box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.15);
+      background: #ffffff;
+    }
+
+    .search-form button{
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #d7dfef;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 600;
+      background: #ffffff;
+      color: #2b87ff;
+    }
+
+    .search-form button:hover,
+    .search-form .search-clear:hover{
+      background: #f2f7ff;
+    }
+
+    .search-form .search-clear{
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #d7dfef;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 600;
+      background: #ffffff;
+      color: #2b87ff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    #btn-vender{
+      background: #28a745; 
+      color: white; 
+      border: none; 
+      padding: 5px 10px; 
+      border-radius: 5px; 
+      cursor: pointer; 
+      font-size: 12px; 
+      margin-left: 10px;
+    }
+
+    #fechar-x {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    #fechar-x:hover {
+      color: #dc3545;
+    }
+
+    #link-excluir {
+      display: block;
+      text-align: center;
+      background: #dc3545;
+      color: white;
+      text-decoration: none;
+      font-weight: 400;
+      font-size: 14px;
+      padding: 12px 16%;
+      border-radius: 8px;
+    }
+
+    #link-excluir:hover {
+      background: #c82333;
+    }
+    
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      align-items: center; 
+      width: 100%;
+    }
+
+    .modal-content form p {
+      width: 100%;
+      margin: 0 0 15px 0;
+      text-align: left;
+    }
+
+    form p label {
+      display: block;       
+      text-align: left;        
+      font-weight: 600;      
+      font-size: 14px;      
+      color: #444;           
+      margin-bottom: 5px;      
+      margin-left: 5px;     
+      font-family: "Segoe UI", Arial;
+    }
+
+    .modal-content {
+      position: relative;
+      background: white;
+      padding: 30px;
+      border-radius: 5px;
+      width: 450px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+      z-index: 10000;
+    }
+
+    .modal-content input, .modal-content select {
+      width: 100%;
+      box-sizing: border-box; 
+    }
+
+    .modal-content input:not([type="submit"]) {
+      display: block;
+      width: 100% !important;
+      height: 45px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      box-sizing: border-box;
+      font-size: 15px;
+    }    
+    
+    #modal-container {
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw;   
+      height: 100vh;  
+      background: rgba(0, 0, 0, 0.6); 
+      z-index: 9999; 
+      align-items: center; 
+      justify-content: center;
+    }
+
+    .botoes-container {
+        display: flex;
+        gap: 10px; 
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .botoes-container input[type="submit"] {
+        flex: 1;
+        margin-top: 0;
+    }
+
+    #modal-editar {
+        display: none; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh; 
+        background: rgba(0, 0, 0, 0.6); 
+        z-index: 9999; 
+        align-items: center; 
+        justify-content: center;
+    }
+
+    #modal-venda{
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      background: rgba(0, 0, 0, 0.6); 
+      z-index: 9999; 
+      align-items: center; 
+      justify-content: center;
+    }
+
+    #modal-venda select {
+      width: 100%;
+      height: 45px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      font-size: 15px;
+    }
+
+    #modal-venda input[type="submit"] {
+      width: 100%;
+      height: 45px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    #modal-venda .total-box {
+      background: #2b87ff; 
+      color: white; 
+      padding: 20px; 
+      border-radius: 10px; 
+      text-align: center; 
+      margin-top: 10px;
+    }
+
+    #info-produto-venda{
+      background: #f4f7fe; 
+      padding: 15px; 
+      border-radius: 10px; 
+      margin-bottom: 20px;
+    }
+
+    #info-produto-venda span {
+      font-size: 14px; 
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>Produtos</h1>
+
+    <form class="search-form" method="get" action="{% url 'front_end:produtos' %}">
+      <div class="search-box">
+        <input
+          type="search"
+          name="q"
+          value="{{ busca }}"
+          placeholder="Pesquisar por nome ou código"
+          autocomplete="off"
+        >
+        <ul id="search-suggestions" class="search-suggestions"></ul>
+      </div>
+      <button type="submit">Pesquisar</button>
+      {% if busca %}
+        <a class="search-clear" href="{% url 'front_end:produtos' %}">Limpar</a>
+      {% endif %}
+    </form>
+
+    <button id="btn-adicionar" onclick="Adicionar_Produto()">
+      + Adicionar Produto
+    </button>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead> 
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Estoque</th>
+          <th>Preço</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in Estoque %}   
+          <tr onclick="Abrir_Modal_Editar('{{ item.id }}', '{{ item.nome }}', '{{ item.quantidade }}', '{{ item.preco }}')">
+            <td>{{item.codigo|add:0|stringformat:"04d"}}</td>
+            <td>{{item.nome}}</td>
+            <td>{{item.quantidade|floatformat:"-3" }}</td>
+            <td>R${{item.preco}}</td>
+            <td>{{item.dt_adicao|date:"d M Y H:i"}} 
+              <button id="btn-vender" onclick="event.stopPropagation(); Abrir_Modal_Venda('{{ item.id }}', '{{ item.nome }}', '{{ item.preco }}')">
+                  Vender
+              </button>
+            </td>
+          </tr>
+        {% endfor %} 
+      </tbody>
+    </table>
+  </div>
+
+  <div id="modal-container">
+    <div class="modal-content">
+      <button id="fechar-x" onclick="Fechar_Modal()">&times;</button>
+      
+      <h2>Novo Produto</h2>
+      
+      <form id="form-adicionar" method="post" autocomplete="off">
+          {% csrf_token %}
+          {{ form.as_p }}
+          
+          <input type="submit" value="Cadastrar Produto">
+      </form>
+    </div>
+  </div>
+  
+  <div id="modal-editar">
+    <div class="modal-content">
+        <button id="fechar-x" onclick="Fechar_Modal_Editar()">&times;</button>
+        
+        <h2>Editar Produto</h2>
+        
+        <form id="form-editar" method="post" autocomplete="off">
+            {% csrf_token %}
+            {{ formulario.as_p }}
+
+            <span class="botoes-container">
+              <input type="submit" value="Salvar Alterações">
+              <a id="link-excluir" href="#" onclick="return confirm('Tem certeza que deseja excluir este produto?');" >Excluir Produto</a>
+            </span>
+        </form>
+    </div>
+  </div>
+
+  <div id="modal-venda">
+    <div class="modal-content">
+        <button id="fechar-x" onclick="Fechar_Modal_Venda()">&times;</button>
+        <h2 style="color: #2b87ff;">Finalizar Venda</h2>
+        
+        <div id="info-produto-venda">
+            <strong id="venda-nome-produto">Produto</strong><br>
+            <span>Preço Unitário: <span id="venda-preco-unitario">0.00</span></span>
+        </div>
+
+        <form id="form-venda" method="post" action="/registrar-venda/">
+            {% csrf_token %}
+            <input type="hidden" id="venda-produto-id">
+            
+            <p>
+                <label>Quantidade de Saída:</label>
+                <input type="number" id="venda-qtd" value="1" min="1" oninput="CalcularVenda()">
+            </p>
+            
+            <p>
+                <label>Desconto (%):</label>
+                <input type="number" id="venda-desconto" value="0" step="0.01" oninput="CalcularVenda()">
+            </p>
+
+            <p>
+                <label>Tipo de Pagamento:</label>
+                <select>
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="pix">PIX</option>
+                    <option value="cartao_credito">Cartão de Crédito</option>
+                    <option value="cartao_debito">Cartão de Débito</option>
+                </select>
+            </p>
+
+            <span class="total-box">
+                <span style="font-size: 14px; opacity: 0.9;">TOTAL A PAGAR</span><br>
+                <strong style="font-size: 32px;">R$ <span id="venda-total">0.00</span></strong>
+            </span>
+
+            <input type="submit" value="Confirmar Venda">
+        </form>
+    </div>
+  </div>
+
+  
+</body>
+<script>
+function Abrir_Modal_Editar(id, nome, quantidade, preco) {
+    const campoNome = document.getElementById('id_edit-nome');
+    const campoQuantidade = document.getElementById('id_edit-quantidade');
+    const campoPreco = document.getElementById('id_edit-preco');
+
+    if (campoNome) campoNome.value = nome;
+
+    if (campoQuantidade) {
+        let qtdLimpa = quantidade.replace(/\./g, '').replace(',', '.');
+        campoQuantidade.value = parseFloat(qtdLimpa);
+    }
+
+    if (campoPreco) {
+        let precoLimpo = preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+        campoPreco.value = precoLimpo;
+    }
+
+    document.getElementById('form-editar').action = "/editar/" + id + "/";
+
+    document.getElementById('link-excluir').href = "/remover/" + id + "/";
+
+    document.getElementById('modal-editar').style.display = 'flex';
+  }
+
+  let precoBase = 0;
+
+  function Abrir_Modal_Venda(id, nome, preco) {
+      document.getElementById('venda-produto-id').value = id;
+      document.getElementById('venda-nome-produto').innerText = nome;
+      
+      precoBase = parseFloat(preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+      document.getElementById('venda-preco-unitario').innerText = precoBase.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      
+      document.getElementById('venda-qtd').value = 1;
+      document.getElementById('venda-desconto').value = 0;
+      
+      CalcularVenda();
+      document.getElementById('modal-venda').style.display = 'flex';
+  }
+
+  function CalcularVenda() {
+      const qtd = parseFloat(document.getElementById('venda-qtd').value) || 0;
+      const desconto = parseFloat(document.getElementById('venda-desconto').value) || 0;
+      
+      let total = (precoBase  - (desconto * precoBase / 100) ) * qtd;
+      if (total < 0) total = 0;
+
+      document.getElementById('venda-total').innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  }
+
+  function Fechar_Modal_Venda() {
+      document.getElementById('modal-venda').style.display = 'none';
+  }
+
+  function Fechar_Modal_Editar() {
+      document.getElementById('modal-editar').style.display = 'none';
+  }
+
+  function Adicionar_Produto() { 
+      document.getElementById('modal-container').style.display = 'flex'; 
+      document.querySelector('#form-adicionar #id_nome').focus();
+  }
+
+  function Fechar_Modal() { 
+      document.getElementById('modal-container').style.display = 'none'; 
+  }
+
+  const searchForm = document.querySelector('.search-form');
+  const searchInput = searchForm ? searchForm.querySelector('input[name="q"]') : null;
+  const suggestionsBox = document.getElementById('search-suggestions');
+  let searchTimeout = null;
+
+  function voltarParaListaInicial() {
+      if (!searchForm) return;
+      window.location.href = searchForm.action;
+  }
+
+  function esconderSugestoes() {
+      if (!suggestionsBox) return;
+      suggestionsBox.innerHTML = '';
+      suggestionsBox.style.display = 'none';
+  }
+
+  function renderizarSugestoes(itens) {
+      if (!suggestionsBox || !searchInput) return;
+      if (!itens.length) {
+          esconderSugestoes();
+          return;
+      }
+
+      suggestionsBox.innerHTML = itens
+          .map((item) => `<li data-value="${item.nome}">${item.nome}<span class="codigo">#${item.codigo}</span></li>`)
+          .join('');
+      suggestionsBox.style.display = 'block';
+  }
+
+  if (searchInput && suggestionsBox) {
+      searchInput.addEventListener('input', function () {
+          const termo = this.value.trim();
+          clearTimeout(searchTimeout);
+
+          if (!termo) {
+              esconderSugestoes();
+              voltarParaListaInicial();
+              return;
+          }
+
+          searchTimeout = setTimeout(async () => {
+              try {
+                  const response = await fetch(`/produtos/sugestoes/?q=${encodeURIComponent(termo)}`);
+                  if (!response.ok) {
+                      esconderSugestoes();
+                      return;
+                  }
+
+                  const data = await response.json();
+                  renderizarSugestoes(data.results || []);
+              } catch (error) {
+                  esconderSugestoes();
+              }
+          }, 220);
+      });
+
+      searchInput.addEventListener('search', function () {
+          if (!this.value.trim()) {
+              esconderSugestoes();
+              voltarParaListaInicial();
+          }
+      });
+
+      suggestionsBox.addEventListener('click', function (event) {
+          const item = event.target.closest('li[data-value]');
+          if (!item || !searchInput || !searchForm) return;
+          searchInput.value = item.dataset.value;
+          esconderSugestoes();
+          searchForm.submit();
+      });
+
+      document.addEventListener('click', function (event) {
+          if (!searchForm.contains(event.target)) {
+              esconderSugestoes();
+          }
+      });
+  }
+
+  window.onclick = function(event) {
+      const modalAdd = document.getElementById('modal-container');
+      const modalEdit = document.getElementById('modal-editar');
+      const modalVenda = document.getElementById('modal-venda');
+      if (event.target == modalAdd) Fechar_Modal();
+      if (event.target == modalEdit) Fechar_Modal_Editar();
+      if (event.target == modalVenda) Fechar_Modal_Venda();
+  }
+</script>
+</html>

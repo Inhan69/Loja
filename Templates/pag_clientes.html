@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            text-align: center;
+            font-family: "Segoe UI", Arial;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #f5f7fb;
+        }
+
+        .header-container {
+            background: white;
+            padding: 20px;
+            padding-top: 1px;
+            border-radius: 8px;
+            width: 90%;
+            margin: 20px auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #2c2c2c;
+            margin-bottom: 30px;
+            padding: 0 0 15px 0;
+            text-align: left; 
+            border-bottom: 2px solid #eee;
+        }
+
+
+        .clients-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            margin: 10px auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: calc(70vh - 30px);
+            min-height: 320px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .clients-container h2 {
+            text-align: left;
+            color: #2c2c2c;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 12px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 12px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .btn-back {
+            height: 32px;
+            width: 32px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            color: #455a64;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .field label {
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .field input {
+            height: 38px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0 10px;
+            text-align: left;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .field input:focus {
+            border-color: #2b87ff;
+        }
+
+        .col-span-2 {
+            grid-column: span 2;
+        }
+
+        .col-span-4 {
+            grid-column: span 4;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            border: none;
+            height: 38px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            background: #455a64;
+            color: white;
+            border: none;
+            height: 38px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        .view-hidden {
+            display: none;
+        }
+
+        #list-view {
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #list-view.view-hidden {
+            display: none;
+        }
+
+        #list-view h2 {
+            margin: 18px 0 16px;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #c4cada transparent;
+        }
+
+        #form-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+        }
+
+        #form-view.view-hidden {
+            display: none;
+        }
+
+        #client-form {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #client-form .form-grid {
+            flex: 1;
+            overflow-y: auto;
+            align-content: start;
+            padding-right: 6px;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #c4cada;
+            border-radius: 12px;
+            border: 5px solid transparent;
+            background-clip: content-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            position: relative;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+        }
+
+        th, td {
+            border-bottom: 1px solid #eee;
+            padding: 15px;
+        }
+
+        th {
+            background: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+            color: #666;
+            font-weight: 700;
+            font-size: 23px;
+            box-shadow: 0 2px 0 #eef2fb;
+            background-clip: padding-box;
+        }
+
+        td {
+            color: #2c2c2c;
+            font-size: 15px;
+        }
+
+        tbody tr:hover {
+            background:#f7f8fc;
+        }
+
+        .empty-message {
+            padding: 18px;
+            color: #666;
+            font-style: italic;
+        }
+
+        @media (max-width: 980px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .col-span-4 {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .col-span-2,
+            .col-span-4 {
+                grid-column: span 1;
+            }
+        }
+
+        .barra_ferramentas   {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex-direction: row;
+        }
+
+        .btn {
+            height: 38px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 0 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add{ 
+            background: #2b87ff; 
+            color: white;
+            height: 38px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 15px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add span {
+            font-size: 20px;
+            padding-bottom: 5px;
+            margin-left: -10px;
+        }
+
+        .div-search {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .div-search input {
+            width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 20px 0 0 20px;
+            padding: 0 10px;
+            outline: none;
+            font-size: 14px;
+            margin-right: -10px;
+            text-align: left;
+        }
+
+        .btn-search {
+            background-color: #455a64;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0 20px 20px 0;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .div-total {
+            display: flex;
+            align-items: left;
+            height: 38px;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .total-text {
+            background-color: #455a64;
+            color: white;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;  
+        }
+
+        .total-clients {
+            background-color: #f1f3f4;
+            color: #0076a8;
+            font-size: large;
+            padding: 0 150px 0  15px;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            border: 1px solid #ddd;
+            border-left: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Clientes</h1>
+        
+        <div class="barra_ferramentas">
+            <button class="btn-add" onclick="Adicionar_client()">
+                <span>+</span>NOVO CLIENTE
+            </button>
+
+            <form class="div-search" method="get">
+                <input id="search-input" name="q" type="search" placeholder="Pesquisar clientes..." value="{{ busca }}">
+                <button class="btn-search" type="submit">Q PESQUISAR</button>
+            </form>
+
+            <div class="div-total"> 
+                <span class="total-text">TOTAL</span>
+                <span id="total-clientes" class="total-clients">{{ total_clientes }} cliente(s)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="clients-container">
+        <div id="list-view" class="{% if mostrar_form %}view-hidden{% endif %}">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Bairro</th>
+                            <th>Rua</th>
+                            <th>Número</th>
+                            <th>Data Nascimento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientes-tbody">
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td>{{ cliente.nome }}</td>
+                            <td>{{ cliente.cpf }}</td>
+                            <td>{{ cliente.telefone }}</td>
+                            <td>{{ cliente.bairro }}</td>
+                            <td>{{ cliente.rua }}</td>
+                            <td>{{ cliente.numero }}</td>
+                            <td>{% if cliente.dt_nascimento %}{{ cliente.dt_nascimento|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not clientes %}
+            <div id="empty-message" class="empty-message">Nenhum cliente cadastrado.</div>
+            {% endif %}
+        </div>
+
+        <div id="form-view" class="{% if not mostrar_form %}view-hidden{% endif %}">
+            <div class="section-header">
+                <button class="btn-back" type="button" onclick="voltarParaLista()" title="Voltar">←</button>
+                <h2>Cadastro de Cliente</h2>
+            </div>
+
+            <form id="client-form" method="post">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="field col-span-4">
+                        <label for="nome">Nome *</label>
+                        <input id="nome" name="nome" type="text" placeholder="Digite o nome completo" value="{{ form.nome.value|default:'' }}" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="cpf">CPF *</label>
+                        <input id="cpf" name="cpf" type="text" placeholder="000.000.000-00" value="{{ form.cpf.value|default:'' }}" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="telefone">Telefone *</label>
+                        <input id="telefone" name="telefone" type="text" placeholder="(00) 00000-0000" value="{{ form.telefone.value|default:'' }}" required>
+                    </div>
+
+                    <div class="field col-span-2">
+                        <label for="rua">Rua *</label>
+                        <input id="rua" name="rua" type="text" placeholder="Digite a rua" value="{{ form.rua.value|default:'' }}" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="bairro">Bairro *</label>
+                        <input id="bairro" name="bairro" type="text" placeholder="Digite o bairro" value="{{ form.bairro.value|default:'' }}" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="dt_nascimento">Data de Nascimento</label>
+                        <input id="dt_nascimento" name="dt_nascimento" type="date" value="{{ form.dt_nascimento.value|default:'' }}">
+                    </div>
+
+                    <div class="field col-span-2">
+                        <label for="numero">Número *</label>
+                        <input id="numero" name="numero" type="number" placeholder="Digite o número" value="{{ form.numero.value|default:'' }}" min="1" required>
+                    </div>
+                </div>
+
+                {% if form.errors %}
+                <div class="empty-message" style="color:#c0392b; text-align:left; padding: 0 0 10px 0;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div>{{ field.label }}: {{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <button class="btn-save" type="submit">SALVAR CLIENTE</button>
+                    <button class="btn-clear" type="reset">LIMPAR CAMPOS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+ </body>
+<script>
+    const listView = document.getElementById("list-view");
+    const formView = document.getElementById("form-view");
+
+    function mostrarCadastro() {
+        listView.classList.add("view-hidden");
+        formView.classList.remove("view-hidden");
+    }
+
+    function mostrarLista() {
+        formView.classList.add("view-hidden");
+        listView.classList.remove("view-hidden");
+    }
+
+    function Adicionar_client() {
+        mostrarCadastro();
+    }
+
+    function voltarParaLista() {
+        mostrarLista();
+    }
+</script>
+</html>
