@@ -23,3 +23,25 @@ class Client(models.Model):
 
     def __str__(self):
         return self.nome
+
+class Venda(models.Model):
+    PAGAMENTO_CHOICES = [
+        ("dinheiro", "Dinheiro"),
+        ("pix", "PIX"),
+        ("cartao_credito", "Cartão de Crédito"),
+        ("cartao_debito", "Cartão de Débito"),
+    ]
+
+    produto = models.ForeignKey(Produto, on_delete=models.PROTECT, related_name="vendas")
+    cliente = models.ForeignKey(
+        Client, on_delete=models.SET_NULL, null=True, blank=True, related_name="vendas"
+    )
+    observacao = models.CharField(max_length=200, blank=True, default="")
+    quantidade = models.DecimalField(max_digits=10, decimal_places=3)
+    desconto = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    tipo_pagamento = models.CharField(max_length=20, choices=PAGAMENTO_CHOICES)
+    total = models.DecimalField(max_digits=12, decimal_places=2)
+    dt_venda = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.produto.nome} - R${self.total}"

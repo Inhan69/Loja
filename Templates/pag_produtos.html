@@ -555,23 +555,23 @@
             <span>Preço Unitário: <span id="venda-preco-unitario">0.00</span></span>
         </div>
 
-        <form id="form-venda" method="post" action="/registrar-venda/">
+        <form id="form-venda" method="post" action="{% url 'front_end:registrar_venda' %}">
             {% csrf_token %}
-            <input type="hidden" id="venda-produto-id">
+            <input type="hidden" id="venda-produto-id" name="produto_id">
             
             <p>
                 <label>Quantidade de Saída:</label>
-                <input type="number" id="venda-qtd" value="1" min="1" oninput="CalcularVenda()">
+                <input type="number" id="venda-qtd" name="quantidade" value="1" min="1" oninput="CalcularVenda()">
             </p>
             
             <p>
                 <label>Desconto (%):</label>
-                <input type="number" id="venda-desconto" value="0" step="0.01" oninput="CalcularVenda()">
+                <input type="number" id="venda-desconto" name="desconto" value="0" step="0.01" oninput="CalcularVenda()">
             </p>
 
             <p>
                 <label>Tipo de Pagamento:</label>
-                <select>
+                <select name="tipo_pagamento">
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
                     <option value="cartao_credito">Cartão de Crédito</option>
