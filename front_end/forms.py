@@ -63,3 +63,19 @@ class ClientForm(forms.ModelForm):
         if len(telefone) != 11:
             raise forms.ValidationError("Telefone deve conter exatamente 11 dígitos (DDD + número).")
         return telefone
+
+
+class EditClientForm(forms.ModelForm):
+    telefone = forms.CharField(max_length=16)
+
+    class Meta:
+        model = Client
+        fields = ["nome", "telefone", "rua", "bairro", "dt_nascimento", "numero"]
+
+    def clean_telefone(self):
+        telefone = self.cleaned_data.get("telefone", "")
+        telefone = re.sub(r"\D", "", telefone)
+
+        if len(telefone) != 11:
+            raise forms.ValidationError("Telefone deve conter exatamente 11 dígitos (DDD + número).")
+        return telefone

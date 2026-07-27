@@ -2,7 +2,7 @@ from decimal import Decimal, InvalidOperation
 import json
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ProdutoForm, Edit_ProdutoForm, ClientForm
+from .forms import ProdutoForm, Edit_ProdutoForm, ClientForm, EditClientForm
 from .models import Produto, Client, Venda
 from django.http import HttpRequest, JsonResponse
 from django.db.models import IntegerField, Q
@@ -105,6 +105,92 @@ def Cliente(request):
         "total_clientes": clientes.count(),
     }
     return render(request, "pag_clientes.html", contexto)
+
+
+def notas_cliente(request: HttpRequest, id: int):
+    cliente = get_object_or_404(Client, id=id)
+    vendas = (
+        Venda.objects.filter(cliente=cliente)
+        .select_related("produto")
+        .order_by("-dt_venda")
+    )
+
+    return JsonResponse(
+        {
+            "cliente": {
+                "id": cliente.id,
+                "nome": cliente.nome,
+                "cpf": cliente.cpf,
+                "telefone": cliente.telefone,
+                "rua": cliente.rua,
+                "bairro": cliente.bairro,
+                "numero": cliente.numero,
+                "dt_nascimento": cliente.dt_nascimento.strftime("%d/%m/%Y")
+                if cliente.dt_nascimento
+                else "-",
+                "dt_nascimento_input": cliente.dt_nascimento.isoformat()
+                if cliente.dt_nascimento
+                else "",
+            },
+            "vendas": [
+                {
+                    "id": venda.id,
+                    "produto": venda.produto.nome,
+                    "codigo": venda.produto.codigo,
+                    "quantidade": str(venda.quantidade),
+                    "total": str(venda.total),
+                    "desconto": str(venda.desconto),
+                    "tipo_pagamento": venda.get_tipo_pagamento_display(),
+                    "observacao": venda.observacao,
+                    "dt_venda": venda.dt_venda.strftime("%d/%m/%Y %H:%M"),
+                }
+                for venda in vendas
+            ],
+        }
+    )
+
+
+def editar_cliente(request: HttpRequest, id: int):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método não permitido."}, status=405)
+
+    cliente = get_object_or_404(Client, id=id)
+
+    try:
+        dados = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error": "Dados inválidos."}, status=400)
+
+    if not dados.get("dt_nascimento"):
+        dados["dt_nascimento"] = ""
+
+    form = EditClientForm(dados, instance=cliente)
+    if not form.is_valid():
+        erros = {campo: lista[0] for campo, lista in form.errors.items()}
+        return JsonResponse({"success": False, "errors": erros}, status=400)
+
+    cliente = form.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "cliente": {
+                "id": cliente.id,
+                "nome": cliente.nome,
+                "cpf": cliente.cpf,
+                "telefone": cliente.telefone,
+                "rua": cliente.rua,
+                "bairro": cliente.bairro,
+                "numero": cliente.numero,
+                "dt_nascimento": cliente.dt_nascimento.strftime("%d/%m/%Y")
+                if cliente.dt_nascimento
+                else "-",
+                "dt_nascimento_input": cliente.dt_nascimento.isoformat()
+                if cliente.dt_nascimento
+                else "",
+            },
+        }
+    )
 
 def Vendas(request):
     termo_busca = request.GET.get("q", "").strip()

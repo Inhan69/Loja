@@ -1016,6 +1016,7 @@
 
   <script>
     const CARRINHO_STORAGE_KEY = "loja_vendas_carrinho";
+    const CHECKOUT_STORAGE_KEY = "loja_vendas_checkout";
 
     function carregarCarrinhoSalvo() {
       try {
@@ -1026,12 +1027,43 @@
       }
     }
 
+    function carregarCheckoutSalvo() {
+      try {
+        const dados = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
+        return dados ? JSON.parse(dados) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
     function salvarCarrinho() {
       sessionStorage.setItem(CARRINHO_STORAGE_KEY, JSON.stringify(carrinho));
     }
 
+    function salvarCheckout() {
+      sessionStorage.setItem(
+        CHECKOUT_STORAGE_KEY,
+        JSON.stringify({
+          observacao: observacao.value,
+          cliente_id: clienteIdInput.value,
+          tipo_pagamento: document.getElementById("tipo_pagamento").value,
+          desconto: document.getElementById("desconto").value,
+          parcelas: document.getElementById("parcelas").value,
+        })
+      );
+    }
+
     function limparCarrinhoSalvo() {
       sessionStorage.removeItem(CARRINHO_STORAGE_KEY);
+    }
+
+    function limparCheckoutSalvo() {
+      sessionStorage.removeItem(CHECKOUT_STORAGE_KEY);
+    }
+
+    function limparSessaoVendas() {
+      limparCarrinhoSalvo();
+      limparCheckoutSalvo();
     }
 
     function sincronizarEstoqueCarrinho() {
@@ -1081,6 +1113,7 @@
       document.getElementById("cliente-info").textContent = `${cliente.telefone} · CPF ${cliente.cpf}`;
       clienteSelecionado.classList.remove("hidden");
       esconderSugestoesClientes();
+      salvarCheckout();
     }
 
     function limparCliente() {
@@ -1089,6 +1122,7 @@
       clienteBusca.style.display = "block";
       clienteSelecionado.classList.add("hidden");
       esconderSugestoesClientes();
+      salvarCheckout();
     }
 
     function buscarClientes(termo) {
@@ -1140,8 +1174,37 @@
 
     observacao.addEventListener("input", function () {
       ajustarTextarea(this);
+      salvarCheckout();
     });
-    ajustarTextarea(observacao);
+
+    function restaurarCheckout() {
+      const checkoutSalvo = carregarCheckoutSalvo();
+      if (!checkoutSalvo) return false;
+
+      observacao.value = checkoutSalvo.observacao || "";
+      ajustarTextarea(observacao);
+
+      if (checkoutSalvo.tipo_pagamento) {
+        document.getElementById("tipo_pagamento").value = checkoutSalvo.tipo_pagamento;
+      }
+
+      if (checkoutSalvo.desconto != null && checkoutSalvo.desconto !== "") {
+        document.getElementById("desconto").value = checkoutSalvo.desconto;
+      }
+
+      if (checkoutSalvo.parcelas) {
+        document.getElementById("parcelas").value = checkoutSalvo.parcelas;
+      }
+
+      if (checkoutSalvo.cliente_id) {
+        const cliente = clientes.find((c) => String(c.id) === String(checkoutSalvo.cliente_id));
+        if (cliente) {
+          selecionarCliente(cliente);
+        }
+      }
+
+      return true;
+    }
 
     document.querySelector(".produtos-lista").addEventListener("click", function (event) {
       const row = event.target.closest(".produto-linha.clicavel");
@@ -1437,6 +1500,7 @@
       }
 
       calcularTotais();
+      salvarCheckout();
     }
 
     function atualizarTotais(subtotal, descontoValor, total = 0) {
@@ -1445,18 +1509,32 @@
       document.getElementById("total").textContent = formatarMoeda(total);
     }
 
-    document.getElementById("desconto").addEventListener("input", calcularTotais);
+    document.getElementById("desconto").addEventListener("input", function () {
+      calcularTotais();
+      salvarCheckout();
+    });
     document.getElementById("tipo_pagamento").addEventListener("change", atualizarFormaPagamento);
-    document.getElementById("parcelas").addEventListener("change", calcularTotais);
+    document.getElementById("parcelas").addEventListener("change", function () {
+      calcularTotais();
+      salvarCheckout();
+    });
     document.getElementById("btn-ampliar-carrinho").addEventListener("click", abrirModalCarrinho);
     document.getElementById("btn-fechar-modal").addEventListener("click", fecharModalCarrinho);
     document.getElementById("modal-carrinho").addEventListener("click", function (event) {
       if (event.target === this) fecharModalCarrinho();
     });
 
+    const checkoutRestaurado = restaurarCheckout();
     sincronizarEstoqueCarrinho();
     renderizarCarrinho();
-    atualizarFormaPagamento();
+
+    if (!checkoutRestaurado) {
+      ajustarTextarea(observacao);
+      atualizarFormaPagamento();
+    } else {
+      calcularTotais();
+      salvarCheckout();
+    }
 
     document.getElementById("form-checkout").addEventListener("submit", function (event) {
       const itens = Object.values(carrinho).map((item) => ({
@@ -1470,7 +1548,7 @@
       }
 
       document.getElementById("items-input").value = JSON.stringify(itens);
-      limparCarrinhoSalvo();
+      limparSessaoVendas();
     });
   </script>
 </body>
