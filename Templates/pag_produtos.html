@@ -6,6 +6,7 @@
   <title>Document</title>
   <style>
     *{
+      text-align: left;
       font-family: "Segoe UI", Arial;
     }
 
@@ -14,26 +15,25 @@
       padding: 0;
       padding-bottom: 20px;
       overflow: hidden;
-      background: linear-gradient(180deg, #f6f8fd 0%, #eef2fb 100%);
+      background: #f5f7fb;
     }
 
-    .toolbar{
+    .header-container {
       background: white;
-      padding: 0px 25px;
+      padding: 20px;
+      padding-top: 1px;
       border-radius: 8px;
       width: 90%;
-      margin: 15px auto;
+      margin: 20px auto;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
     }
 
     h1{
-      height: 38px;
       color: #2c2c2c;
-      overflow: visible;
+      margin-bottom: 30px;
+      padding: 0 0 15px 0;
+      text-align: left;
+      border-bottom: 2px solid #eee;
     }
     
     h2{
@@ -42,6 +42,104 @@
       font-size: 50px; 
       padding-bottom: 20px; 
       text-align: center;
+    }
+
+    .barra_ferramentas {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      flex-direction: row;
+    }
+
+    .btn-add {
+      background: #2b87ff;
+      color: white;
+      height: 38px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 15px;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn-add span {
+      font-size: 20px;
+      padding-bottom: 5px;
+      margin-left: -10px;
+    }
+
+    .div-search {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .div-search .search-box {
+      position: relative;
+    }
+
+    .div-search input {
+      width: 400px;
+      border: 1px solid #ddd;
+      border-radius: 20px 0 0 20px;
+      padding: 0 10px;
+      outline: none;
+      font-size: 14px;
+      margin-right: -10px;
+      text-align: left;
+      height: 38px;
+      box-sizing: border-box;
+    }
+
+    .div-search input:focus {
+      border-color: #2b87ff;
+    }
+
+    .btn-search {
+      background-color: #455a64;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 0 20px 20px 0;
+      font-weight: bold;
+      white-space: nowrap;
+      cursor: pointer;
+      height: 38px;
+    }
+
+    .div-total {
+      display: flex;
+      align-items: left;
+      height: 38px;
+      border-radius: 4px;
+      overflow: hidden;
+      font-size: 12px;
+      margin-left: auto;
+    }
+
+    .total-text {
+      background-color: #455a64;
+      color: white;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+
+    .total-produtos {
+      background-color: #f1f3f4;
+      color: #0076a8;
+      font-size: large;
+      padding: 0 150px 0 15px;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      border: 1px solid #ddd;
+      border-left: none;
     }
 
     .card{
@@ -159,40 +257,6 @@
       flex-wrap: wrap;
     }
 
-    #btn-adicionar{
-      width: 200px;
-      padding: 8px 10px;
-      border-radius:8px;
-      border: 1px solid #ddd;
-      color: white;
-      background:#2b87ff;
-      margin: auto 0 auto auto;
-      font-size:15px;
-    }
-
-    .search-form{
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-    }
-
-    .search-box{
-      position: relative;
-    }
-
-    .search-form input[type="search"]{
-      width: 280px;
-      max-width: 45vw;
-      height: 38px;
-      border: 1px solid #d7dfef;
-      border-radius: 10px;
-      padding: 0 12px;
-      font-size: 14px;
-      background: #f8faff;
-      outline: none;
-    }
-
     .search-suggestions{
       position: absolute;
       top: calc(100% + 6px);
@@ -201,7 +265,7 @@
       margin: 0;
       padding: 6px;
       list-style: none;
-      border: 1px solid #d7dfef;
+      border: 1px solid #ddd;
       border-radius: 10px;
       background: #ffffff;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -209,6 +273,7 @@
       max-height: 260px;
       overflow-y: auto;
       display: none;
+      text-align: left;
     }
 
     .search-suggestions li{
@@ -217,6 +282,7 @@
       cursor: pointer;
       font-size: 14px;
       color: #2c2c2c;
+      text-align: left;
     }
 
     .search-suggestions li:hover{
@@ -458,29 +524,34 @@
   </style>
 </head>
 <body>
-  <div class="toolbar">
+  <div class="header-container">
     <h1>Produtos</h1>
 
-    <form class="search-form" method="get" action="{% url 'front_end:produtos' %}">
-      <div class="search-box">
-        <input
-          type="search"
-          name="q"
-          value="{{ busca }}"
-          placeholder="Pesquisar por nome ou código"
-          autocomplete="off"
-        >
-        <ul id="search-suggestions" class="search-suggestions"></ul>
-      </div>
-      <button type="submit">Pesquisar</button>
-      {% if busca %}
-        <a class="search-clear" href="{% url 'front_end:produtos' %}">Limpar</a>
-      {% endif %}
-    </form>
+    <div class="barra_ferramentas">
+      <button class="btn-add" type="button" onclick="Adicionar_Produto()">
+        <span>+</span>NOVO PRODUTO
+      </button>
 
-    <button id="btn-adicionar" onclick="Adicionar_Produto()">
-      + Adicionar Produto
-    </button>
+      <form class="div-search" method="get" action="{% url 'front_end:produtos' %}">
+        <div class="search-box">
+          <input
+            id="search-input"
+            type="search"
+            name="q"
+            value="{{ busca }}"
+            placeholder="Pesquisar produtos..."
+            autocomplete="off"
+          >
+          <ul id="search-suggestions" class="search-suggestions"></ul>
+        </div>
+        <button class="btn-search" type="submit">Q PESQUISAR</button>
+      </form>
+
+      <div class="div-total">
+        <span class="total-text">TOTAL</span>
+        <span class="total-produtos">{{ total_produtos }} produto(s)</span>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -659,7 +730,7 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
       document.getElementById('modal-container').style.display = 'none'; 
   }
 
-  const searchForm = document.querySelector('.search-form');
+  const searchForm = document.querySelector('.div-search');
   const searchInput = searchForm ? searchForm.querySelector('input[name="q"]') : null;
   const suggestionsBox = document.getElementById('search-suggestions');
   let searchTimeout = null;

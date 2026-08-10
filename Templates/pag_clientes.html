@@ -274,12 +274,22 @@
             cursor: pointer;
         }
 
+        #notes-view,
+        #notes-view * {
+            text-align: left;
+            box-sizing: border-box;
+        }
+
+        #notes-view table th,
+        #notes-view table td {
+            text-align: center;
+        }
+
         #notes-view {
             height: 100%;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            padding-right: 4px;
         }
 
         #notes-view.view-hidden {
@@ -291,7 +301,6 @@
             overflow-y: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            text-align: left;
         }
 
         #notes-content::-webkit-scrollbar {
@@ -299,156 +308,160 @@
         }
 
         .notes-profile {
-            background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
-            border: 1px solid #e7ebf4;
+            background: linear-gradient(135deg, #2b87ff 0%, #1a6fd4 100%);
             border-radius: 14px;
-            padding: 18px 20px;
+            padding: 20px 22px;
             margin-bottom: 18px;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 8px 24px rgba(43, 135, 255, 0.25);
+            color: #fff;
         }
 
-        .notes-profile-top {
+        .cliente-resumo {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+        }
+
+        .cliente-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.35);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #eef2f8;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .cliente-resumo-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cliente-resumo h3 {
+            margin: 0 0 6px;
+            font-size: 20px;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .resumo-meta {
+            margin: 0 0 4px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .resumo-endereco {
+            margin: 0;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.72);
         }
 
         .notes-profile-actions {
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-end;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .btn-edit-notes {
-            background: white;
-            color: #2b87ff;
-            border: 1px solid #cfe0ff;
-            height: 32px;
+            background: rgba(255, 255, 255, 0.18);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            height: 34px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 12px;
-            padding: 0 14px;
+            font-size: 13px;
+            padding: 0 16px;
             cursor: pointer;
+            backdrop-filter: blur(4px);
         }
 
         .btn-edit-notes:hover {
-            background: #eef4ff;
+            background: rgba(255, 255, 255, 0.28);
         }
 
-        .btn-cancel-notes {
-            background: #f3f4f6;
-            color: #4b5563;
-            border: none;
-            height: 34px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 0 14px;
-            cursor: pointer;
+        #notes-edit-mode {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 14px;
         }
 
-        .notes-info-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+        #notes-edit-mode .field label {
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        .notes-info-item {
-            background: #f8faff;
-            border: 1px solid #e8edf5;
-            border-radius: 8px;
-            padding: 10px 12px;
-            text-align: left;
+        #notes-edit-mode .field input {
+            background: #fff;
         }
 
-        .notes-info-item span {
-            display: block;
-            font-size: 10px;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
-
-        .notes-info-item strong {
-            display: block;
-            font-size: 13px;
-            color: #374151;
-            font-weight: 600;
-            line-height: 1.3;
-            word-break: break-word;
-        }
-
-        .notes-info-item.col-span-2 {
-            grid-column: span 2;
-        }
-
-        .notes-form-grid {
+        .notes-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
-        .notes-field label {
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e7ebf4;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-card .stat-label {
             display: block;
-            font-size: 10px;
-            color: #6b7280;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 4px;
-            text-align: left;
+            letter-spacing: 0.4px;
+            color: #888;
+            margin-bottom: 6px;
         }
 
-        .notes-field input {
-            width: 100%;
-            height: 34px;
-            border: 1px solid #dde3ef;
-            border-radius: 8px;
-            padding: 0 10px;
-            font-size: 13px;
-            outline: none;
-            background: white;
-            text-align: left;
-            transition: 0.2s;
-        }
-
-        .notes-profile-top h3 {
-            margin: 0;
+        .stat-card .stat-value {
             font-size: 20px;
-            color: #1f2937;
-            text-align: left;
-        }
-
-        .notes-profile-top p {
-            margin: 4px 0 0;
-            font-size: 13px;
-            color: #6b7280;
-            text-align: left;
-        }
-
-        .notes-count {
-            background: #eef4ff;
-            color: #2b87ff;
-            border: 1px solid #cfe0ff;
-            border-radius: 999px;
-            padding: 8px 14px;
-            font-size: 12px;
             font-weight: 700;
-            white-space: nowrap;
+            color: #2c2c2c;
         }
 
-        .notes-field.col-span-2 {
-            grid-column: span 2;
+        .stat-card.pendente .stat-value {
+            color: #d97706;
         }
 
-        .notes-field.col-span-3 {
-            grid-column: span 3;
+        .stat-card.pago .stat-value {
+            color: #10b981;
+        }
+
+        .stat-card.total .stat-value {
+            color: #2b87ff;
+        }
+
+        #notes-edit-mode .form-grid {
+            margin-bottom: 0;
+        }
+
+        #notes-edit-mode .field input {
+            width: 100%;
+            max-width: 100%;
+            height: 38px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0 10px;
+            font-size: 14px;
+        }
+
+        #notes-edit-mode .field input:disabled {
+            background: #f3f4f6;
+            color: #666;
+            cursor: not-allowed;
         }
 
         .notes-form-actions {
@@ -457,77 +470,75 @@
             gap: 10px;
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px solid #eef2f8;
+            border-top: 1px solid #eee;
         }
 
         .btn-save-notes {
             background: #10b981;
             color: white;
             border: none;
-            height: 34px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 12px;
-            padding: 0 14px;
+            height: 38px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 0 18px;
             cursor: pointer;
         }
 
-        .notes-field input:focus {
-            border-color: #2b87ff;
-            box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.1);
-        }
-
-        .notes-field input:disabled {
-            background: #f3f4f6;
-            color: #6b7280;
-            cursor: not-allowed;
-            height: 34px;
-        }
-
-        .btn-save-notes:hover {
-            background: #059669;
+        .btn-cancel-notes {
+            background: #455a64;
+            color: white;
+            border: none;
+            height: 38px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 0 18px;
+            cursor: pointer;
         }
 
         .notes-feedback {
             font-size: 13px;
             font-weight: 600;
-            text-align: left;
         }
 
-        .notes-feedback.success {
-            color: #059669;
-        }
+        .notes-feedback.success { color: #059669; }
+        .notes-feedback.error { color: #dc2626; }
 
-        .notes-feedback.error {
-            color: #dc2626;
-        }
+        .notes-profile .notes-feedback.success { color: #bbf7d0; }
+        .notes-profile .notes-feedback.error { color: #fecaca; }
 
         .notes-items-panel {
             background: white;
             border: 1px solid #e7ebf4;
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         }
 
         .notes-section-title {
-            text-align: left;
-            color: #1f2937;
-            font-size: 16px;
+            color: #2c2c2c;
+            font-size: 15px;
             font-weight: 700;
             margin: 0;
-            padding: 16px 18px;
-            background: #fafbff;
-            border-bottom: 1px solid #eef2f8;
+            padding: 16px 20px;
+            background: linear-gradient(to right, #fafbff, #fff);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .notes-table-wrapper {
-            overflow-x: auto;
+        .notes-section-title span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
         }
 
         .notes-table-wrapper table th {
-            font-size: 14px;
+            font-size: 13px;
             padding: 12px 14px;
+            background: #f8faff;
         }
 
         .notes-table-wrapper table td {
@@ -535,8 +546,21 @@
             padding: 12px 14px;
         }
 
+        .notes-table-wrapper tbody tr {
+            transition: background 0.15s ease;
+        }
+
         .notes-table-wrapper tbody tr:hover {
-            background: #f7f9ff;
+            background: #f7faff;
+        }
+
+        .notes-table-wrapper tbody tr.row-devolvido {
+            opacity: 0.55;
+        }
+
+        .notes-table-wrapper tbody tr.row-devolvido td {
+            text-decoration: line-through;
+            text-decoration-color: #bbb;
         }
 
         .badge-pagamento {
@@ -545,8 +569,78 @@
             border-radius: 999px;
             background: #eef4ff;
             color: #2b87ff;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-status.anotado {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-status.pago {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .badge-status.devolvido {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .acoes-venda {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-acao {
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.1s ease, opacity 0.15s ease;
+        }
+
+        .btn-acao:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-acao:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-pagar {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-pagar:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        .btn-devolver {
+            background: #fff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-devolver:hover:not(:disabled) {
+            background: #fef2f2;
         }
 
         .valor-venda {
@@ -554,55 +648,135 @@
             font-weight: 700;
         }
 
-        .notes-loading {
-            padding: 30px;
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h4 {
+            margin: 0 0 4px;
+            font-size: 17px;
+            color: #2c2c2c;
+        }
+
+        .modal-header p {
+            margin: 0;
+            font-size: 13px;
             color: #888;
-            font-style: italic;
+        }
+
+        .modal-body {
+            padding: 16px 20px;
+        }
+
+        .modal-body label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
             text-align: left;
         }
 
-        .observacao-cell {
-            max-width: 220px;
-            white-space: normal;
+        .modal-body select {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
             text-align: left;
-            color: #4b5563;
+            outline: none;
         }
 
-        .empty-notes {
-            padding: 28px 18px;
-            color: #9ca3af;
-            font-style: italic;
+        .modal-body select:focus {
+            border-color: #2b87ff;
+        }
+
+        .modal-valor {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #047857;
+            font-weight: 700;
             text-align: center;
         }
 
-        @media (max-width: 980px) {
-            .notes-form-grid,
-            .notes-info-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .notes-field.col-span-3,
-            .notes-info-item.col-span-2 {
-                grid-column: span 2;
-            }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            padding: 14px 20px 18px;
+            border-top: 1px solid #eee;
         }
 
-        @media (max-width: 620px) {
-            .notes-form-grid,
-            .notes-info-grid {
-                grid-template-columns: 1fr;
-            }
+        .modal-actions button {
+            flex: 1;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
 
-            .notes-field.col-span-2,
-            .notes-field.col-span-3,
-            .notes-info-item.col-span-2 {
-                grid-column: span 1;
-            }
+        .modal-btn-cancel {
+            background: #f3f4f6;
+            color: #455a64;
+        }
 
-            .notes-profile-top {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        .modal-btn-confirm {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .modal-btn-devolver {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .observacao-cell {
+            max-width: 200px;
+            white-space: normal;
+            text-align: left !important;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .notes-loading,
+        .empty-notes {
+            padding: 24px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .empty-notes {
+            text-align: center;
         }
 
         .empty-message {
@@ -864,11 +1038,49 @@
             </div>
         </div>
     </div>
+
+    <div id="modal-pagar" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h4>Confirmar pagamento</h4>
+                <p id="modal-pagar-produto"></p>
+            </div>
+            <div class="modal-body">
+                <label for="modal-tipo-pagamento">Forma de pagamento</label>
+                <select id="modal-tipo-pagamento"></select>
+                <div class="modal-valor" id="modal-pagar-valor"></div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn-cancel" onclick="fecharModalPagar()">Cancelar</button>
+                <button type="button" class="modal-btn-confirm" onclick="confirmarPagamento()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-devolver" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h4>Devolver item</h4>
+                <p id="modal-devolver-produto"></p>
+            </div>
+            <div class="modal-body">
+                <p style="margin:0; font-size:14px; color:#666; text-align:left;">
+                    O produto voltará ao estoque e o item será marcado como devolvido.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn-cancel" onclick="fecharModalDevolver()">Cancelar</button>
+                <button type="button" class="modal-btn-devolver" onclick="confirmarDevolucao()">Devolver</button>
+            </div>
+        </div>
+    </div>
  </body>
 <script>
     const csrfToken = "{{ csrf_token }}";
     let clienteNotasAtual = null;
     let vendasNotasAtual = [];
+    let pagamentosDisponiveis = [];
+    let vendaAcaoAtual = null;
     const listView = document.getElementById("list-view");
     const formView = document.getElementById("form-view");
     const notesView = document.getElementById("notes-view");
@@ -927,45 +1139,100 @@
             }
 
             const data = await response.json();
+            pagamentosDisponiveis = data.pagamentos || [];
             renderizarNotas(data);
         } catch (error) {
             notesContent.innerHTML = '<div class="empty-notes">Não foi possível carregar as notas deste cliente.</div>';
         }
     }
 
-    function renderizarDadosClienteView(cliente) {
+    function iniciaisCliente(nome) {
+        const partes = String(nome || "").trim().split(/\s+/).filter(Boolean);
+        if (!partes.length) return "?";
+        if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+        return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+
+    function calcularStats(vendas) {
+        let pendentes = 0;
+        let totalAberto = 0;
+        let pagos = 0;
+
+        vendas.forEach((venda) => {
+            const total = parseFloat(String(venda.total).replace(",", ".")) || 0;
+            if (venda.status === "anotado") {
+                pendentes += 1;
+                totalAberto += total;
+            } else if (venda.status === "pago") {
+                pagos += 1;
+            }
+        });
+
+        return { pendentes, totalAberto, pagos, total: vendas.length };
+    }
+
+    function renderizarStats(vendas) {
+        const stats = calcularStats(vendas);
         return `
-            <div class="notes-info-grid">
-                <div class="notes-info-item col-span-2">
-                    <span>Nome</span>
-                    <strong id="view-nome">${escapeHtml(cliente.nome)}</strong>
+                <div class="stat-card pendente">
+                    <span class="stat-label">Pendentes</span>
+                    <span class="stat-value">${stats.pendentes}</span>
                 </div>
-                <div class="notes-info-item">
-                    <span>CPF</span>
-                    <strong id="view-cpf">${escapeHtml(cliente.cpf)}</strong>
+                <div class="stat-card total">
+                    <span class="stat-label">Em aberto</span>
+                    <span class="stat-value">${formatarMoeda(stats.totalAberto)}</span>
                 </div>
-                <div class="notes-info-item">
-                    <span>Telefone</span>
-                    <strong id="view-telefone">${escapeHtml(cliente.telefone)}</strong>
+                <div class="stat-card pago">
+                    <span class="stat-label">Pagos</span>
+                    <span class="stat-value">${stats.pagos}</span>
                 </div>
-                <div class="notes-info-item col-span-2">
-                    <span>Rua</span>
-                    <strong id="view-rua">${escapeHtml(cliente.rua)}</strong>
-                </div>
-                <div class="notes-info-item">
-                    <span>Bairro</span>
-                    <strong id="view-bairro">${escapeHtml(cliente.bairro)}</strong>
-                </div>
-                <div class="notes-info-item">
-                    <span>Número</span>
-                    <strong id="view-numero">${escapeHtml(cliente.numero)}</strong>
-                </div>
-                <div class="notes-info-item">
-                    <span>Nascimento</span>
-                    <strong id="view-nascimento">${escapeHtml(cliente.dt_nascimento)}</strong>
-                </div>
-            </div>
         `;
+    }
+
+    function badgeStatus(venda) {
+        const cls = venda.status || "pago";
+        const label = venda.status_label || "Pago";
+        return `<span class="badge-status ${cls}">${escapeHtml(label)}</span>`;
+    }
+
+    function botoesAcao(venda) {
+        if (venda.status === "devolvido") {
+            return '<span style="color:#aaa; font-size:12px;">—</span>';
+        }
+
+        const pagarBtn = venda.status === "anotado"
+            ? `<button type="button" class="btn-acao btn-pagar" onclick="abrirModalPagar(${venda.id})">Pagar</button>`
+            : "";
+
+        const devolverBtn = `<button type="button" class="btn-acao btn-devolver" onclick="abrirModalDevolver(${venda.id})">Devolver</button>`;
+
+        return `<div class="acoes-venda">${pagarBtn}${devolverBtn}</div>`;
+    }
+
+    function atualizarStatsPainel() {
+        const statsEl = document.getElementById("notes-stats-row");
+        if (statsEl) {
+            statsEl.innerHTML = renderizarStats(vendasNotasAtual);
+        }
+    }
+
+    function textoResumoCliente(cliente, totalItens) {
+        return `CPF ${cliente.cpf} · ${cliente.telefone} · ${totalItens} item(ns)`;
+    }
+
+    function textoEnderecoCliente(cliente) {
+        const nasc = cliente.dt_nascimento && cliente.dt_nascimento !== "-"
+            ? ` · Nasc. ${cliente.dt_nascimento}`
+            : "";
+        return `${cliente.rua}, ${cliente.numero} · ${cliente.bairro}${nasc}`;
+    }
+
+    function renderizarResumoCliente(cliente, totalItens) {
+        return escapeHtml(textoResumoCliente(cliente, totalItens));
+    }
+
+    function renderizarEnderecoCliente(cliente) {
+        return escapeHtml(textoEnderecoCliente(cliente));
     }
 
     function preencherFormularioEdicao(cliente) {
@@ -981,9 +1248,7 @@
     function ativarEdicaoNotas() {
         document.getElementById("notes-view-mode").classList.add("view-hidden");
         document.getElementById("notes-edit-mode").classList.remove("view-hidden");
-        document.getElementById("btn-editar-notas").classList.add("view-hidden");
         preencherFormularioEdicao(clienteNotasAtual);
-
         const feedback = document.getElementById("notes-feedback");
         if (feedback) {
             feedback.textContent = "";
@@ -994,8 +1259,6 @@
     function cancelarEdicaoNotas() {
         document.getElementById("notes-edit-mode").classList.add("view-hidden");
         document.getElementById("notes-view-mode").classList.remove("view-hidden");
-        document.getElementById("btn-editar-notas").classList.remove("view-hidden");
-
         const feedback = document.getElementById("notes-feedback");
         if (feedback) {
             feedback.textContent = "";
@@ -1003,16 +1266,132 @@
         }
     }
 
-    function atualizarDadosClienteView(cliente) {
+    function atualizarDadosClienteView(cliente, totalItens) {
         document.getElementById("view-nome").textContent = cliente.nome;
-        document.getElementById("view-telefone").textContent = cliente.telefone;
-        document.getElementById("view-rua").textContent = cliente.rua;
-        document.getElementById("view-bairro").textContent = cliente.bairro;
-        document.getElementById("view-numero").textContent = cliente.numero;
-        document.getElementById("view-nascimento").textContent = cliente.dt_nascimento;
+        document.getElementById("view-meta").textContent = textoResumoCliente(cliente, totalItens);
+        document.getElementById("view-endereco").textContent = textoEnderecoCliente(cliente);
+        const avatar = document.querySelector(".cliente-avatar");
+        if (avatar) avatar.textContent = iniciaisCliente(cliente.nome);
+        notesTitle.textContent = `Notas · ${cliente.nome}`;
+    }
 
-        const titulo = document.querySelector(".notes-profile-top h3");
-        if (titulo) titulo.textContent = cliente.nome;
+    function obterVendaPorId(vendaId) {
+        return vendasNotasAtual.find((v) => v.id === vendaId);
+    }
+
+    function atualizarLinhaVenda(venda) {
+        const idx = vendasNotasAtual.findIndex((v) => v.id === venda.id);
+        if (idx >= 0) {
+            vendasNotasAtual[idx] = { ...vendasNotasAtual[idx], ...venda };
+        }
+
+        const row = document.getElementById(`venda-row-${venda.id}`);
+        const statusEl = document.getElementById(`venda-status-${venda.id}`);
+        const pagamentoEl = document.getElementById(`venda-pagamento-${venda.id}`);
+        const acoesEl = document.getElementById(`venda-acoes-${venda.id}`);
+
+        if (statusEl) statusEl.innerHTML = badgeStatus(venda);
+        if (pagamentoEl) {
+            pagamentoEl.innerHTML = `<span class="badge-pagamento">${escapeHtml(venda.tipo_pagamento_label || venda.tipo_pagamento)}</span>`;
+        }
+        if (acoesEl) acoesEl.innerHTML = botoesAcao(venda);
+        if (row) {
+            row.classList.toggle("row-devolvido", venda.status === "devolvido");
+        }
+
+        atualizarStatsPainel();
+    }
+
+    function abrirModalPagar(vendaId) {
+        const venda = obterVendaPorId(vendaId);
+        if (!venda || venda.status !== "anotado") return;
+
+        vendaAcaoAtual = venda;
+        document.getElementById("modal-pagar-produto").textContent = venda.produto;
+        document.getElementById("modal-pagar-valor").textContent = formatarMoeda(venda.total);
+
+        const select = document.getElementById("modal-tipo-pagamento");
+        select.innerHTML = pagamentosDisponiveis.map(
+            (p) => `<option value="${escapeHtml(p.valor)}">${escapeHtml(p.rotulo)}</option>`
+        ).join("");
+
+        document.getElementById("modal-pagar").classList.remove("hidden");
+    }
+
+    function fecharModalPagar() {
+        vendaAcaoAtual = null;
+        document.getElementById("modal-pagar").classList.add("hidden");
+    }
+
+    async function confirmarPagamento() {
+        if (!vendaAcaoAtual) return;
+
+        const tipoPagamento = document.getElementById("modal-tipo-pagamento").value;
+        const vendaId = vendaAcaoAtual.id;
+
+        try {
+            const response = await fetch(`/vendas/${vendaId}/pagar/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({ tipo_pagamento: tipoPagamento }),
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                alert(data.error || "Não foi possível registrar o pagamento.");
+                return;
+            }
+
+            atualizarLinhaVenda({ ...vendaAcaoAtual, ...data.venda });
+            fecharModalPagar();
+        } catch (error) {
+            alert("Erro ao registrar pagamento.");
+        }
+    }
+
+    function abrirModalDevolver(vendaId) {
+        const venda = obterVendaPorId(vendaId);
+        if (!venda || venda.status === "devolvido") return;
+
+        vendaAcaoAtual = venda;
+        document.getElementById("modal-devolver-produto").textContent = venda.produto;
+        document.getElementById("modal-devolver").classList.remove("hidden");
+    }
+
+    function fecharModalDevolver() {
+        vendaAcaoAtual = null;
+        document.getElementById("modal-devolver").classList.add("hidden");
+    }
+
+    async function confirmarDevolucao() {
+        if (!vendaAcaoAtual) return;
+
+        const vendaId = vendaAcaoAtual.id;
+
+        try {
+            const response = await fetch(`/vendas/${vendaId}/devolver/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({}),
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                alert(data.error || "Não foi possível devolver o item.");
+                return;
+            }
+
+            atualizarLinhaVenda({ ...vendaAcaoAtual, ...data.venda });
+            fecharModalDevolver();
+        } catch (error) {
+            alert("Erro ao devolver o item.");
+        }
     }
 
     function renderizarNotas(data) {
@@ -1025,61 +1404,51 @@
 
         notesContent.innerHTML = `
             <div class="notes-profile">
-                <div class="notes-profile-top">
-                    <div>
-                        <h3>${escapeHtml(cliente.nome)}</h3>
-                        <p>Informações do cliente</p>
+                <div id="notes-view-mode" class="cliente-resumo">
+                    <div class="cliente-avatar">${escapeHtml(iniciaisCliente(cliente.nome))}</div>
+                    <div class="cliente-resumo-body">
+                        <h3 id="view-nome">${escapeHtml(cliente.nome)}</h3>
+                        <p class="resumo-meta" id="view-meta">${renderizarResumoCliente(cliente, vendas.length)}</p>
+                        <p class="resumo-endereco" id="view-endereco">${renderizarEnderecoCliente(cliente)}</p>
                     </div>
                     <div class="notes-profile-actions">
-                        <span class="notes-count">${vendas.length} item(ns)</span>
                         <span id="notes-view-feedback" class="notes-feedback"></span>
-                        <button type="button" id="btn-editar-notas" class="btn-edit-notes" onclick="ativarEdicaoNotas()">Editar</button>
+                        <button type="button" class="btn-edit-notes" onclick="ativarEdicaoNotas()">Editar</button>
                     </div>
-                </div>
-
-                <div id="notes-view-mode">
-                    ${renderizarDadosClienteView(cliente)}
                 </div>
 
                 <div id="notes-edit-mode" class="view-hidden">
                     <form id="notes-client-form" onsubmit="salvarClienteNotas(event)">
-                        <div class="notes-form-grid">
-                            <div class="notes-field col-span-2">
+                        <div class="form-grid">
+                            <div class="field col-span-4">
                                 <label for="notes-nome">Nome</label>
                                 <input id="notes-nome" type="text" required>
                             </div>
-
-                            <div class="notes-field">
+                            <div class="field">
                                 <label for="notes-cpf">CPF</label>
                                 <input id="notes-cpf" type="text" disabled>
                             </div>
-
-                            <div class="notes-field">
+                            <div class="field">
                                 <label for="notes-telefone">Telefone</label>
                                 <input id="notes-telefone" type="text" required>
                             </div>
-
-                            <div class="notes-field col-span-2">
+                            <div class="field col-span-2">
                                 <label for="notes-rua">Rua</label>
                                 <input id="notes-rua" type="text" required>
                             </div>
-
-                            <div class="notes-field">
+                            <div class="field">
                                 <label for="notes-bairro">Bairro</label>
                                 <input id="notes-bairro" type="text" required>
                             </div>
-
-                            <div class="notes-field">
+                            <div class="field">
+                                <label for="notes-nascimento">Data de Nascimento</label>
+                                <input id="notes-nascimento" type="date">
+                            </div>
+                            <div class="field">
                                 <label for="notes-numero">Número</label>
                                 <input id="notes-numero" type="number" min="1" required>
                             </div>
-
-                            <div class="notes-field">
-                                <label for="notes-nascimento">Nascimento</label>
-                                <input id="notes-nascimento" type="date">
-                            </div>
                         </div>
-
                         <div class="notes-form-actions">
                             <button type="submit" class="btn-save-notes">Salvar</button>
                             <button type="button" class="btn-cancel-notes" onclick="cancelarEdicaoNotas()">Cancelar</button>
@@ -1089,8 +1458,13 @@
                 </div>
             </div>
 
+            <div id="notes-stats-row" class="notes-stats">${renderizarStats(vendas)}</div>
+
             <div class="notes-items-panel">
-                <h3 class="notes-section-title">Itens anotados</h3>
+                <h3 class="notes-section-title">
+                    Itens anotados
+                    <span>${vendas.length} registro(s)</span>
+                </h3>
                 ${renderizarTabelaNotas(vendas)}
             </div>
         `;
@@ -1110,22 +1484,27 @@
                             <th>Produto</th>
                             <th>Qtd</th>
                             <th>Total</th>
+                            <th>Status</th>
                             <th>Pagamento</th>
                             <th>Observação</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
         `;
 
         vendas.forEach((venda) => {
+            const rowClass = venda.status === "devolvido" ? "row-devolvido" : "";
             html += `
-                <tr>
+                <tr id="venda-row-${venda.id}" class="${rowClass}" data-venda-id="${venda.id}">
                     <td>${escapeHtml(venda.dt_venda)}</td>
                     <td>${escapeHtml(venda.produto)}</td>
                     <td>${parseFloat(venda.quantidade).toLocaleString("pt-BR", { maximumFractionDigits: 3 })}</td>
                     <td class="valor-venda">${formatarMoeda(venda.total)}</td>
-                    <td><span class="badge-pagamento">${escapeHtml(venda.tipo_pagamento)}</span></td>
+                    <td id="venda-status-${venda.id}">${badgeStatus(venda)}</td>
+                    <td id="venda-pagamento-${venda.id}"><span class="badge-pagamento">${escapeHtml(venda.tipo_pagamento_label || venda.tipo_pagamento)}</span></td>
                     <td class="observacao-cell">${escapeHtml(venda.observacao || "-")}</td>
+                    <td id="venda-acoes-${venda.id}">${botoesAcao(venda)}</td>
                 </tr>
             `;
         });
@@ -1178,8 +1557,7 @@
             }
 
             clienteNotasAtual = data.cliente;
-            notesTitle.textContent = `Notas · ${data.cliente.nome}`;
-            atualizarDadosClienteView(data.cliente);
+            atualizarDadosClienteView(data.cliente, vendasNotasAtual.length);
             cancelarEdicaoNotas();
             atualizarLinhaClienteLista(data.cliente);
 

@@ -30,6 +30,13 @@ class Venda(models.Model):
         ("pix", "PIX"),
         ("cartao_credito", "Cartão de Crédito"),
         ("cartao_debito", "Cartão de Débito"),
+        ("anotado", "Anotado (fiado)"),
+    ]
+
+    STATUS_CHOICES = [
+        ("anotado", "Anotado"),
+        ("pago", "Pago"),
+        ("devolvido", "Devolvido"),
     ]
 
     produto = models.ForeignKey(Produto, on_delete=models.PROTECT, related_name="vendas")
@@ -40,6 +47,7 @@ class Venda(models.Model):
     quantidade = models.DecimalField(max_digits=10, decimal_places=3)
     desconto = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     tipo_pagamento = models.CharField(max_length=20, choices=PAGAMENTO_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pago")
     total = models.DecimalField(max_digits=12, decimal_places=2)
     dt_venda = models.DateTimeField(auto_now_add=True)
 

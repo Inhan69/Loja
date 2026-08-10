@@ -38,6 +38,7 @@ def view_produto(request:HttpRequest):
         "formulario": Edit_ProdutoForm(prefix="edit"), 
         "Estoque": estoque_ordenado,
         "busca": termo_busca,
+        "total_produtos": estoque_ordenado.count(),
     }
     return render(request, "pag_produtos.html", contexto)
 
@@ -140,12 +141,93 @@ def notas_cliente(request: HttpRequest, id: int):
                     "quantidade": str(venda.quantidade),
                     "total": str(venda.total),
                     "desconto": str(venda.desconto),
-                    "tipo_pagamento": venda.get_tipo_pagamento_display(),
+                    "tipo_pagamento": venda.tipo_pagamento,
+                    "tipo_pagamento_label": venda.get_tipo_pagamento_display(),
+                    "status": venda.status,
+                    "status_label": venda.get_status_display(),
                     "observacao": venda.observacao,
                     "dt_venda": venda.dt_venda.strftime("%d/%m/%Y %H:%M"),
                 }
                 for venda in vendas
             ],
+            "pagamentos": [
+                {"valor": valor, "rotulo": rotulo}
+                for valor, rotulo in Venda.PAGAMENTO_CHOICES
+                if valor != "anotado"
+            ],
+        }
+    )
+
+
+def pagar_venda(request: HttpRequest, id: int):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método não permitido."}, status=405)
+
+    venda = get_object_or_404(Venda, id=id)
+
+    if venda.status != "anotado":
+        return JsonResponse(
+            {"success": False, "error": "Somente itens anotados podem ser pagos."},
+            status=400,
+        )
+
+    try:
+        dados = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error": "Dados inválidos."}, status=400)
+
+    tipo_pagamento = dados.get("tipo_pagamento", "dinheiro")
+    if tipo_pagamento not in dict(Venda.PAGAMENTO_CHOICES) or tipo_pagamento == "anotado":
+        return JsonResponse(
+            {"success": False, "error": "Forma de pagamento inválida."},
+            status=400,
+        )
+
+    venda.tipo_pagamento = tipo_pagamento
+    venda.status = "pago"
+    venda.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "venda": {
+                "id": venda.id,
+                "tipo_pagamento": venda.tipo_pagamento,
+                "tipo_pagamento_label": venda.get_tipo_pagamento_display(),
+                "status": venda.status,
+                "status_label": venda.get_status_display(),
+            },
+        }
+    )
+
+
+def devolver_venda(request: HttpRequest, id: int):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método não permitido."}, status=405)
+
+    venda = get_object_or_404(Venda.select_related("produto"), id=id)
+
+    if venda.status == "devolvido":
+        return JsonResponse(
+            {"success": False, "error": "Este item já foi devolvido."},
+            status=400,
+        )
+
+    produto = venda.produto
+    produto.quantidade += venda.quantidade
+    produto.save()
+
+    venda.status = "devolvido"
+    venda.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "venda": {
+                "id": venda.id,
+                "status": venda.status,
+                "status_label": venda.get_status_display(),
+            },
         }
     )
 
@@ -211,7 +293,11 @@ def Vendas(request):
         "produtos": produtos,
         "clientes": clientes,
         "busca": termo_busca,
-        "pagamentos": Venda.PAGAMENTO_CHOICES,
+        "pagamentos": [
+            (valor, rotulo)
+            for valor, rotulo in Venda.PAGAMENTO_CHOICES
+            if valor != "anotado"
+        ],
     }
     return render(request, "pag_vendas.html", contexto)
 
@@ -225,6 +311,8 @@ def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, ob
     produto.quantidade -= quantidade
     produto.save()
 
+    status = "anotado" if tipo_pagamento == "anotado" else "pago"
+
     Venda.objects.create(
         produto=produto,
         cliente=cliente,
@@ -232,6 +320,7 @@ def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, ob
         quantidade=quantidade,
         desconto=desconto,
         tipo_pagamento=tipo_pagamento,
+        status=status,
         total=total,
     )
 
@@ -243,6 +332,11 @@ def registrar_venda(request: HttpRequest):
     tipo_pagamento = request.POST.get("tipo_pagamento", "dinheiro")
     if tipo_pagamento not in dict(Venda.PAGAMENTO_CHOICES):
         tipo_pagamento = "dinheiro"
+
+    if tipo_pagamento == "anotado":
+        cliente_id_check = request.POST.get("cliente_id", "").strip()
+        if not cliente_id_check:
+            return redirect("front_end:vendas")
 
     items_json = request.POST.get("items")
     if items_json:

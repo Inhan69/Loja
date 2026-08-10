@@ -1105,6 +1105,25 @@
       clienteSuggestions.style.display = "none";
     }
 
+    function atualizarOpcaoAnotado() {
+      const select = document.getElementById("tipo_pagamento");
+      const temCliente = Boolean(clienteIdInput.value);
+      const opcaoExistente = select.querySelector('option[value="anotado"]');
+
+      if (temCliente && !opcaoExistente) {
+        const option = document.createElement("option");
+        option.value = "anotado";
+        option.textContent = "Anotado (fiado)";
+        select.appendChild(option);
+      } else if (!temCliente && opcaoExistente) {
+        if (select.value === "anotado") {
+          select.value = "dinheiro";
+          atualizarFormaPagamento();
+        }
+        opcaoExistente.remove();
+      }
+    }
+
     function selecionarCliente(cliente) {
       clienteIdInput.value = cliente.id;
       clienteBusca.value = "";
@@ -1113,6 +1132,7 @@
       document.getElementById("cliente-info").textContent = `${cliente.telefone} · CPF ${cliente.cpf}`;
       clienteSelecionado.classList.remove("hidden");
       esconderSugestoesClientes();
+      atualizarOpcaoAnotado();
       salvarCheckout();
     }
 
@@ -1122,6 +1142,7 @@
       clienteBusca.style.display = "block";
       clienteSelecionado.classList.add("hidden");
       esconderSugestoesClientes();
+      atualizarOpcaoAnotado();
       salvarCheckout();
     }
 
@@ -1495,6 +1516,8 @@
 
       if (pagamento === "dinheiro" || pagamento === "pix") {
         descontoInput.value = 10;
+      } else if (pagamento === "anotado") {
+        descontoInput.value = 0;
       } else {
         descontoInput.value = 0;
       }
