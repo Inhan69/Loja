@@ -1,0 +1,218 @@
+<style>
+/* Filtros compartilhados: produtos, clientes, vendas */
+.barra-busca-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.filtro-grupo {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  background: linear-gradient(180deg, #fff 0%, #f8faff 100%);
+  border: 1px solid #d7dfef;
+  border-radius: 8px;
+  padding: 0 12px 0 14px;
+  box-shadow: 0 1px 4px rgba(43, 135, 255, 0.08);
+}
+
+.filtro-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #455a64;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-right: 8px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.filtro-campo {
+  height: 100%;
+  border: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23455a64' d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E") no-repeat right 2px center;
+  padding: 0 22px 0 2px;
+  font: 600 13px "Segoe UI", Arial;
+  color: #2c2c2c;
+  outline: none;
+  cursor: pointer;
+  min-width: 88px;
+  text-align: center;
+  appearance: none;
+}
+
+.filtro-campo:focus { color: #2b87ff; }
+
+.busca-grupo {
+  display: inline-flex;
+  align-items: stretch;
+  height: 38px;
+  min-width: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.busca-grupo .search-box {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  display: flex;
+}
+
+.barra-busca-filtros .campo-busca {
+  width: min(330px, 42vw);
+  height: 38px;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 20px 0 0 20px;
+  padding: 0 14px;
+  outline: none;
+  font-size: 14px;
+  text-align: left;
+  box-sizing: border-box;
+  margin: 0;
+  background: #fff;
+}
+
+.barra-busca-filtros .campo-busca:focus,
+.busca-grupo-solo .campo-busca:focus { border-color: #2b87ff; }
+
+.barra-busca-filtros .campo-busca:focus { position: relative; z-index: 1; }
+
+.barra-busca-filtros .btn-busca-filtro {
+  background: #455a64;
+  color: #fff;
+  border: none;
+  padding: 0 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  height: 38px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.barra-busca-filtros .btn-busca-filtro:hover { background: #37474f; }
+
+.busca-grupo-solo {
+  flex: 1;
+  box-shadow: none;
+  border-radius: 20px;
+  overflow: visible;
+}
+
+.busca-grupo-solo .campo-busca {
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  width: 100%;
+}
+
+/* Vendas */
+.barra-busca-filtros.compacto .filtro-grupo,
+.barra-busca-filtros.compacto .busca-grupo,
+.barra-busca-filtros.compacto .campo-busca,
+.barra-busca-filtros.compacto .btn-busca-filtro { height: 40px; }
+
+.barra-busca-filtros.compacto .filtro-grupo,
+.barra-busca-filtros.compacto .busca-grupo { border-radius: 10px; }
+
+.filtro-grupo-inline {
+  flex-shrink: 0;
+  border-radius: 8px;
+  height: 38px;
+  padding: 0 10px 0 12px;
+}
+
+.cliente-filtro-row { display: flex; gap: 8px; align-items: center; }
+.cliente-filtro-row .cliente-search-box { flex: 1; min-width: 0; }
+.cliente-filtro-row .cliente-search-box input { width: 100%; }
+
+.search-form .busca-grupo { flex: 1; min-width: 0; }
+.search-form .busca-grupo .campo-busca { min-width: 0; }
+
+/* Clientes – painel de anotações */
+.notes-panel-toolbar.barra-busca-filtros {
+  margin-right: auto;
+  width: 40%;
+  padding: 12px 16px;
+  background: #fafbff;
+  gap: 10px;
+}
+
+.notes-panel-toolbar .filtro-grupo { border-radius: 10px; height: 36px; }
+.notes-panel-toolbar .busca-grupo-solo .campo-busca { height: 36px; border-radius: 10px; }
+</style>
+<script>
+(function (g) {
+  const norm = (t) => String(t ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const digits = (t) => String(t ?? "").replace(/\D/g, "");
+  const field = (el, c) => el ? (el.dataset[c.replace(/-/g, "_")] || el.dataset[c] || el.getAttribute("data-" + c) || "") : "";
+  const match = (el, t, c) => {
+    if (!t) return true;
+    const v = field(el, c), n = norm(t), d = digits(t);
+    return norm(v).includes(n) || (d && digits(v).includes(d));
+  };
+
+  function init(o) {
+    const f = o.formSelector ? document.querySelector(o.formSelector) : null;
+    const i = document.querySelector(o.inputSelector);
+    const s = o.selectSelector ? document.querySelector(o.selectSelector) : null;
+    const c = document.querySelector(o.containerSelector);
+    const te = o.totalSelector ? document.querySelector(o.totalSelector) : null;
+    const ee = o.emptySelector ? document.querySelector(o.emptySelector) : null;
+    const sel = o.itemSelector || "[data-search]";
+    const tb = o.totalBase ?? 0;
+    const sg = o.totalSingular || "item";
+    const pl = o.totalPlural || "itens";
+    if (!i || !c) return;
+
+    const cp = o.campoPadrao || (s && s.options.length ? s.options[0].value : "nome");
+    const lbl = (n) => `${n} ${n === 1 ? sg : pl}`;
+
+    function run() {
+      const t = i.value.trim();
+      const cf = s ? s.value : cp;
+      const items = c.querySelectorAll(sel);
+      let vis = 0;
+      items.forEach((el) => {
+        const ok = match(el, t, cf);
+        el.style.display = ok ? "" : "none";
+        if (ok) vis++;
+      });
+      if (te) te.textContent = t && o.totalFiltrado !== false ? lbl(vis) : lbl(tb || items.length);
+      if (ee) {
+        const empty = vis === 0 && items.length > 0;
+        ee.style.display = empty || (!empty && o.emptySemDados && items.length === 0) ? "block" : "none";
+        if (empty && o.emptyComBusca) {
+          ee.textContent = typeof o.emptyComBusca === "function"
+            ? o.emptyComBusca(t, cf)
+            : o.emptyComBusca.replace("{termo}", t);
+        } else if (!empty && o.emptySemDados && items.length === 0) {
+          ee.textContent = o.emptySemDados;
+        }
+      }
+      o.onFilter && o.onFilter({ visiveis: vis, total: items.length, termo: t, campo: cf });
+    }
+
+    i.addEventListener("input", run);
+    i.addEventListener("search", function () {
+      if (!this.value.trim() && f) {
+        if (o.reloadOnClear) location.href = f.action || location.pathname;
+        else run();
+      }
+    });
+    s && s.addEventListener("change", run);
+    f && f.addEventListener("submit", (e) => {
+      if (o.clientOnly) { e.preventDefault(); run(); return; }
+      if (!i.value.trim()) { e.preventDefault(); location.href = f.action || location.pathname; }
+    });
+    run();
+  }
+
+  g.LojaFiltros = { init, normalizarBusca: norm, somenteDigitos: digits, linhaCorresponde: match, valorCampo: field };
+})(window);
+</script>

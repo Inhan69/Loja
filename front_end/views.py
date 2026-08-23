@@ -7,6 +7,7 @@ from .models import Produto, Client, Venda
 from django.http import HttpRequest, JsonResponse
 from django.db.models import IntegerField, Q
 from django.db.models.functions import Cast
+from .search_filters import CAMPO_PADRAO_CLIENTE, CAMPO_PADRAO_PRODUTO, filtrar_clientes, filtrar_produtos
 
 def Home(request):
     return render(request, 'index.html')
@@ -22,12 +23,10 @@ def view_produto(request:HttpRequest):
             return redirect('front_end:produtos')
 
     termo_busca = request.GET.get("q", "").strip()
+    filtro_campo = request.GET.get("campo", CAMPO_PADRAO_PRODUTO).strip() or CAMPO_PADRAO_PRODUTO
 
     produtos = Produto.objects.all()
-    if termo_busca:
-        produtos = produtos.filter(
-            Q(nome__icontains=termo_busca) | Q(codigo__icontains=termo_busca)
-        )
+    produtos = filtrar_produtos(produtos, filtro_campo, termo_busca)
 
     estoque_ordenado = produtos.annotate(
         codigo_int=Cast('codigo', output_field=IntegerField())
@@ -38,25 +37,10 @@ def view_produto(request:HttpRequest):
         "formulario": Edit_ProdutoForm(prefix="edit"), 
         "Estoque": estoque_ordenado,
         "busca": termo_busca,
+        "filtro_campo": filtro_campo,
         "total_produtos": estoque_ordenado.count(),
     }
     return render(request, "pag_produtos.html", contexto)
-
-def sugestoes_produto(request: HttpRequest):
-    termo_busca = request.GET.get("q", "").strip()
-    if not termo_busca:
-        return JsonResponse({"results": []})
-
-    produtos = (
-        Produto.objects.filter(
-            Q(nome__icontains=termo_busca) | Q(codigo__icontains=termo_busca)
-        )
-        .annotate(codigo_int=Cast("codigo", output_field=IntegerField()))
-        .order_by("codigo_int")[:8]
-    )
-
-    results = [{"nome": produto.nome, "codigo": produto.codigo} for produto in produtos]
-    return JsonResponse({"results": results})
 
 def editar_produto(request:HttpRequest, id):
     produto = get_object_or_404(Produto, id=id) 
@@ -75,6 +59,7 @@ def remover_produto(request:HttpRequest, id):
 
 def Cliente(request):
     termo_busca = request.GET.get("q", "").strip()
+    filtro_campo = request.GET.get("campo", CAMPO_PADRAO_CLIENTE).strip() or CAMPO_PADRAO_CLIENTE
     mostrar_form = request.GET.get("view") == "form"
     form = ClientForm()
 
@@ -86,21 +71,12 @@ def Cliente(request):
         mostrar_form = True
 
     clientes = Client.objects.all().order_by("-dt_criacao")
-    if termo_busca:
-        filtro = (
-            Q(nome__icontains=termo_busca)
-            | Q(cpf__icontains=termo_busca)
-            | Q(telefone__icontains=termo_busca)
-            | Q(rua__icontains=termo_busca)
-            | Q(bairro__icontains=termo_busca)
-        )
-        if termo_busca.isdigit():
-            filtro = filtro | Q(numero=int(termo_busca))
-        clientes = clientes.filter(filtro)
+    clientes = filtrar_clientes(clientes, filtro_campo, termo_busca)
 
     contexto = {
         "clientes": clientes,
         "busca": termo_busca,
+        "filtro_campo": filtro_campo,
         "mostrar_form": mostrar_form,
         "form": form,
         "total_clientes": clientes.count(),
@@ -276,12 +252,10 @@ def editar_cliente(request: HttpRequest, id: int):
 
 def Vendas(request):
     termo_busca = request.GET.get("q", "").strip()
+    filtro_campo = request.GET.get("campo", CAMPO_PADRAO_PRODUTO).strip() or CAMPO_PADRAO_PRODUTO
 
     produtos = Produto.objects.all()
-    if termo_busca:
-        produtos = produtos.filter(
-            Q(nome__icontains=termo_busca) | Q(codigo__icontains=termo_busca)
-        )
+    produtos = filtrar_produtos(produtos, filtro_campo, termo_busca)
 
     produtos = produtos.annotate(
         codigo_int=Cast("codigo", output_field=IntegerField())
@@ -293,6 +267,7 @@ def Vendas(request):
         "produtos": produtos,
         "clientes": clientes,
         "busca": termo_busca,
+        "filtro_campo": filtro_campo,
         "pagamentos": [
             (valor, rotulo)
             for valor, rotulo in Venda.PAGAMENTO_CHOICES

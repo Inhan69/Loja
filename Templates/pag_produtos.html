@@ -4,16 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  {% include 'partials/filtros_busca.html' %}
   <style>
     *{
-      text-align: left;
+      text-align: center;
       font-family: "Segoe UI", Arial;
     }
 
     body{
       margin:0;
-      padding: 0;
-      padding-bottom: 20px;
       overflow: hidden;
       background: #f5f7fb;
     }
@@ -78,39 +77,6 @@
       margin-left: auto;
     }
 
-    .div-search .search-box {
-      position: relative;
-    }
-
-    .div-search input {
-      width: 400px;
-      border: 1px solid #ddd;
-      border-radius: 20px 0 0 20px;
-      padding: 0 10px;
-      outline: none;
-      font-size: 14px;
-      margin-right: -10px;
-      text-align: left;
-      height: 38px;
-      box-sizing: border-box;
-    }
-
-    .div-search input:focus {
-      border-color: #2b87ff;
-    }
-
-    .btn-search {
-      background-color: #455a64;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 0 20px 20px 0;
-      font-weight: bold;
-      white-space: nowrap;
-      cursor: pointer;
-      height: 38px;
-    }
-
     .div-total {
       display: flex;
       align-items: left;
@@ -142,40 +108,38 @@
       border-left: none;
     }
 
-    .card{
-      background:white;
-      padding:0 25px 25px;
-      border-radius:12px;
+    .products-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
       width: 90%;
       margin: 10px auto;
-      box-shadow:0 8px 25px rgba(0,0,0,0.08);
-      height: min(78vh, 820px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      height: calc(70vh - 30px);
       min-height: 320px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-wrapper {
+      flex: 1;
       overflow-y: auto;
-      overflow-x: hidden;
-      border: 1px solid #e7ebf4;
-      position: relative;
-      isolation: isolate;
+      overflow-x: auto;
+      scrollbar-width: none;
+      scrollbar-color: #c4cada transparent;
     }
 
-    .card::-webkit-scrollbar {
+    .table-wrapper::-webkit-scrollbar {
       width: 10px;
+      height: 10px;
     }
 
-    .card::-webkit-scrollbar-button {
-      display: none;
-    }
-
-    .card::-webkit-scrollbar-track {
-      background: transparent;
-      border-radius: 12px;
-    }
-
-    .card::-webkit-scrollbar-thumb {
+    .table-wrapper::-webkit-scrollbar-thumb {
       background: #c4cada;
       border-radius: 12px;
       border: 5px solid transparent;
-      background-clip: padding-box;
+      background-clip: content-box;
     }
 
     table{
@@ -197,35 +161,36 @@
       z-index: 101;
     }
 
-    th{
+    th, td {
+      border-bottom: 1px solid #eee;
+      padding: 15px;
+    }
+
+    th {
       background: #ffffff;
       position: sticky;
       top: 0;
-      z-index: 102;
-      text-align:center;
-      padding:15px;
-      color:#666;
-      font-weight:700;
+      z-index: 101;
+      color: #666;
+      font-weight: 700;
       font-size: 23px;
-      font-family: "Segoe UI", Arial;
-      border-bottom:1px solid #eee;
       box-shadow: 0 2px 0 #eef2fb;
       background-clip: padding-box;
-    }
-
-    tbody td{
-      position: relative;
-      z-index: 1;
-    }
-
-    td{
-      padding:15px;
-      border-bottom:1px solid #eee;
       text-align: center;
     }
 
-    tr:hover{
+    td {
+      color: #2c2c2c;
+      font-size: 15px;
+      text-align: center;
+    }
+
+    tbody tr:hover {
       background:#f7f8fc;
+    }
+
+    tbody tr.produto-row {
+      cursor: pointer;
     }
 
     input[type="submit"] {
@@ -255,93 +220,6 @@
       display: flex;
       gap: 15px;
       flex-wrap: wrap;
-    }
-
-    .search-suggestions{
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-      margin: 0;
-      padding: 6px;
-      list-style: none;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background: #ffffff;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-      z-index: 1000;
-      max-height: 260px;
-      overflow-y: auto;
-      display: none;
-      text-align: left;
-    }
-
-    .search-suggestions li{
-      border-radius: 8px;
-      padding: 8px 10px;
-      cursor: pointer;
-      font-size: 14px;
-      color: #2c2c2c;
-      text-align: left;
-    }
-
-    .search-suggestions li:hover{
-      background: #f2f7ff;
-    }
-
-    .search-suggestions .codigo{
-      color: #6d778f;
-      font-size: 13px;
-      margin-left: 6px;
-    }
-
-    .search-form input[type="search"]:focus{
-      border-color: #2b87ff;
-      box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.15);
-      background: #ffffff;
-    }
-
-    .search-form button{
-      height: 38px;
-      border-radius: 10px;
-      border: 1px solid #d7dfef;
-      padding: 0 14px;
-      cursor: pointer;
-      font-weight: 600;
-      background: #ffffff;
-      color: #2b87ff;
-    }
-
-    .search-form button:hover,
-    .search-form .search-clear:hover{
-      background: #f2f7ff;
-    }
-
-    .search-form .search-clear{
-      height: 38px;
-      border-radius: 10px;
-      border: 1px solid #d7dfef;
-      padding: 0 14px;
-      cursor: pointer;
-      font-weight: 600;
-      background: #ffffff;
-      color: #2b87ff;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-
-    #btn-vender{
-      background: #28a745; 
-      color: white; 
-      border: none; 
-      padding: 5px 10px; 
-      border-radius: 5px; 
-      cursor: pointer; 
-      font-size: 12px; 
-      margin-left: 10px;
     }
 
     #fechar-x {
@@ -426,7 +304,14 @@
       background: #f9f9f9;
       box-sizing: border-box;
       font-size: 15px;
-    }    
+    }
+
+    .empty-message {
+      padding: 18px;
+      color: #666;
+      font-style: italic;
+      text-align: center;
+    }
     
     #modal-container {
       display: none; 
@@ -465,62 +350,6 @@
         align-items: center; 
         justify-content: center;
     }
-
-    #modal-venda{
-      display: none; 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100vw; 
-      height: 100vh; 
-      background: rgba(0, 0, 0, 0.6); 
-      z-index: 9999; 
-      align-items: center; 
-      justify-content: center;
-    }
-
-    #modal-venda select {
-      width: 100%;
-      height: 45px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #f9f9f9;
-      font-size: 15px;
-    }
-
-    #modal-venda input[type="submit"] {
-      width: 100%;
-      height: 45px;
-      background: #28a745;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      margin-top: 20px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    #modal-venda .total-box {
-      background: #2b87ff; 
-      color: white; 
-      padding: 20px; 
-      border-radius: 10px; 
-      text-align: center; 
-      margin-top: 10px;
-    }
-
-    #info-produto-venda{
-      background: #f4f7fe; 
-      padding: 15px; 
-      border-radius: 10px; 
-      margin-bottom: 20px;
-    }
-
-    #info-produto-venda span {
-      font-size: 14px; 
-      color: #666;
-    }
   </style>
 </head>
 <body>
@@ -532,55 +361,65 @@
         <span>+</span>NOVO PRODUTO
       </button>
 
-      <form class="div-search" method="get" action="{% url 'front_end:produtos' %}">
-        <div class="search-box">
-          <input
-            id="search-input"
-            type="search"
-            name="q"
-            value="{{ busca }}"
-            placeholder="Pesquisar produtos..."
-            autocomplete="off"
-          >
-          <ul id="search-suggestions" class="search-suggestions"></ul>
+      <form class="barra-busca-filtros div-search" method="get" action="{% url 'front_end:produtos' %}">
+        <div class="filtro-grupo">
+          <span class="filtro-label">Filtro:</span>
+          <select name="campo" id="search-campo" class="filtro-campo" aria-label="Filtrar por">
+            <option value="nome" {% if filtro_campo == "nome" %}selected{% endif %}>Nome</option>
+            <option value="codigo" {% if filtro_campo == "codigo" %}selected{% endif %}>Código</option>
+            <option value="quantidade" {% if filtro_campo == "quantidade" %}selected{% endif %}>Estoque</option>
+            <option value="preco" {% if filtro_campo == "preco" %}selected{% endif %}>Preço</option>
+          </select>
         </div>
-        <button class="btn-search" type="submit">Q PESQUISAR</button>
+        <div class="busca-grupo">
+          <input id="search-input" name="q" type="search" class="campo-busca" placeholder="Pesquisar..." value="{{ busca }}" autocomplete="off">
+          <button class="btn-busca-filtro" type="submit">Q PESQUISAR</button>
+        </div>
       </form>
 
       <div class="div-total">
         <span class="total-text">TOTAL</span>
-        <span class="total-produtos">{{ total_produtos }} produto(s)</span>
+        <span id="total-produtos" class="total-produtos">{{ total_produtos }} produto(s)</span>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <table>
-      <thead> 
-        <tr>
-          <th>ID</th>
-          <th>Produto</th>
-          <th>Estoque</th>
-          <th>Preço</th>
-          <th>Data</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in Estoque %}   
-          <tr onclick="Abrir_Modal_Editar('{{ item.id }}', '{{ item.nome }}', '{{ item.quantidade }}', '{{ item.preco }}')">
-            <td>{{item.codigo|add:0|stringformat:"04d"}}</td>
-            <td>{{item.nome}}</td>
-            <td>{{item.quantidade|floatformat:"-3" }}</td>
-            <td>R${{item.preco}}</td>
-            <td>{{item.dt_adicao|date:"d M Y H:i"}} 
-              <button id="btn-vender" onclick="event.stopPropagation(); Abrir_Modal_Venda('{{ item.id }}', '{{ item.nome }}', '{{ item.preco }}')">
-                  Vender
-              </button>
-            </td>
+  <div class="products-container">
+    <div class="table-wrapper">
+      <table>
+        <thead> 
+          <tr>
+            <th>ID</th>
+            <th>Produto</th>
+            <th>Estoque</th>
+            <th>Preço</th>
+            <th>Data</th>
           </tr>
-        {% endfor %} 
-      </tbody>
-    </table>
+        </thead>
+        <tbody id="produtos-tbody">
+          {% for item in Estoque %}   
+            <tr
+              class="produto-row"
+              data-search="{{ item.codigo }} {{ item.nome }} {{ item.quantidade }} {{ item.preco }} {{ item.dt_adicao|date:'d/m/Y H:i' }}"
+              data-codigo="{{ item.codigo|add:0|stringformat:'04d' }}"
+              data-nome="{{ item.nome }}"
+              data-quantidade="{{ item.quantidade|floatformat:'-3' }}"
+              data-preco="{{ item.preco }}"
+              onclick="Abrir_Modal_Editar('{{ item.id }}', '{{ item.nome }}', '{{ item.quantidade }}', '{{ item.preco }}')"
+            >
+              <td>{{item.codigo|add:0|stringformat:"04d"}}</td>
+              <td>{{item.nome}}</td>
+              <td>{{item.quantidade|floatformat:"-3" }}</td>
+              <td>R${{item.preco}}</td>
+              <td>{{item.dt_adicao|date:"d M Y H:i"}}</td>
+            </tr>
+          {% endfor %} 
+        </tbody>
+      </table>
+    </div>
+    <div id="empty-produtos" class="empty-message" {% if Estoque %}style="display:none;"{% endif %}>
+      {% if busca %}Nenhum produto encontrado para "{{ busca }}".{% else %}Nenhum produto cadastrado.{% endif %}
+    </div>
   </div>
 
   <div id="modal-container">
@@ -616,50 +455,6 @@
     </div>
   </div>
 
-  <div id="modal-venda">
-    <div class="modal-content">
-        <button id="fechar-x" onclick="Fechar_Modal_Venda()">&times;</button>
-        <h2 style="color: #2b87ff;">Finalizar Venda</h2>
-        
-        <div id="info-produto-venda">
-            <strong id="venda-nome-produto">Produto</strong><br>
-            <span>Preço Unitário: <span id="venda-preco-unitario">0.00</span></span>
-        </div>
-
-        <form id="form-venda" method="post" action="{% url 'front_end:registrar_venda' %}">
-            {% csrf_token %}
-            <input type="hidden" id="venda-produto-id" name="produto_id">
-            
-            <p>
-                <label>Quantidade de Saída:</label>
-                <input type="number" id="venda-qtd" name="quantidade" value="1" min="1" oninput="CalcularVenda()">
-            </p>
-            
-            <p>
-                <label>Desconto (%):</label>
-                <input type="number" id="venda-desconto" name="desconto" value="0" step="0.01" oninput="CalcularVenda()">
-            </p>
-
-            <p>
-                <label>Tipo de Pagamento:</label>
-                <select name="tipo_pagamento">
-                    <option value="dinheiro">Dinheiro</option>
-                    <option value="pix">PIX</option>
-                    <option value="cartao_credito">Cartão de Crédito</option>
-                    <option value="cartao_debito">Cartão de Débito</option>
-                </select>
-            </p>
-
-            <span class="total-box">
-                <span style="font-size: 14px; opacity: 0.9;">TOTAL A PAGAR</span><br>
-                <strong style="font-size: 32px;">R$ <span id="venda-total">0.00</span></strong>
-            </span>
-
-            <input type="submit" value="Confirmar Venda">
-        </form>
-    </div>
-  </div>
-
   
 </body>
 <script>
@@ -687,36 +482,6 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
     document.getElementById('modal-editar').style.display = 'flex';
   }
 
-  let precoBase = 0;
-
-  function Abrir_Modal_Venda(id, nome, preco) {
-      document.getElementById('venda-produto-id').value = id;
-      document.getElementById('venda-nome-produto').innerText = nome;
-      
-      precoBase = parseFloat(preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
-      document.getElementById('venda-preco-unitario').innerText = precoBase.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      
-      document.getElementById('venda-qtd').value = 1;
-      document.getElementById('venda-desconto').value = 0;
-      
-      CalcularVenda();
-      document.getElementById('modal-venda').style.display = 'flex';
-  }
-
-  function CalcularVenda() {
-      const qtd = parseFloat(document.getElementById('venda-qtd').value) || 0;
-      const desconto = parseFloat(document.getElementById('venda-desconto').value) || 0;
-      
-      let total = (precoBase  - (desconto * precoBase / 100) ) * qtd;
-      if (total < 0) total = 0;
-
-      document.getElementById('venda-total').innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-  }
-
-  function Fechar_Modal_Venda() {
-      document.getElementById('modal-venda').style.display = 'none';
-  }
-
   function Fechar_Modal_Editar() {
       document.getElementById('modal-editar').style.display = 'none';
   }
@@ -730,91 +495,28 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
       document.getElementById('modal-container').style.display = 'none'; 
   }
 
-  const searchForm = document.querySelector('.div-search');
-  const searchInput = searchForm ? searchForm.querySelector('input[name="q"]') : null;
-  const suggestionsBox = document.getElementById('search-suggestions');
-  let searchTimeout = null;
+  const totalProdutosBase = {{ total_produtos|default:0 }};
 
-  function voltarParaListaInicial() {
-      if (!searchForm) return;
-      window.location.href = searchForm.action;
-  }
-
-  function esconderSugestoes() {
-      if (!suggestionsBox) return;
-      suggestionsBox.innerHTML = '';
-      suggestionsBox.style.display = 'none';
-  }
-
-  function renderizarSugestoes(itens) {
-      if (!suggestionsBox || !searchInput) return;
-      if (!itens.length) {
-          esconderSugestoes();
-          return;
-      }
-
-      suggestionsBox.innerHTML = itens
-          .map((item) => `<li data-value="${item.nome}">${item.nome}<span class="codigo">#${item.codigo}</span></li>`)
-          .join('');
-      suggestionsBox.style.display = 'block';
-  }
-
-  if (searchInput && suggestionsBox) {
-      searchInput.addEventListener('input', function () {
-          const termo = this.value.trim();
-          clearTimeout(searchTimeout);
-
-          if (!termo) {
-              esconderSugestoes();
-              voltarParaListaInicial();
-              return;
-          }
-
-          searchTimeout = setTimeout(async () => {
-              try {
-                  const response = await fetch(`/produtos/sugestoes/?q=${encodeURIComponent(termo)}`);
-                  if (!response.ok) {
-                      esconderSugestoes();
-                      return;
-                  }
-
-                  const data = await response.json();
-                  renderizarSugestoes(data.results || []);
-              } catch (error) {
-                  esconderSugestoes();
-              }
-          }, 220);
-      });
-
-      searchInput.addEventListener('search', function () {
-          if (!this.value.trim()) {
-              esconderSugestoes();
-              voltarParaListaInicial();
-          }
-      });
-
-      suggestionsBox.addEventListener('click', function (event) {
-          const item = event.target.closest('li[data-value]');
-          if (!item || !searchInput || !searchForm) return;
-          searchInput.value = item.dataset.value;
-          esconderSugestoes();
-          searchForm.submit();
-      });
-
-      document.addEventListener('click', function (event) {
-          if (!searchForm.contains(event.target)) {
-              esconderSugestoes();
-          }
-      });
-  }
+  LojaFiltros.init({
+    formSelector: '.div-search',
+    inputSelector: '#search-input',
+    selectSelector: '#search-campo',
+    containerSelector: '#produtos-tbody',
+    itemSelector: '.produto-row',
+    totalSelector: '#total-produtos',
+    emptySelector: '#empty-produtos',
+    totalBase: totalProdutosBase,
+    totalSingular: 'produto',
+    totalPlural: 'produtos',
+    emptyComBusca: 'Nenhum produto encontrado para "{termo}".',
+    reloadOnClear: true,
+  });
 
   window.onclick = function(event) {
       const modalAdd = document.getElementById('modal-container');
       const modalEdit = document.getElementById('modal-editar');
-      const modalVenda = document.getElementById('modal-venda');
       if (event.target == modalAdd) Fechar_Modal();
       if (event.target == modalEdit) Fechar_Modal_Editar();
-      if (event.target == modalVenda) Fechar_Modal_Venda();
   }
 </script>
 </html>

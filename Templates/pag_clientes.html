@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    {% include 'partials/filtros_busca.html' %}
     <style>
         *{
             text-align: center;
@@ -514,6 +515,9 @@
             border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            max-height: min(42vh, 420px);
         }
 
         .notes-section-title {
@@ -521,12 +525,24 @@
             font-size: 15px;
             font-weight: 700;
             margin: 0;
-            padding: 16px 20px;
-            background: linear-gradient(to right, #fafbff, #fff);
+            padding: 14px 18px 10px;
             border-bottom: 1px solid #eee;
+            background: linear-gradient(to right, #fafbff, #fff);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .notes-section-title .filtro-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #455a64;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-right: 8px;
+            white-space: nowrap;
+            user-select: none;
         }
 
         .notes-section-title span {
@@ -535,10 +551,45 @@
             color: #888;
         }
 
+        .notes-panel-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 18px 14px;
+            background: linear-gradient(to right, #fafbff, #fff);
+            flex-shrink: 0;
+        }
+
+        .notes-search-input {
+            flex: 1;
+        }
+
+        .notes-table-wrapper {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #c4cada transparent;
+        }
+
+        .notes-table-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .notes-table-wrapper::-webkit-scrollbar-thumb {
+            background: #c4cada;
+            border-radius: 12px;
+        }
+
         .notes-table-wrapper table th {
             font-size: 13px;
             padding: 12px 14px;
             background: #f8faff;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
 
         .notes-table-wrapper table td {
@@ -763,7 +814,7 @@
         .observacao-cell {
             max-width: 200px;
             white-space: normal;
-            text-align: left !important;
+            text-align: center !important;
             color: #555;
             font-size: 13px;
         }
@@ -853,27 +904,6 @@
             margin-left: auto;
         }
 
-        .div-search input {
-            width: 400px;
-            border: 1px solid #ddd;
-            border-radius: 20px 0 0 20px;
-            padding: 0 10px;
-            outline: none;
-            font-size: 14px;
-            margin-right: -10px;
-            text-align: left;
-        }
-
-        .btn-search {
-            background-color: #455a64;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 0 20px 20px 0;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
         .div-total {
             display: flex;
             align-items: left;
@@ -908,16 +938,29 @@
 </head>
 <body>
     <div class="header-container">
-        <h1>Clientes</h1>
+        <h1>Clientes</h1>       
         
         <div class="barra_ferramentas">
             <button class="btn-add" onclick="Adicionar_client()">
                 <span>+</span>NOVO CLIENTE
             </button>
 
-            <form class="div-search" method="get">
-                <input id="search-input" name="q" type="search" placeholder="Pesquisar clientes..." value="{{ busca }}">
-                <button class="btn-search" type="submit">Q PESQUISAR</button>
+            <form class="barra-busca-filtros div-search" method="get" action="{% url 'front_end:clientes' %}">
+                <div class="filtro-grupo">
+                    <span class="filtro-label">Filtro:</span>
+                    <select name="campo" id="search-campo" class="filtro-campo" aria-label="Filtrar por">
+                        <option value="nome" {% if filtro_campo == "nome" %}selected{% endif %}>Nome</option>
+                        <option value="cpf" {% if filtro_campo == "cpf" %}selected{% endif %}>CPF</option>
+                        <option value="telefone" {% if filtro_campo == "telefone" %}selected{% endif %}>Telefone</option>
+                        <option value="bairro" {% if filtro_campo == "bairro" %}selected{% endif %}>Bairro</option>
+                        <option value="rua" {% if filtro_campo == "rua" %}selected{% endif %}>Rua</option>
+                        <option value="numero" {% if filtro_campo == "numero" %}selected{% endif %}>Número</option>
+                    </select>
+                </div>
+                <div class="busca-grupo">
+                    <input id="search-input" name="q" type="search" class="campo-busca" placeholder="Pesquisar..." value="{{ busca }}" autocomplete="off">
+                    <button class="btn-busca-filtro" type="submit">Q PESQUISAR</button>
+                </div>
             </form>
 
             <div class="div-total"> 
@@ -944,7 +987,18 @@
                     </thead>
                     <tbody id="clientes-tbody">
                         {% for cliente in clientes %}
-                        <tr class="cliente-row" data-cliente-id="{{ cliente.id }}" onclick="abrirNotasCliente({{ cliente.id }})">
+                        <tr
+                            class="cliente-row"
+                            data-cliente-id="{{ cliente.id }}"
+                            data-search="{{ cliente.nome }} {{ cliente.cpf }} {{ cliente.telefone }} {{ cliente.bairro }} {{ cliente.rua }} {{ cliente.numero }}"
+                            data-nome="{{ cliente.nome }}"
+                            data-cpf="{{ cliente.cpf }}"
+                            data-telefone="{{ cliente.telefone }}"
+                            data-bairro="{{ cliente.bairro }}"
+                            data-rua="{{ cliente.rua }}"
+                            data-numero="{{ cliente.numero }}"
+                            onclick="abrirNotasCliente({{ cliente.id }})"
+                        >
                             <td>{{ cliente.nome }}</td>
                             <td>{{ cliente.cpf }}</td>
                             <td>{{ cliente.telefone }}</td>
@@ -957,9 +1011,9 @@
                     </tbody>
                 </table>
             </div>
-            {% if not clientes %}
-            <div id="empty-message" class="empty-message">Nenhum cliente cadastrado.</div>
-            {% endif %}
+            <div id="empty-message" class="empty-message" {% if clientes %}style="display:none;"{% endif %}>
+                {% if busca %}Nenhum cliente encontrado para "{{ busca }}".{% else %}Nenhum cliente cadastrado.{% endif %}
+            </div>
         </div>
 
         <div id="form-view" class="{% if not mostrar_form %}view-hidden{% endif %}">
@@ -1297,9 +1351,19 @@
         if (acoesEl) acoesEl.innerHTML = botoesAcao(venda);
         if (row) {
             row.classList.toggle("row-devolvido", venda.status === "devolvido");
+            const busca = dadosBuscaVenda({ ...obterVendaPorId(venda.id), ...venda });
+            row.dataset.search = busca.search;
+            row.dataset.produto = busca.produto;
+            row.dataset.quantidade = busca.quantidade;
+            row.dataset.total = busca.total;
+            row.dataset.status = busca.status;
+            row.dataset.pagamento = busca.pagamento;
+            row.dataset.observacao = busca.observacao;
+            row.dataset.data = busca.data;
         }
 
         atualizarStatsPainel();
+        filtrarItensAnotados();
     }
 
     function abrirModalPagar(vendaId) {
@@ -1463,11 +1527,113 @@
             <div class="notes-items-panel">
                 <h3 class="notes-section-title">
                     Itens anotados
-                    <span>${vendas.length} registro(s)</span>
+                            <div class="notes-panel-toolbar barra-busca-filtros">
+                            <div class="filtro-grupo">
+                                <span class="filtro-label">Filtro:</span>
+                                <select id="notes-itens-campo" class="filtro-campo" aria-label="Filtrar itens por">
+                                    <option value="produto">Produto</option>
+                                    <option value="quantidade">Quantidade</option>
+                                    <option value="total">Total</option>
+                                    <option value="status">Status</option>
+                                    <option value="pagamento">Pagamento</option>
+                                    <option value="observacao">Observação</option>
+                                    <option value="data">Data</option>
+                                </select>
+                            </div>
+                            <div class="busca-grupo busca-grupo-solo">
+                                <input
+                                    type="search"
+                                    id="notes-itens-busca"
+                                    class="campo-busca notes-search-input"
+                                    placeholder="Pesquisar..."
+                                    autocomplete="off"
+                                >
+                            </div>
+                            </div>
+                    <span id="notes-itens-count">${vendas.length} registro(s)</span>
                 </h3>
-                ${renderizarTabelaNotas(vendas)}
+                
+                <div id="notes-itens-container">
+                    ${renderizarTabelaNotas(vendas)}
+                </div>
             </div>
         `;
+
+        const buscaItens = document.getElementById("notes-itens-busca");
+        const campoItens = document.getElementById("notes-itens-campo");
+        if (buscaItens) {
+            buscaItens.addEventListener("input", filtrarItensAnotados);
+            buscaItens.addEventListener("search", function () {
+                if (!this.value.trim()) filtrarItensAnotados();
+            });
+        }
+        if (campoItens) {
+            campoItens.addEventListener("change", filtrarItensAnotados);
+        }
+    }
+
+    function dadosBuscaVenda(venda) {
+        return {
+            search: textoBuscaVenda(venda),
+            produto: venda.produto,
+            quantidade: venda.quantidade,
+            total: venda.total,
+            status: `${venda.status} ${venda.status_label}`,
+            pagamento: `${venda.tipo_pagamento} ${venda.tipo_pagamento_label}`,
+            observacao: venda.observacao || "",
+            data: venda.dt_venda,
+        };
+    }
+
+    function textoBuscaVenda(venda) {
+        return [
+            venda.produto,
+            venda.observacao,
+            venda.status,
+            venda.status_label,
+            venda.tipo_pagamento,
+            venda.tipo_pagamento_label,
+            venda.dt_venda,
+            venda.total,
+        ].join(" ");
+    }
+
+    function normalizarBusca(texto) {
+        return LojaFiltros.normalizarBusca(texto);
+    }
+
+    function somenteDigitos(texto) {
+        return LojaFiltros.somenteDigitos(texto);
+    }
+
+    function filtrarItensAnotados() {
+        const input = document.getElementById("notes-itens-busca");
+        const select = document.getElementById("notes-itens-campo");
+        const tbody = document.getElementById("notes-itens-tbody");
+        const emptyEl = document.getElementById("notes-itens-empty");
+        const countEl = document.getElementById("notes-itens-count");
+        if (!input || !tbody) return;
+
+        const termo = input.value.trim();
+        const campo = select ? select.value : "produto";
+        const linhas = tbody.querySelectorAll("tr[data-venda-id]");
+        let visiveis = 0;
+
+        linhas.forEach((linha) => {
+            const match = LojaFiltros.linhaCorresponde(linha, termo, campo);
+            linha.style.display = match ? "" : "none";
+            if (match) visiveis += 1;
+        });
+
+        if (countEl) {
+            countEl.textContent = termo
+                ? `${visiveis} de ${linhas.length} registro(s)`
+                : `${linhas.length} registro(s)`;
+        }
+
+        if (emptyEl) {
+            emptyEl.style.display = visiveis === 0 && linhas.length > 0 ? "block" : "none";
+        }
     }
 
     function renderizarTabelaNotas(vendas) {
@@ -1490,13 +1656,22 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="notes-itens-tbody">
         `;
 
         vendas.forEach((venda) => {
             const rowClass = venda.status === "devolvido" ? "row-devolvido" : "";
+            const busca = dadosBuscaVenda(venda);
             html += `
-                <tr id="venda-row-${venda.id}" class="${rowClass}" data-venda-id="${venda.id}">
+                <tr id="venda-row-${venda.id}" class="${rowClass}" data-venda-id="${venda.id}"
+                    data-search="${escapeHtml(busca.search)}"
+                    data-produto="${escapeHtml(busca.produto)}"
+                    data-quantidade="${escapeHtml(busca.quantidade)}"
+                    data-total="${escapeHtml(busca.total)}"
+                    data-status="${escapeHtml(busca.status)}"
+                    data-pagamento="${escapeHtml(busca.pagamento)}"
+                    data-observacao="${escapeHtml(busca.observacao)}"
+                    data-data="${escapeHtml(busca.data)}">
                     <td>${escapeHtml(venda.dt_venda)}</td>
                     <td>${escapeHtml(venda.produto)}</td>
                     <td>${parseFloat(venda.quantidade).toLocaleString("pt-BR", { maximumFractionDigits: 3 })}</td>
@@ -1512,6 +1687,7 @@
         html += `
                     </tbody>
                 </table>
+                <div id="notes-itens-empty" class="empty-notes" style="display:none;">Nenhum item encontrado para esta busca.</div>
             </div>
         `;
 
@@ -1590,6 +1766,38 @@
         celulas[4].textContent = cliente.rua;
         celulas[5].textContent = cliente.numero;
         celulas[6].textContent = cliente.dt_nascimento;
+
+        linha.dataset.search = [
+            cliente.nome,
+            cliente.cpf,
+            cliente.telefone,
+            cliente.bairro,
+            cliente.rua,
+            cliente.numero,
+        ].join(" ");
+        linha.dataset.nome = cliente.nome;
+        linha.dataset.cpf = cliente.cpf;
+        linha.dataset.telefone = cliente.telefone;
+        linha.dataset.bairro = cliente.bairro;
+        linha.dataset.rua = cliente.rua;
+        linha.dataset.numero = cliente.numero;
     }
+
+    const totalClientesBase = {{ total_clientes|default:0 }};
+
+    LojaFiltros.init({
+        formSelector: ".div-search",
+        inputSelector: "#search-input",
+        selectSelector: "#search-campo",
+        containerSelector: "#clientes-tbody",
+        itemSelector: ".cliente-row",
+        totalSelector: "#total-clientes",
+        emptySelector: "#empty-message",
+        totalBase: totalClientesBase,
+        totalSingular: "cliente",
+        totalPlural: "clientes",
+        emptyComBusca: 'Nenhum cliente encontrado para "{termo}".',
+        reloadOnClear: true,
+    });
 </script>
 </html>
