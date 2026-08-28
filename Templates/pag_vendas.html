@@ -359,7 +359,7 @@
       letter-spacing: 0.3px;
     }
 
-    .field select,
+    .field select:not(.filtro-campo),
     .field input[type="number"],
     .field input[type="search"],
     .field textarea {
@@ -446,7 +446,7 @@
 
     .btn-limpar-cliente { background: white; color: #dc2626; font-size: 12px; padding: 6px 10px; flex-shrink: 0; }
 
-    .field select:focus,
+    .field select:not(.filtro-campo):focus,
     .field input:focus,
     .field textarea:focus {
       border-color: #2b87ff;
@@ -502,10 +502,9 @@
     }
 
     .info-parcelas strong {
-      display: block;
       font-size: 16px;
       color: #1d4ed8;
-      margin-top: 4px;
+      margin: 4px;
     }
 
     .btn-ampliar-carrinho {

@@ -181,7 +181,7 @@ def devolver_venda(request: HttpRequest, id: int):
     if request.method != "POST":
         return JsonResponse({"error": "Método não permitido."}, status=405)
 
-    venda = get_object_or_404(Venda.select_related("produto"), id=id)
+    venda = get_object_or_404(Venda.objects.select_related("produto"), id=id)
 
     if venda.status == "devolvido":
         return JsonResponse(
@@ -370,5 +370,3 @@ def registrar_venda(request: HttpRequest):
 
 def Configuracoes(request):
     return render(request, "pag_configuracoes.html")
-
-

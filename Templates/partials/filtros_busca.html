@@ -1,5 +1,10 @@
 <style>
 /* Filtros compartilhados: produtos, clientes, vendas */
+:root{
+    --panel-color: white;
+    --text-color: #2c2c2c;
+}
+
 .barra-busca-filtros {
   display: flex;
   align-items: center;
@@ -44,7 +49,7 @@
   appearance: none;
 }
 
-.filtro-campo:focus { color: #2b87ff; }
+.filtro-campo:open { color: #2b87ff; }
 
 .busca-grupo {
   display: inline-flex;

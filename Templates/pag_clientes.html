@@ -18,7 +18,7 @@
         }
 
         .header-container {
-            background: white;
+            background: var(--panel-color);
             padding: 20px;
             padding-top: 1px;
             border-radius: 8px;
@@ -28,7 +28,7 @@
         }
 
         h1 {
-            color: #2c2c2c;
+            color: var(--text-color);
             margin-bottom: 30px;
             padding: 0 0 15px 0;
             text-align: left; 
@@ -37,7 +37,7 @@
 
 
         .clients-container {
-            background: white;
+            background: var(--panel-color);
             padding: 20px;
             border-radius: 8px;
             width: 90%;
@@ -188,6 +188,8 @@
             overflow-y: auto;
             overflow-x: auto;
             scrollbar-width: thin;
+            background-color: white;
+            border-radius: 0 0 9px 9px;
             scrollbar-color: #c4cada transparent;
         }
 
@@ -251,11 +253,11 @@
         }
 
         th {
-            background: #ffffff;
+            background: var(--panel-color);
             position: sticky;
             top: 0;
             z-index: 101;
-            color: #666;
+            color: var(--text-color);
             font-weight: 700;
             font-size: 23px;
             box-shadow: 0 2px 0 #eef2fb;
@@ -1167,10 +1169,19 @@
         mostrarLista();
     }
 
+    function parseNumero(valor) {
+        if (valor == null || valor === "") return 0;
+        if (typeof valor === "number") return Number.isFinite(valor) ? valor : 0;
+        let texto = String(valor).trim();
+        if (!texto) return 0;
+        if (texto.includes(",") && texto.includes(".")) texto = texto.replace(/\./g, "").replace(",", ".");
+        else if (texto.includes(",")) texto = texto.replace(",", ".");
+        const numero = parseFloat(texto);
+        return Number.isFinite(numero) ? numero : 0;
+    }
+
     function formatarMoeda(valor) {
-        const numero = parseFloat(String(valor).replace(",", "."));
-        if (Number.isNaN(numero)) return valor;
-        return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        return parseNumero(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
     function escapeHtml(texto) {
@@ -1213,7 +1224,7 @@
         let pagos = 0;
 
         vendas.forEach((venda) => {
-            const total = parseFloat(String(venda.total).replace(",", ".")) || 0;
+            const total = parseNumero(venda.total);
             if (venda.status === "anotado") {
                 pendentes += 1;
                 totalAberto += total;
@@ -1225,20 +1236,34 @@
         return { pendentes, totalAberto, pagos, total: vendas.length };
     }
 
+    function vendasParaStats() {
+        const tbody = document.getElementById("notes-itens-tbody");
+        if (!tbody) return vendasNotasAtual;
+
+        const visiveis = new Set(
+            [...tbody.querySelectorAll("tr[data-venda-id]")]
+                .filter((linha) => linha.style.display !== "none")
+                .map((linha) => String(linha.dataset.vendaId))
+        );
+
+        if (!tbody.querySelector("tr[data-venda-id]")) return vendasNotasAtual;
+        return vendasNotasAtual.filter((venda) => visiveis.has(String(venda.id)));
+    }
+
     function renderizarStats(vendas) {
         const stats = calcularStats(vendas);
         return `
                 <div class="stat-card pendente">
                     <span class="stat-label">Pendentes</span>
-                    <span class="stat-value">${stats.pendentes}</span>
+                    <span class="stat-value" id="stat-pendentes">${stats.pendentes}</span>
                 </div>
                 <div class="stat-card total">
                     <span class="stat-label">Em aberto</span>
-                    <span class="stat-value">${formatarMoeda(stats.totalAberto)}</span>
+                    <span class="stat-value" id="stat-em-aberto">${formatarMoeda(stats.totalAberto)}</span>
                 </div>
                 <div class="stat-card pago">
                     <span class="stat-label">Pagos</span>
-                    <span class="stat-value">${stats.pagos}</span>
+                    <span class="stat-value" id="stat-pagos">${stats.pagos}</span>
                 </div>
         `;
     }
@@ -1265,9 +1290,23 @@
 
     function atualizarStatsPainel() {
         const statsEl = document.getElementById("notes-stats-row");
-        if (statsEl) {
-            statsEl.innerHTML = renderizarStats(vendasNotasAtual);
+        if (!statsEl) return;
+
+        const stats = calcularStats(vendasParaStats());
+        const pendentesEl = document.getElementById("stat-pendentes");
+        const abertoEl = document.getElementById("stat-em-aberto");
+        const pagosEl = document.getElementById("stat-pagos");
+
+        if (pendentesEl && abertoEl && pagosEl) {
+            pendentesEl.textContent = stats.pendentes;
+            abertoEl.textContent = formatarMoeda(stats.totalAberto);
+            pagosEl.textContent = stats.pagos;
+            return;
         }
+
+        statsEl.innerHTML = renderizarStats(
+            tbodyExists ? vendasParaStats() : vendasNotasAtual
+        );
     }
 
     function textoResumoCliente(cliente, totalItens) {
@@ -1330,13 +1369,15 @@
     }
 
     function obterVendaPorId(vendaId) {
-        return vendasNotasAtual.find((v) => v.id === vendaId);
+        return vendasNotasAtual.find((v) => String(v.id) === String(vendaId));
     }
 
     function atualizarLinhaVenda(venda) {
-        const idx = vendasNotasAtual.findIndex((v) => v.id === venda.id);
+        const idx = vendasNotasAtual.findIndex((v) => String(v.id) === String(venda.id));
         if (idx >= 0) {
             vendasNotasAtual[idx] = { ...vendasNotasAtual[idx], ...venda };
+        } else {
+            vendasNotasAtual.push(venda);
         }
 
         const row = document.getElementById(`venda-row-${venda.id}`);
@@ -1634,6 +1675,8 @@
         if (emptyEl) {
             emptyEl.style.display = visiveis === 0 && linhas.length > 0 ? "block" : "none";
         }
+
+        atualizarStatsPainel();
     }
 
     function renderizarTabelaNotas(vendas) {
