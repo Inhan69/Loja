@@ -264,7 +264,7 @@ def Vendas(request):
     clientes = Client.objects.all().order_by("nome")
 
     contexto = {
-        "produtos": produtos,
+        "produtos": produtos,   
         "clientes": clientes,
         "busca": termo_busca,
         "filtro_campo": filtro_campo,
@@ -305,13 +305,12 @@ def registrar_venda(request: HttpRequest):
         return redirect("front_end:vendas")
 
     tipo_pagamento = request.POST.get("tipo_pagamento", "dinheiro")
-    if tipo_pagamento not in dict(Venda.PAGAMENTO_CHOICES):
-        tipo_pagamento = "dinheiro"
+    cliente_id = request.POST.get("cliente_id", "").strip()
 
-    if tipo_pagamento == "anotado":
-        cliente_id_check = request.POST.get("cliente_id", "").strip()
-        if not cliente_id_check:
-            return redirect("front_end:vendas")
+    if cliente_id:
+        tipo_pagamento = "anotado"
+    elif tipo_pagamento not in dict(Venda.PAGAMENTO_CHOICES) or tipo_pagamento == "anotado":
+        tipo_pagamento = "dinheiro"
 
     items_json = request.POST.get("items")
     if items_json:
@@ -326,9 +325,10 @@ def registrar_venda(request: HttpRequest):
             desconto_geral = Decimal("0")
 
         cliente = None
-        cliente_id = request.POST.get("cliente_id", "").strip()
         if cliente_id:
             cliente = Client.objects.filter(id=cliente_id).first()
+            if not cliente:
+                return redirect("front_end:vendas")
 
         observacao = request.POST.get("observacao", "").strip()[:200]
 

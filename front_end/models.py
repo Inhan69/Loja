@@ -30,7 +30,7 @@ class Venda(models.Model):
         ("pix", "PIX"),
         ("cartao_credito", "Cartão de Crédito"),
         ("cartao_debito", "Cartão de Débito"),
-        ("anotado", "Anotado (fiado)"),
+        ("anotado", "Anotado"),
     ]
 
     STATUS_CHOICES = [

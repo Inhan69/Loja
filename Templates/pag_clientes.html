@@ -276,6 +276,13 @@
         tbody tr.cliente-row {
             cursor: pointer;
         }
+                
+        #notes-itens-container {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
 
         #notes-view,
         #notes-view * {
@@ -519,7 +526,7 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
             display: flex;
             flex-direction: column;
-            max-height: min(42vh, 420px);
+            max-height: 284px;
         }
 
         .notes-section-title {
@@ -570,9 +577,7 @@
             flex: 1;
             min-height: 0;
             overflow-y: auto;
-            overflow-x: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #c4cada transparent;
+            scrollbar-width: none;
         }
 
         .notes-table-wrapper::-webkit-scrollbar {
@@ -929,7 +934,7 @@
             background-color: #f1f3f4;
             color: #0076a8;
             font-size: large;
-            padding: 0 150px 0  15px;
+            padding: 0 5vw 0  15px;
             display: flex;
             align-items: center;
             text-align: left;

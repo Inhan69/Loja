@@ -25,20 +25,8 @@
       flex-wrap: wrap;
     }
 
-    .page-title-wrap h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    .page-title-wrap p {
-      margin: 4px 0 0;
-      font-size: 14px;
-      color: #6b7280;
-    }
-
     .page-stats {
+      margin-left: auto;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -389,6 +377,7 @@
 
     .cliente-search-box {
       position: relative;
+      min-width: 0;
     }
 
     .cliente-suggestions {
@@ -423,8 +412,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-top: 8px;
-      padding: 10px 12px;
+      min-height: 40px;
+      padding: 6px 10px;
       background: #eef6ff;
       border: 1px solid #cfe0ff;
       border-radius: 10px;
@@ -434,14 +423,20 @@
 
     .hidden { display: none !important; }
 
+    .cliente-selecionado > div { min-width: 0; overflow: hidden; }
     .cliente-selecionado strong {
       display: block;
       font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
     .cliente-selecionado span {
       font-size: 12px;
       color: #6b7280;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .btn-limpar-cliente { background: white; color: #dc2626; font-size: 12px; padding: 6px 10px; flex-shrink: 0; }
@@ -660,16 +655,7 @@
   </style>
 </head>
 <body>
-  <div class="page-top">
-    <div class="page-title-wrap">
-      <h1>Vendas</h1>
-      <p>Selecione os produtos, monte o carrinho e finalize a venda.</p>
-    </div>
-    <div class="page-stats">
-      <span class="stat-chip"><strong>{{ produtos|length }}</strong> produto(s)</span>
-      <span class="stat-chip">Carrinho: <strong id="stat-itens">0</strong> item(ns)</span>
-    </div>
-  </div>
+  
 
   <div class="layout">
     <section class="panel">
@@ -680,6 +666,12 @@
             <h2>Produtos</h2>
             <small>Lista de itens disponíveis para venda</small>
           </div>
+            <div class="page-top">
+              <div class="page-stats">
+                <span class="stat-chip"><strong>{{ produtos|length }}</strong> produto(s)</span>
+                <span class="stat-chip">Carrinho: <strong id="stat-itens">0</strong> item(ns)</span>
+              </div>
+            </div>
         </div>
 
         <form class="search-form barra-busca-filtros compacto" method="get">
@@ -756,7 +748,7 @@
 
         <div class="checkout-grid">
           <div class="field full">
-            <label for="cliente-busca">Cliente (opcional)</label>
+            <label for="cliente-busca">Cliente (obrigatório para anotar)</label>
             <input type="hidden" name="cliente_id" id="cliente_id" value="">
             <div class="cliente-filtro-row">
               <div class="filtro-grupo filtro-grupo-inline">
@@ -770,14 +762,14 @@
             <div class="cliente-search-box">
               <input type="search" id="cliente-busca" placeholder="Pesquisar por nome..." autocomplete="off">
               <ul id="cliente-suggestions" class="cliente-suggestions"></ul>
-            </div>
-            </div>
-            <div id="cliente-selecionado" class="cliente-selecionado hidden">
-              <div>
-                <strong id="cliente-nome"></strong>
-                <span id="cliente-info"></span>
+              <div id="cliente-selecionado" class="cliente-selecionado hidden">
+                <div>
+                  <strong id="cliente-nome"></strong>
+                  <span id="cliente-info"></span>
+                </div>
+                <button type="button" class="btn btn-limpar-cliente" id="btn-limpar-cliente">Remover</button>
               </div>
-              <button type="button" class="btn btn-limpar-cliente" id="btn-limpar-cliente">Remover</button>
+            </div>
             </div>
           </div>
 
@@ -793,6 +785,9 @@
               <option value="{{ valor }}">{{ rotulo }}</option>
               {% endfor %}
             </select>
+            <small id="pagamento-anotado-hint" class="hidden" style="color:#6b7280;font-size:12px;font-weight:700;border-radius:8px;padding:10px;border:1px solid #d7dfef;">
+              <strong style="color:#2b87ff;">Cliente selecionado: </strong> a venda será anotada.
+            </small>
           </div>
 
           <div class="field hidden" id="parcelas-field">
@@ -806,7 +801,7 @@
 
           <div class="field">
             <label for="desconto">Desconto (%)</label>
-            <input type="number" name="desconto" id="desconto" value="10" min="0" max="100" step="0.01">
+            <input type="number" name="desconto" id="desconto" value="10" min="0" max="100" step="1">
           </div>
         </div>
 
@@ -910,6 +905,7 @@
       modalTotal: $("modal-total"),
       desconto: $("desconto"),
       tipoPagamento: $("tipo_pagamento"),
+      pagamentoHint: $("pagamento-anotado-hint"),
       parcelas: $("parcelas"),
       parcelasField: $("parcelas-field"),
       infoParcelas: $("info-parcelas"),
@@ -939,18 +935,22 @@
 
     function atualizarOpcaoAnotado() {
       const temCliente = Boolean(els.clienteId.value);
-      const opcao = els.tipoPagamento.querySelector('option[value="anotado"]');
-      if (temCliente && !opcao) {
-        const option = document.createElement("option");
-        option.value = "anotado";
-        option.textContent = "Anotado (fiado)";
-        els.tipoPagamento.appendChild(option);
-      } else if (!temCliente && opcao) {
-        if (els.tipoPagamento.value === "anotado") {
-          els.tipoPagamento.value = "dinheiro";
-          atualizarFormaPagamento();
-        }
-        opcao.remove();
+      let opcao = els.tipoPagamento.querySelector('option[value="anotado"]');
+
+      [...els.tipoPagamento.options].forEach((opt) => {
+        if (opt.value !== "anotado") opt.hidden = temCliente;
+      });
+
+      if (temCliente) {
+        els.tipoPagamento.classList.add("hidden");
+        els.pagamentoHint?.classList.remove("hidden");
+        atualizarFormaPagamento();
+      } else {
+        els.tipoPagamento.classList.remove("hidden");
+        els.pagamentoHint?.classList.add("hidden");
+        els.tipoPagamento.value = "dinheiro";
+        els.desconto.value = "10";
+        els.desconto.dispatchEvent(new Event("input"));
       }
     }
 
@@ -961,6 +961,7 @@
       els.clienteNome.textContent = cliente.nome;
       els.clienteInfo.textContent = `${cliente.telefone} · CPF ${cliente.cpf}`;
       els.clienteSelecionado.classList.remove("hidden");
+      els.clienteBusca.closest(".cliente-filtro-row")?.classList.add("tem-cliente");
       esconderSugestoesClientes();
       atualizarOpcaoAnotado();
       salvarCheckout();
@@ -971,6 +972,7 @@
       els.clienteBusca.value = "";
       els.clienteBusca.style.display = "block";
       els.clienteSelecionado.classList.add("hidden");
+      els.clienteBusca.closest(".cliente-filtro-row")?.classList.remove("tem-cliente");
       esconderSugestoesClientes();
       atualizarOpcaoAnotado();
       salvarCheckout();
@@ -1250,6 +1252,9 @@
     }
 
     function atualizarFormaPagamento() {
+      if (els.clienteId.value) {
+        els.tipoPagamento.value = "anotado";
+      }
       const pagamento = els.tipoPagamento.value;
       els.desconto.value = (pagamento === "dinheiro" || pagamento === "pix") ? 10 : 0;
       calcularTotais();
@@ -1278,6 +1283,15 @@
     els.formCheckout.addEventListener("submit", (event) => {
       const itens = Object.values(carrinho).map((item) => ({ produto_id: item.produto_id, quantidade: item.quantidade }));
       if (!itens.length) { event.preventDefault(); return; }
+
+      if (els.clienteId.value) {
+        els.tipoPagamento.value = "anotado";
+      } else if (els.tipoPagamento.value === "anotado") {
+        event.preventDefault();
+        alert("Selecione um cliente para anotar a venda.");
+        return;
+      }
+
       els.itemsInput.value = JSON.stringify(itens);
       limparSessaoVendas();
     });
