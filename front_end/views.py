@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProdutoForm, Edit_ProdutoForm, ClientForm, EditClientForm
 from .models import Produto, Client, Venda
 from django.http import HttpRequest, JsonResponse
+from django.db import transaction
 from django.db.models import IntegerField, Q
 from django.db.models.functions import Cast
 from .search_filters import CAMPO_PADRAO_CLIENTE, CAMPO_PADRAO_PRODUTO, filtrar_clientes, filtrar_produtos
@@ -206,6 +207,44 @@ def devolver_venda(request: HttpRequest, id: int):
             },
         }
     )
+
+
+def _restaurar_estoque_anotado(venda: Venda):
+    if venda.status != "anotado":
+        return
+    produto = venda.produto
+    produto.quantidade += venda.quantidade
+    produto.save(update_fields=["quantidade"])
+
+
+def excluir_venda(request: HttpRequest, id: int):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método não permitido."}, status=405)
+
+    venda = get_object_or_404(Venda.objects.select_related("produto"), id=id)
+
+    with transaction.atomic():
+        _restaurar_estoque_anotado(venda)
+        venda_id = venda.id
+        venda.delete()
+
+    return JsonResponse({"success": True, "venda_id": venda_id})
+
+
+def excluir_cliente(request: HttpRequest, id: int):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método não permitido."}, status=405)
+
+    cliente = get_object_or_404(Client, id=id)
+    vendas = Venda.objects.filter(cliente=cliente).select_related("produto")
+
+    with transaction.atomic():
+        for venda in vendas:
+            _restaurar_estoque_anotado(venda)
+            venda.delete()
+        cliente.delete()
+
+    return JsonResponse({"success": True, "cliente_id": id})
 
 
 def editar_cliente(request: HttpRequest, id: int):
