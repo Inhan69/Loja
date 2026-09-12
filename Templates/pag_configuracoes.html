@@ -1,17 +1,422 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        *{
-            text-align: center;
-            font-family: "Segoe UI", Arial;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações</title>
+  <style>
+    * { font-family: "Segoe UI", Arial, sans-serif; box-sizing: border-box; overflow: hidden;}
+
+    body {
+      margin: 0;
+      padding: 18px 20px 28px;
+      min-height: 100vh;
+      background: var(--loja-fundo, #f4f6f9);
+      color: var(--loja-texto, #1f2937);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--loja-painel, #fff);
+      border: 1px solid #e7ebf4;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid #eef2f8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-mark {
+      width: 4px;
+      height: 32px;
+      border-radius: 4px;
+      background: var(--loja-acento, #2b87ff);
+    }
+
+    .panel-header h2 { margin: 0; font-size: 16px; }
+    .panel-header small { display: block; margin-top: 2px; color: #9ca3af; font-size: 12px; }
+    .panel-body { padding: 16px 18px 18px; }
+
+    .cor-linha, .atalho-linha {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .cor-linha:last-child, .atalho-grupo .atalho-linha:last-child { border-bottom: none; }
+
+    .atalho-grupo h3 {
+      margin: 16px 0 4px;
+      font-size: 11px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .atalho-grupo:first-child h3 { margin-top: 0; }
+
+    .cor-linha strong, .atalho-linha strong { display: block; font-size: 14px; }
+    .cor-linha span, .atalho-linha span { font-size: 12px; color: #6b7280; }
+
+    .cor-controle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="color"] {
+      width: 42px;
+      height: 34px;
+      border: 1px solid #dde3ef;
+      border-radius: 8px;
+      padding: 2px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .hex {
+      width: 92px;
+      height: 34px;
+      border: 1px solid #dde3ef;
+      border-radius: 8px;
+      padding: 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      height: 34px;
+      padding: 0 12px;
+    }
+
+    .btn-atalho {
+      min-width: 140px;
+      background: #111827;
+      color: white;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+    }
+
+    .btn-atalho.capturando {
+      background: var(--loja-acento, #2b87ff);
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-salvar { background: var(--loja-acento, #2b87ff); color: white; height: 40px; padding: 0 16px; }
+    .btn-padrao { background: #f3f4f6; color: #374151; height: 40px; }
+
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #059669;
+      min-height: 18px;
+    }
+
+    .status.erro { color: #dc2626; }
+
+    .preview {
+      display: flex;
+      height: 72px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e7ebf4;
+      margin-bottom: 12px;
+    }
+
+    .temas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-tema {
+      height: 32px;
+      border: 1px solid #dde3ef;
+      background: #fff;
+      color: #374151;
+      font-size: 12px;
+    }
+
+    .btn-tema:hover { border-color: var(--loja-acento, #2b87ff); color: var(--loja-acento, #2b87ff); }
+
+    .preview-header { height: 22px; }
+    .preview-side { width: 28%; }
+    .preview-main { flex: 1; padding: 10px; }
+    .preview-card {
+      height: 100%;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Página de Configurações</h1>
+  <section class="grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark"></div>
+        <div>
+          <h2>Cores</h2>
+          <small>Barra superior, menu, fundo, painéis e acento</small>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="preview" id="preview-shell">
+          <div class="preview-side" id="preview-side">
+            <div class="preview-header" id="preview-header"></div>
+          </div>
+          <div class="preview-main" id="preview-main">
+            <div class="preview-card" id="preview-card">Painel</div>
+          </div>
+        </div>
+        <div class="temas" id="lista-temas"></div>
+        <div id="lista-cores"></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark"></div>
+        <div>
+          <h2>Comandos do teclado</h2>
+          <small>Clique na tecla e pressione a nova combinação</small>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="lista-atalhos"></div>
+        <p style="font-size:12px;color:#6b7280;margin:12px 0 0;">
+          Combine Alt ou Ctrl com uma tecla (ou use F1–F12). Esc cancela a captura.
+          Os atalhos funcionam em qualquer tela. O combinador padrão de ajuda é Alt + /.
+        </p>
+      </div>
+    </article>
+  </section>
+
+  <div class="acoes">
+    <button type="button" class="btn btn-salvar" id="btn-salvar">Salvar configurações</button>
+    <button type="button" class="btn btn-padrao" id="btn-padrao">Restaurar padrão</button>
+  </div>
+  <div class="status" id="status"></div>
+
+  {% include "partials/loja_config.html" %}
+  <script>
+    const cfg = window.LojaConfig;
+    if (!cfg) {
+      document.getElementById("status").textContent = "Não foi possível carregar o script de configurações.";
+      document.getElementById("status").classList.add("erro");
+    } else {
+    let estado = cfg.carregar();
+    const listaCores = document.getElementById("lista-cores");
+    const listaAtalhos = document.getElementById("lista-atalhos");
+    const statusEl = document.getElementById("status");
+
+    function avisar(texto, erro) {
+      statusEl.textContent = texto;
+      statusEl.classList.toggle("erro", Boolean(erro));
+    }
+
+    function atualizarPreview() {
+      const c = estado.cores;
+      document.getElementById("preview-header").style.background = c.header;
+      document.getElementById("preview-side").style.background =
+        `linear-gradient(180deg, ${c.sidebar}, ${c.sidebar2})`;
+      document.getElementById("preview-main").style.background = c.fundo;
+      const card = document.getElementById("preview-card");
+      card.style.background = c.painel;
+      card.style.color = c.texto;
+      card.style.boxShadow = `inset 4px 0 0 ${c.destaque}`;
+    }
+
+    function aplicarAgora() {
+      cfg.previewCores(estado.cores);
+      atualizarPreview();
+    }
+
+    function persistir(mensagem) {
+      cfg.salvar(estado);
+      cfg.previewCores(estado.cores);
+      atualizarPreview();
+      if (mensagem) avisar(mensagem);
+    }
+
+    function renderTemas() {
+      const caixa = document.getElementById("lista-temas");
+      caixa.innerHTML = cfg.TEMAS.map((tema) => (
+        `<button type="button" class="btn btn-tema" data-tema="${tema.id}">${tema.rotulo}</button>`
+      )).join("");
+    }
+
+    function renderCores() {
+      listaCores.innerHTML = cfg.CORES_CAMPOS.map((campo) => `
+        <label class="cor-linha">
+          <div>
+            <strong>${campo.rotulo}</strong>
+            <span>${campo.alvo}</span>
+          </div>
+          <div class="cor-controle">
+            <input type="color" data-cor="${campo.chave}" value="${estado.cores[campo.chave]}">
+            <input class="hex" data-hex="${campo.chave}" value="${estado.cores[campo.chave]}" maxlength="7">
+          </div>
+        </label>
+      `).join("");
+    }
+
+    function textoBotao(chave) {
+      return cfg.formatarAtalho(estado.atalhos[chave]);
+    }
+
+    function renderAtalhos() {
+      const grupos = [];
+      cfg.ATALHOS_META.forEach((item) => {
+        let grupo = grupos.find((g) => g.nome === item.grupo);
+        if (!grupo) {
+          grupo = { nome: item.grupo, itens: [] };
+          grupos.push(grupo);
+        }
+        grupo.itens.push(item);
+      });
+      listaAtalhos.innerHTML = grupos.map((grupo) => `
+        <div class="atalho-grupo">
+          <h3>${grupo.nome}</h3>
+          ${grupo.itens.map((item) => `
+            <div class="atalho-linha">
+              <div>
+                <strong>${item.rotulo}</strong>
+                <span>Clique e pressione a nova combinação</span>
+              </div>
+              <button type="button" class="btn btn-atalho" data-atalho="${item.chave}">${textoBotao(item.chave)}</button>
+            </div>
+          `).join("")}
+        </div>
+      `).join("");
+    }
+
+    function normalizarHex(valor) {
+      const texto = String(valor || "").trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(texto)) return texto.toLowerCase();
+      if (/^[0-9a-fA-F]{6}$/.test(texto)) return `#${texto.toLowerCase()}`;
+      return null;
+    }
+
+    document.getElementById("lista-temas").addEventListener("click", (event) => {
+      const botao = event.target.closest("[data-tema]");
+      if (!botao) return;
+      const tema = cfg.TEMAS.find((item) => item.id === botao.dataset.tema);
+      if (!tema) return;
+      estado.cores = Object.assign({}, tema.cores);
+      renderCores();
+      persistir(`Tema “${tema.rotulo}” aplicado.`);
+    });
+
+    listaCores.addEventListener("input", (event) => {
+      const cor = event.target.dataset.cor;
+      const hexCampo = event.target.dataset.hex;
+      if (cor) {
+        estado.cores[cor] = event.target.value;
+        const irmao = listaCores.querySelector(`[data-hex="${cor}"]`);
+        if (irmao) irmao.value = event.target.value;
+        persistir();
+      }
+      if (hexCampo) {
+        const hex = normalizarHex(event.target.value);
+        if (!hex) return;
+        estado.cores[hexCampo] = hex;
+        const irmao = listaCores.querySelector(`[data-cor="${hexCampo}"]`);
+        if (irmao) irmao.value = hex;
+        persistir();
+      }
+    });
+
+    listaAtalhos.addEventListener("click", (event) => {
+      const botao = event.target.closest("[data-atalho]");
+      if (!botao) return;
+      const chave = botao.dataset.atalho;
+      listaAtalhos.querySelectorAll("[data-atalho]").forEach((el) => {
+        el.classList.remove("capturando");
+        el.textContent = textoBotao(el.dataset.atalho);
+      });
+      botao.classList.add("capturando");
+      botao.textContent = "Pressione a tecla...";
+      cfg.iniciarCaptura(chave, (atalho, motivo) => {
+        botao.classList.remove("capturando");
+        if (motivo === "cancelado") {
+          botao.textContent = textoBotao(chave);
+          avisar("Captura cancelada.");
+          return;
+        }
+        if (motivo === "invalido") {
+          botao.classList.add("capturando");
+          botao.textContent = "Use Alt ou Ctrl + tecla...";
+          avisar("Use Alt, Ctrl ou tecla F1–F12.", true);
+          return;
+        }
+        const choque = cfg.conflito(estado.atalhos, chave, atalho);
+        if (choque) {
+          botao.textContent = textoBotao(chave);
+          const item = cfg.ATALHOS_META.find((meta) => meta.chave === choque);
+          avisar(`Essa combinação já está em “${item ? item.rotulo : choque}”.`, true);
+          return;
+        }
+        estado.atalhos[chave] = atalho;
+        botao.textContent = textoBotao(chave);
+        persistir(`Atalho de “${cfg.ATALHOS_META.find((m) => m.chave === chave).rotulo}” atualizado.`);
+      });
+    });
+
+    document.getElementById("btn-salvar").addEventListener("click", () => {
+      cfg.cancelarCaptura();
+      cfg.salvar(estado);
+      avisar("Configurações salvas neste navegador.");
+    });
+
+    document.getElementById("btn-padrao").addEventListener("click", () => {
+      cfg.cancelarCaptura();
+      estado = cfg.padrao();
+      renderCores();
+      renderAtalhos();
+      aplicarAgora();
+      cfg.salvar(estado);
+      avisar("Cores e atalhos restaurados.");
+    });
+
+    renderTemas();
+    renderCores();
+    renderAtalhos();
+    aplicarAgora();
+    }
+  </script>
 </body>
 </html>

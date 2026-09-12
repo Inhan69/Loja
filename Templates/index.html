@@ -14,7 +14,7 @@
         body{
             margin: 0;
             font-family: "Segoe UI", Arial;
-            background:#f4f6f9;
+            background: var(--loja-fundo, #f4f6f9);
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -70,7 +70,7 @@
         }
 
         .painel_superior {
-            background: #1f2126; 
+            background: var(--loja-header, #1f2126); 
             display: flex;
             width: 100%;
             height: 90px; 
@@ -82,7 +82,7 @@
         }
 
         .painel_lateral{
-            background: linear-gradient(180deg,#1f2126,#2b2f34);
+            background: linear-gradient(180deg, var(--loja-sidebar, #1f2126), var(--loja-sidebar-2, #2b2f34));
             display: flex;
             width: calc(120px + 5%);
             height: 100%;
@@ -115,7 +115,7 @@
         .bt_painel.ativo{
             background:#35393f;
             color:white;
-            border-left: 4px solid #5aa2ff;
+            border-left: 4px solid var(--loja-destaque, #5aa2ff);
         }
 
         .container{
@@ -128,6 +128,27 @@
             margin-top: auto;
             margin-bottom: 20px;
         }
+
+        .atalhos-hint {
+            margin-left: auto;
+            color: rgba(255,255,255,0.72);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 8px 14px;
+        }
+
+        .atalhos-hint kbd {
+            background: #111827;
+            color: #fff;
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 11px;
+            margin: 0 2px;
+        }
     </style>
 </head> 
 
@@ -138,15 +159,16 @@
             <h1>É de casa</h1>
             <div class="subtitulo">Cama, Mesa e Banho</div>
         </div>
+        <div class="atalhos-hint">Atalhos <kbd>Alt</kbd> + <kbd>/</kbd></div>
     </div>
 
     <div class="body_principal">
         <div class="painel_lateral">
-            <a href="{% url 'front_end:dashboard' %}" class="bt_painel ativo" target="conteudo">Dashboard</a>
-            <a href="{% url 'front_end:produtos' %}" class="bt_painel" target="conteudo">Produtos</a>
-            <a href="{% url 'front_end:clientes' %}" class="bt_painel" target="conteudo">Clientes</a>
-            <a href="{% url 'front_end:vendas' %}" class="bt_painel" target="conteudo">Vendas</a>
-            <a id="config" href="{% url 'front_end:configuracoes' %}" class="bt_painel" target="conteudo">Configurações</a> 
+            <a href="{% url 'front_end:dashboard' %}" data-pagina="dashboard" class="bt_painel ativo" target="conteudo">Dashboard</a>
+            <a href="{% url 'front_end:produtos' %}" data-pagina="produtos" class="bt_painel" target="conteudo">Produtos</a>
+            <a href="{% url 'front_end:clientes' %}" data-pagina="clientes" class="bt_painel" target="conteudo">Clientes</a>
+            <a href="{% url 'front_end:vendas' %}" data-pagina="vendas" class="bt_painel" target="conteudo">Vendas</a>
+            <a id="config" href="{% url 'front_end:configuracoes' %}" data-pagina="configuracoes" class="bt_painel" target="conteudo">Configurações</a> 
         </div>
 
         <div class="container">
@@ -154,7 +176,7 @@
         </div>
     </div>
 </body>
-
+{% include "partials/loja_config.html" %}
 <script>
 document.querySelectorAll(".bt_painel").forEach(botao => {
 

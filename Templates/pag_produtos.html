@@ -13,11 +13,12 @@
     body{
       margin:0;
       overflow: hidden;
-      background: #f5f7fb;
+      background: var(--loja-fundo, #f5f7fb);
+      color: var(--loja-texto, #2c2c2c);
     }
 
     .header-container {
-      background: white;
+      background: var(--loja-painel, #fff);
       padding: 20px;
       padding-top: 1px;
       border-radius: 8px;
@@ -27,7 +28,7 @@
     }
 
     h1{
-      color: #2c2c2c;
+      color: var(--loja-texto, #2c2c2c);
       margin-bottom: 30px;
       padding: 0 0 15px 0;
       text-align: left;
@@ -50,7 +51,7 @@
     }
 
     .btn-add {
-      background: #2b87ff;
+      background: var(--loja-acento, #2b87ff);
       color: white;
       height: 38px;
       border: none;
@@ -108,7 +109,7 @@
     }
 
     .products-container {
-      background: white;
+      background: var(--loja-painel, #fff);
       padding: 20px;
       border-radius: 8px;
       width: 90%;
@@ -195,7 +196,7 @@
     input[type="submit"] {
       width: 100%;
       height: 45px;
-      background: #2b87ff;
+      background: var(--loja-acento, #2b87ff);
       color: white;
       border: none;
       border-radius: 8px;
@@ -356,7 +357,7 @@
     <h1>Produtos</h1>
 
     <div class="barra_ferramentas">
-      <button class="btn-add" type="button" onclick="Adicionar_Produto()">
+      <button class="btn-add" type="button" id="btn-novo-produto" onclick="Adicionar_Produto()">
         <span>+</span>NOVO PRODUTO
       </button>
 
@@ -518,4 +519,5 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
       if (event.target == modalEdit) Fechar_Modal_Editar();
   }
 </script>
+{% include "partials/loja_config.html" %}
 </html>

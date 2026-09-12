@@ -6,14 +6,14 @@
   <title>Vendas</title>
   {% include 'partials/filtros_busca.html' %}
   <style>
-    :root { --prod-cols: 60px 1fr 90px 88px 92px; --borda: #eef2f8; --texto: #1f2937; --muted: #6b7280; }
+    :root { --prod-cols: 60px 1fr 90px 88px 92px; --borda: #eef2f8; --texto: var(--loja-texto, #1f2937); --muted: #6b7280; }
 
     * {font-family: "Segoe UI", Arial, sans-serif; box-sizing: border-box; }
 
     body {
       margin: 0; padding: 18px 20px; overflow: hidden;
-      background: linear-gradient(160deg, #f6f8fd 0%, #eef2fb 55%, #e8eef9 100%);
-      height: 100vh; display: flex; flex-direction: column; color: #2c2c2c;
+      background: var(--loja-fundo, #f4f6f9);
+      height: 100vh; display: flex; flex-direction: column; color: var(--loja-texto, #2c2c2c);
     }
 
     .page-top {
@@ -42,7 +42,7 @@
     }
 
     .stat-chip strong {
-      color: #2b87ff;
+      color: var(--loja-acento, #2b87ff);
     }
 
     .layout {
@@ -54,7 +54,7 @@
     }
 
     .panel {
-      background: white;
+      background: var(--loja-painel, #fff);
       border-radius: 16px;
       border: 1px solid #e7ebf4;
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
@@ -87,7 +87,7 @@
       flex-shrink: 0;
     }
 
-    .panel-mark.produtos { background: #2b87ff; }
+    .panel-mark.produtos { background: var(--loja-acento, #2b87ff); }
     .panel-mark.carrinho { background: #10b981; }
 
     .panel-header h2 {
@@ -106,7 +106,7 @@
 
     .cart-badge {
       margin-left: 6px;
-      background: #2b87ff;
+      background: var(--loja-acento, #2b87ff);
       color: white;
       font-size: 11px;
       font-weight: 700;
@@ -191,7 +191,7 @@
     .produto-preco {
       font-size: 14px;
       font-weight: 700;
-      color: #2b87ff;
+      color: var(--loja-acento, #2b87ff);
       text-align: right;
     }
 
@@ -212,7 +212,7 @@
     .btn:disabled { cursor: not-allowed; }
 
     .btn-add {
-      height: 32px; background: #2b87ff; color: white; font-size: 12px; padding: 0 10px;
+      height: 32px; background: var(--loja-acento, #2b87ff); color: white; font-size: 12px; padding: 0 10px;
     }
     .btn-add:hover { background: #1f6fe0; }
     .btn-add:disabled { background: #d1d5db; }
@@ -443,7 +443,7 @@
     .field select:not(.filtro-campo):focus,
     .field input:focus,
     .field textarea:focus {
-      border-color: #2b87ff;
+      border-color: var(--loja-acento, #2b87ff);
       box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.1);
     }
 
@@ -503,9 +503,9 @@
 
     .btn-ampliar-carrinho {
       margin-left: auto; height: 34px; border: 1px solid #dde3ef;
-      background: white; color: #2b87ff; font-size: 13px; padding: 0 12px;
+      background: white; color: var(--loja-acento, #2b87ff); font-size: 13px; padding: 0 12px;
     }
-    .btn-ampliar-carrinho:hover { background: #eef4ff; border-color: #2b87ff; }
+    .btn-ampliar-carrinho:hover { background: #eef4ff; border-color: var(--loja-acento, #2b87ff); }
     .btn-ampliar-carrinho:disabled { opacity: 0.5; }
 
     .modal-carrinho {
@@ -785,7 +785,7 @@
               {% endfor %}
             </select>
             <small id="pagamento-anotado-hint" class="hidden" style="color:#6b7280;font-size:12px;font-weight:700;border-radius:8px;padding:10px;border:1px solid #d7dfef;">
-              <strong style="color:#2b87ff;">Cliente selecionado: </strong> a venda será anotada.
+              <strong style="color:var(--loja-acento, #2b87ff);">Cliente selecionado: </strong> a venda será anotada.
             </small>
           </div>
 
@@ -1295,5 +1295,6 @@
       limparSessaoVendas();
     });
   </script>
+  {% include "partials/loja_config.html" %}
 </body>
 </html>

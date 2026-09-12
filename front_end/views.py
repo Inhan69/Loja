@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 import json
 
@@ -6,15 +7,141 @@ from .forms import ProdutoForm, Edit_ProdutoForm, ClientForm, EditClientForm
 from .models import Produto, Client, Venda
 from django.http import HttpRequest, JsonResponse
 from django.db import transaction
-from django.db.models import IntegerField, Q
-from django.db.models.functions import Cast
+from django.db.models import Count, IntegerField, Sum
+from django.db.models.functions import Cast, Coalesce, TruncDate
+from django.utils import timezone
 from .search_filters import CAMPO_PADRAO_CLIENTE, CAMPO_PADRAO_PRODUTO, filtrar_clientes, filtrar_produtos
 
+ZERO = Decimal("0.00")
+
+
+def _money(valor):
+    if valor is None:
+        return ZERO
+    return Decimal(valor)
+
+
+def _normalizar_dia(valor):
+    if hasattr(valor, "date") and not isinstance(valor, date):
+        return valor.date()
+    return valor
+
+
+def _serie_diaria(queryset, inicio, hoje):
+    agrupado = {
+        _normalizar_dia(item["dia"]): _money(item["total"])
+        for item in queryset.annotate(dia=TruncDate("dt_venda"))
+        .values("dia")
+        .annotate(total=Coalesce(Sum("total"), ZERO))
+    }
+    serie = []
+    dia = inicio
+    while dia <= hoje:
+        serie.append(float(agrupado.get(dia, ZERO)))
+        dia += timedelta(days=1)
+    return serie
+
 def Home(request):
-    return render(request, 'index.html')
+    return render(request, "index.html", {"is_shell": True})
 
 def Dashboard(request):
-    return render(request, 'pag_main.html')
+    hoje = timezone.localdate()
+    inicio_grafico = hoje - timedelta(days=13)
+    inicio_mes = hoje.replace(day=1)
+
+    vendas = Venda.objects.select_related("produto", "cliente")
+    vendas_pagas = vendas.filter(status="pago")
+    vendas_anotadas = vendas.filter(status="anotado")
+    vendas_mes = vendas_pagas.filter(dt_venda__date__gte=inicio_mes)
+
+    faturamento_hoje = _money(
+        vendas_pagas.filter(dt_venda__date=hoje).aggregate(total=Sum("total"))["total"]
+    )
+    faturamento_mes = _money(vendas_mes.aggregate(total=Sum("total"))["total"])
+    total_anotado = _money(vendas_anotadas.aggregate(total=Sum("total"))["total"])
+    ticket_medio = _money(vendas_pagas.aggregate(total=Sum("total"))["total"])
+    qtd_pagas = vendas_pagas.count()
+    if qtd_pagas:
+        ticket_medio = (ticket_medio / qtd_pagas).quantize(Decimal("0.01"))
+
+    labels_dias = []
+    dia = inicio_grafico
+    while dia <= hoje:
+        labels_dias.append(dia.strftime("%d/%m"))
+        dia += timedelta(days=1)
+
+    serie_pagas = _serie_diaria(
+        vendas_pagas.filter(dt_venda__date__gte=inicio_grafico),
+        inicio_grafico,
+        hoje,
+    )
+    serie_anotadas = _serie_diaria(
+        vendas_anotadas.filter(dt_venda__date__gte=inicio_grafico),
+        inicio_grafico,
+        hoje,
+    )
+
+    pagamentos_qs = (
+        vendas_pagas.values("tipo_pagamento")
+        .annotate(total=Coalesce(Sum("total"), ZERO), qtd=Count("id"))
+        .order_by("-total")
+    )
+    rotulos_pagamento = dict(Venda.PAGAMENTO_CHOICES)
+    pagamentos = [
+        {
+            "rotulo": rotulos_pagamento.get(item["tipo_pagamento"], item["tipo_pagamento"]),
+            "total": float(_money(item["total"])),
+            "qtd": item["qtd"],
+        }
+        for item in pagamentos_qs
+        if item["tipo_pagamento"] != "anotado"
+    ]
+
+    top_produtos = list(
+        vendas_pagas.values("produto__nome", "produto__codigo")
+        .annotate(
+            total=Coalesce(Sum("total"), ZERO),
+            qtd=Coalesce(Sum("quantidade"), ZERO),
+        )
+        .order_by("-total")[:8]
+    )
+
+    anotados = list(
+        vendas_anotadas.order_by("-dt_venda")[:12]
+    )
+    clientes_pendentes = list(
+        vendas_anotadas.filter(cliente__isnull=False)
+        .values("cliente__id", "cliente__nome")
+        .annotate(total=Coalesce(Sum("total"), ZERO), qtd=Count("id"))
+        .order_by("-total")[:8]
+    )
+
+    estoque_baixo = list(
+        Produto.objects.filter(quantidade__lte=5).order_by("quantidade", "nome")[:8]
+    )
+
+    contexto = {
+        "hoje": hoje,
+        "faturamento_hoje": faturamento_hoje,
+        "faturamento_mes": faturamento_mes,
+        "total_anotado": total_anotado,
+        "ticket_medio": ticket_medio,
+        "qtd_vendas_hoje": vendas.filter(dt_venda__date=hoje).exclude(status="devolvido").count(),
+        "qtd_anotadas": vendas_anotadas.count(),
+        "total_produtos": Produto.objects.count(),
+        "total_clientes": Client.objects.count(),
+        "anotados": anotados,
+        "clientes_pendentes": clientes_pendentes,
+        "top_produtos": top_produtos,
+        "estoque_baixo": estoque_baixo,
+        "grafico_vendas": {
+            "labels": labels_dias,
+            "pagas": serie_pagas,
+            "anotadas": serie_anotadas,
+        },
+        "grafico_pagamentos": pagamentos,
+    }
+    return render(request, "pag_main.html", contexto)
 
 def view_produto(request:HttpRequest):
     if request.method == "POST":

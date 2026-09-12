@@ -1,18 +1,481 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        *{
-            text-align: center;
-            font-family: "Segoe UI", Arial;
-            box-sizing: border-box; 
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    * { font-family: "Segoe UI", Arial, sans-serif; box-sizing: border-box; scrollbar-width: none;}
+
+    body {
+      margin: 0;
+      padding: 18px 20px 24px;
+      min-height: 100vh;
+      background: var(--loja-fundo, #f4f6f9);
+      color: var(--loja-texto, #1f2937);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .kpi {
+      background: var(--loja-painel, #fff);
+      border: 1px solid #e7ebf4;
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      min-width: 0;
+    }
+
+    .kpi span {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .kpi strong {
+      display: block;
+      font-size: 22px;
+      color: #111827;
+      letter-spacing: -0.3px;
+    }
+
+    .kpi em {
+      display: block;
+      margin-top: 6px;
+      font-style: normal;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .kpi.azul strong { color: var(--loja-acento, #2b87ff); }
+    .kpi.verde strong { color: #059669; }
+    .kpi.laranja strong { color: #d97706; }
+    .kpi.roxo strong { color: #6d28d9; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .grid-bottom {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 0.9fr;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--loja-painel, #fff);
+      border-radius: 16px;
+      border: 1px solid #e7ebf4;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid #eef2f8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    }
+
+    .panel-mark {
+      width: 4px;
+      height: 32px;
+      border-radius: 4px;
+      background: var(--loja-acento, #2b87ff);
+      flex-shrink: 0;
+    }
+
+    .panel-mark.verde { background: #10b981; }
+    .panel-mark.laranja { background: #f59e0b; }
+    .panel-mark.vermelho { background: #ef4444; }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .panel-header small {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+
+    .panel-body {
+      padding: 16px 18px 18px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+
+    .chart-wrap.pizza {
+      height: 240px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid #eef2f8;
+      font-size: 13px;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    td strong { color: #1f2937; }
+    .valor { font-weight: 700; color: var(--loja-acento, #2b87ff); white-space: nowrap; }
+    .valor.pendente { color: #d97706; }
+    .muted { color: #6b7280; }
+
+    .lista-simples {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lista-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #eef2f8;
+      border-radius: 12px;
+      background: #fafbff;
+    }
+
+    .lista-item strong { display: block; font-size: 13px; }
+    .lista-item span { font-size: 12px; color: #6b7280; }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .badge.ok { background: #e8f8f1; color: #059669; }
+    .badge.baixo { background: #fff7ed; color: #d97706; }
+    .badge.zero { background: #fef2f2; color: #dc2626; }
+
+    .empty {
+      text-align: center;
+      color: #9ca3af;
+      padding: 28px 12px;
+      font-size: 14px;
+    }
+
+    .scroll {
+      max-height: 340px;
+      overflow: auto;
+      scrollbar-width: none;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    @media (max-width: 1100px) {
+      .kpis, .grid, .grid-bottom {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .kpis, .grid, .grid-bottom {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Página Principal</h1>
+  <section class="kpis">
+    <article class="kpi verde">
+      <span>Faturamento hoje</span>
+      <strong>R$ {{ faturamento_hoje|floatformat:2 }}</strong>
+      <em>{{ qtd_vendas_hoje }} venda(s) no dia</em>
+    </article>
+    <article class="kpi azul">
+      <span>Faturamento do mês</span>
+      <strong>R$ {{ faturamento_mes|floatformat:2 }}</strong>
+      <em>Ticket médio R$ {{ ticket_medio|floatformat:2 }}</em>
+    </article>
+    <article class="kpi laranja">
+      <span>A receber (anotado)</span>
+      <strong>R$ {{ total_anotado|floatformat:2 }}</strong>
+      <em>{{ qtd_anotadas }} item(ns) pendente(s)</em>
+    </article>
+    <article class="kpi roxo">
+      <span>Cadastros</span>
+      <strong>{{ total_produtos }} / {{ total_clientes }}</strong>
+      <em>produtos / clientes</em>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark"></div>
+        <div>
+          <h2>Gráfico de vendas</h2>
+          <small>Últimos 14 dias · pago vs anotado</small>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap">
+          <canvas id="grafico-vendas"></canvas>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark verde"></div>
+        <div>
+          <h2>Formas de pagamento</h2>
+          <small>Somente vendas já pagas</small>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap pizza">
+          <canvas id="grafico-pagamentos"></canvas>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid-bottom">
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark laranja"></div>
+        <div>
+          <h2>Preços anotados</h2>
+          <small>Itens em aberto com cliente</small>
+        </div>
+      </div>
+      <div class="panel-body scroll">
+        {% if clientes_pendentes %}
+        <div class="lista-simples" style="margin-bottom:14px;">
+          {% for item in clientes_pendentes %}
+          <div class="lista-item">
+            <div>
+              <strong>{{ item.cliente__nome }}</strong>
+              <span>{{ item.qtd }} item(ns) em aberto</span>
+            </div>
+            <span class="valor pendente">R$ {{ item.total|floatformat:2 }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if anotados %}
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Produto</th>
+              <th>Qtd</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for venda in anotados %}
+            <tr>
+              <td>
+                <strong>{{ venda.cliente.nome|default:"Sem cliente" }}</strong>
+                <div class="muted">{{ venda.dt_venda|date:"d/m/Y H:i" }}</div>
+              </td>
+              <td>
+                {{ venda.produto.nome }}
+                <div class="muted">#{{ venda.produto.codigo }} · R$ {{ venda.produto.preco|floatformat:2 }}</div>
+              </td>
+              <td>{{ venda.quantidade|floatformat:"-3" }}</td>
+              <td class="valor pendente">R$ {{ venda.total|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">Nenhum valor anotado no momento.</div>
+        {% endif %}
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark"></div>
+        <div>
+          <h2>Mais vendidos</h2>
+          <small>Por faturamento pago</small>
+        </div>
+      </div>
+      <div class="panel-body">
+        {% if top_produtos %}
+        <div class="lista-simples">
+          {% for item in top_produtos %}
+          <div class="lista-item">
+            <div>
+              <strong>{{ item.produto__nome }}</strong>
+              <span>#{{ item.produto__codigo }} · {{ item.qtd|floatformat:"-3" }} un.</span>
+            </div>
+            <span class="valor">R$ {{ item.total|floatformat:2 }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Ainda não há vendas pagas.</div>
+        {% endif %}
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-mark vermelho"></div>
+        <div>
+          <h2>Estoque baixo</h2>
+          <small>Até 5 unidades</small>
+        </div>
+      </div>
+      <div class="panel-body">
+        {% if estoque_baixo %}
+        <div class="lista-simples">
+          {% for produto in estoque_baixo %}
+          <div class="lista-item">
+            <div>
+              <strong>{{ produto.nome }}</strong>
+              <span>#{{ produto.codigo }} · R$ {{ produto.preco|floatformat:2 }}</span>
+            </div>
+            <span class="badge {% if produto.quantidade <= 0 %}zero{% else %}baixo{% endif %}">
+              {{ produto.quantidade|floatformat:"-3" }} un.
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum produto com estoque baixo.</div>
+        {% endif %}
+      </div>
+    </article>
+  </section>
+
+  {{ grafico_vendas|json_script:"dados-vendas" }}
+  {{ grafico_pagamentos|json_script:"dados-pagamentos" }}
+  <script>
+    const vendas = JSON.parse(document.getElementById("dados-vendas").textContent);
+    const pagamentos = JSON.parse(document.getElementById("dados-pagamentos").textContent);
+
+    Chart.defaults.font.family = '"Segoe UI", Arial, sans-serif';
+    Chart.defaults.color = "#6b7280";
+
+    new Chart(document.getElementById("grafico-vendas"), {
+      type: "line",
+      data: {
+        labels: vendas.labels,
+        datasets: [
+          {
+            label: "Pago",
+            data: vendas.pagas,
+            borderColor: "#2b87ff",
+            backgroundColor: "rgba(43, 135, 255, 0.12)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            borderWidth: 2,
+          },
+          {
+            label: "Anotado",
+            data: vendas.anotadas,
+            borderColor: "#d97706",
+            backgroundColor: "rgba(217, 119, 6, 0.10)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "top", align: "end" },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.dataset.label}: ${formatarMoeda(ctx.parsed.y)}`,
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: (valor) => formatarMoeda(valor) },
+            grid: { color: "#eef2f8" },
+          },
+          x: { grid: { display: false } },
+        },
+      },
+    });
+
+    const temPagamentos = pagamentos.length > 0;
+    new Chart(document.getElementById("grafico-pagamentos"), {
+      type: "doughnut",
+      data: {
+        labels: temPagamentos ? pagamentos.map((item) => item.rotulo) : ["Sem vendas"],
+        datasets: [{
+          data: temPagamentos ? pagamentos.map((item) => item.total) : [1],
+          backgroundColor: temPagamentos
+            ? ["#2b87ff", "#10b981", "#6366f1", "#f59e0b", "#ef4444"]
+            : ["#e5e7eb"],
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom" },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => temPagamentos
+                ? ` ${ctx.label}: ${formatarMoeda(ctx.parsed)}`
+                : " Sem vendas pagas",
+            },
+          },
+        },
+      },
+    });
+
+    function formatarMoeda(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+  </script>
+  {% include "partials/loja_config.html" %}
 </body>
 </html>

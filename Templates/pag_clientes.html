@@ -14,11 +14,11 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: #f5f7fb;
+            background: var(--loja-fundo, #f5f7fb);
         }
 
         .header-container {
-            background: var(--panel-color);
+            background: var(--loja-painel, #fff);
             padding: 20px;
             padding-top: 1px;
             border-radius: 8px;
@@ -28,7 +28,7 @@
         }
 
         h1 {
-            color: var(--text-color);
+            color: var(--loja-texto, #1f2937);
             margin-bottom: 30px;
             padding: 0 0 15px 0;
             text-align: left; 
@@ -37,7 +37,7 @@
 
 
         .clients-container {
-            background: var(--panel-color);
+            background: var(--loja-painel, #fff);
             padding: 20px;
             border-radius: 8px;
             width: 90%;
@@ -117,7 +117,7 @@
         }
 
         .field input:focus {
-            border-color: #2b87ff;
+            border-color: var(--loja-acento, #2b87ff);
         }
 
         .col-span-2 {
@@ -253,11 +253,11 @@
         }
 
         th {
-            background: var(--panel-color);
+            background: var(--loja-painel, #fff);
             position: sticky;
             top: 0;
             z-index: 101;
-            color: var(--text-color);
+            color: var(--loja-texto, #1f2937);
             font-weight: 700;
             font-size: 23px;
             box-shadow: 0 2px 0 #eef2fb;
@@ -318,7 +318,7 @@
         }
 
         .notes-profile {
-            background: linear-gradient(135deg, #2b87ff 0%, #1a6fd4 100%);
+            background: linear-gradient(135deg, var(--loja-acento, #2b87ff) 0%, #1a6fd4 100%);
             border-radius: 14px;
             padding: 20px 22px;
             margin-bottom: 18px;
@@ -467,7 +467,7 @@
         }
 
         .stat-card.total .stat-value {
-            color: #2b87ff;
+            color: var(--loja-acento, #2b87ff);
         }
 
         #notes-edit-mode .form-grid {
@@ -642,7 +642,7 @@
             padding: 4px 10px;
             border-radius: 999px;
             background: #eef4ff;
-            color: #2b87ff;
+            color: var(--loja-acento, #2b87ff);
             font-size: 11px;
             font-weight: 600;
         }
@@ -798,7 +798,7 @@
         }
 
         .modal-body select:focus {
-            border-color: #2b87ff;
+            border-color: var(--loja-acento, #2b87ff);
         }
 
         .modal-valor {
@@ -913,7 +913,7 @@
         }
 
         .btn-add{ 
-            background: #2b87ff; 
+            background: var(--loja-acento, #2b87ff); 
             color: white;
             height: 38px;
             border: none;
@@ -975,7 +975,7 @@
         <h1>Clientes</h1>       
         
         <div class="barra_ferramentas">
-            <button class="btn-add" onclick="Adicionar_client()">
+            <button class="btn-add" type="button" id="btn-novo-cliente" onclick="Adicionar_client()">
                 <span>+</span>NOVO CLIENTE
             </button>
 
@@ -2033,4 +2033,5 @@
         reloadOnClear: true,
     });
 </script>
+{% include "partials/loja_config.html" %}
 </html>

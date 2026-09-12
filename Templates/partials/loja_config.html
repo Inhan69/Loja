@@ -1,0 +1,79 @@
+{% load static %}
+<style>
+  :root {
+    --loja-header: #1f2126;
+    --loja-sidebar: #1f2126;
+    --loja-sidebar-2: #2b2f34;
+    --loja-destaque: #5aa2ff;
+    --loja-acento: #2b87ff;
+    --loja-fundo: #f4f6f9;
+    --loja-painel: #ffffff;
+    --loja-texto: #1f2937;
+    --panel-color: var(--loja-painel);
+    --text-color: var(--loja-texto);
+  }
+  #loja-ajuda-atalhos {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 4000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #loja-ajuda-atalhos.aberto { display: flex; }
+  .loja-ajuda-caixa {
+    width: min(480px, 100%);
+    background: var(--loja-painel, #fff);
+    color: var(--loja-texto, #1f2937);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  .loja-ajuda-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .loja-ajuda-topo button {
+    border: 1px solid #dde3ef;
+    background: #f8fafc;
+    border-radius: 8px;
+    height: 32px;
+    padding: 0 12px;
+    cursor: pointer;
+  }
+  .loja-ajuda-lista { display: grid; gap: 8px; }
+  .loja-ajuda-lista div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .loja-ajuda-lista kbd {
+    background: #111827;
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+  .loja-ajuda-caixa p {
+    margin: 14px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+  }
+</style>
+<script>
+  window.LOJA_SHELL = {% if is_shell %}true{% else %}false{% endif %};
+  window.LOJA_ROTAS = {
+    dashboard: "{% url 'front_end:dashboard' %}",
+    produtos: "{% url 'front_end:produtos' %}",
+    clientes: "{% url 'front_end:clientes' %}",
+    vendas: "{% url 'front_end:vendas' %}",
+    configuracoes: "{% url 'front_end:configuracoes' %}"
+  };
+</script>
+<script src="{% static 'front_end/loja_config.js' %}"></script>

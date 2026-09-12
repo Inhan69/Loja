@@ -1,7 +1,7 @@
 <style>
 :root{
-    --panel-color: white;
-    --text-color: #2c2c2c;
+    --panel-color: var(--loja-painel, white);
+    --text-color: var(--loja-texto, #2c2c2c);
 }
 
 .barra-busca-filtros {
@@ -48,7 +48,7 @@
   appearance: none;
 }
 
-.filtro-campo:open { color: #2b87ff; }
+.filtro-campo:open { color: var(--loja-acento, #2b87ff); }
 
 .busca-grupo {
   display: inline-flex;
@@ -83,7 +83,7 @@
 }
 
 .barra-busca-filtros .campo-busca:focus,
-.busca-grupo-solo .campo-busca:focus { border-color: #2b87ff; }
+.busca-grupo-solo .campo-busca:focus { border-color: var(--loja-acento, #2b87ff); }
 
 .barra-busca-filtros .campo-busca:focus { position: relative; z-index: 1; }
 
