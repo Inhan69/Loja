@@ -100,7 +100,7 @@
       background-color: #f1f3f4;
       color: #0076a8;
       font-size: large;
-      padding: 0 150px 0 15px;
+      padding: 0 5vw 0  15px;
       display: flex;
       align-items: center;
       text-align: left;
@@ -171,7 +171,7 @@
       position: sticky;
       top: 0;
       z-index: 101;
-      color: #666;
+      color: var(--loja-texto, #1f2937);
       font-weight: 700;
       font-size: 23px;
       box-shadow: 0 2px 0 #eef2fb;
@@ -350,6 +350,44 @@
         align-items: center; 
         justify-content: center;
     }
+
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 11000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .confirm-overlay.aberto { display: flex; }
+
+    .confirm-box {
+      background: #fff;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .confirm-header { padding: 18px 20px 12px; border-bottom: 1px solid #eee; }
+    .confirm-header h4 { margin: 0 0 4px; font-size: 17px; color: #2c2c2c; }
+    .confirm-header p { margin: 0; font-size: 13px; color: #888; }
+    .confirm-body { padding: 16px 20px; }
+    .confirm-body p { margin: 0; font-size: 14px; color: #666; text-align: left; }
+    .confirm-linha { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: #4b5563; margin-bottom: 8px; }
+    .confirm-linha strong { color: #1f2937; }
+    .confirm-actions { display: flex; gap: 10px; padding: 14px 20px 18px; border-top: 1px solid #eee; }
+    .confirm-actions button {
+      flex: 1; height: 40px; border: none; border-radius: 8px;
+      font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .confirm-cancelar { background: #f3f4f6; color: #455a64; }
+    .confirm-ok { background: #10b981; color: #fff; }
+    .confirm-excluir { background: #dc2626; color: #fff; }
   </style>
 </head>
 <body>
@@ -449,9 +487,44 @@
 
             <span class="botoes-container">
               <input type="submit" value="Salvar Alterações">
-              <a id="link-excluir" href="#" onclick="return confirm('Tem certeza que deseja excluir este produto?');" >Excluir Produto</a>
+              <a id="link-excluir" href="#" >Excluir Produto</a>
             </span>
         </form>
+    </div>
+  </div>
+
+  <div id="confirm-cadastrar" class="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-header">
+        <h4>Confirmar cadastro</h4>
+        <p id="confirm-cadastrar-nome">Novo produto</p>
+      </div>
+      <div class="confirm-body">
+        <div class="confirm-linha"><span>Código</span><strong id="confirm-cadastrar-codigo">—</strong></div>
+        <div class="confirm-linha"><span>Estoque</span><strong id="confirm-cadastrar-qtd">—</strong></div>
+        <div class="confirm-linha"><span>Preço</span><strong id="confirm-cadastrar-preco">—</strong></div>
+        <p style="margin-top:12px;">O item será inscrito no estoque.</p>
+      </div>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-cancelar" id="btn-cancelar-cadastro">Cancelar</button>
+        <button type="button" class="confirm-ok" id="btn-confirmar-cadastro">Cadastrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-excluir-produto" class="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-header">
+        <h4>Excluir produto</h4>
+        <p id="confirm-excluir-nome"></p>
+      </div>
+      <div class="confirm-body">
+        <p>O cadastro será apagado e o item sairá do estoque.</p>
+      </div>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-cancelar" id="btn-cancelar-excluir">Cancelar</button>
+        <button type="button" class="confirm-excluir" id="btn-confirmar-excluir">Excluir</button>
+      </div>
     </div>
   </div>
 
@@ -478,7 +551,7 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
     document.getElementById('form-editar').action = "/editar/" + id + "/";
 
     document.getElementById('link-excluir').href = "/remover/" + id + "/";
-
+    document.getElementById('confirm-excluir-nome').textContent = nome;
     document.getElementById('modal-editar').style.display = 'flex';
   }
 
@@ -515,9 +588,53 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
   window.onclick = function(event) {
       const modalAdd = document.getElementById('modal-container');
       const modalEdit = document.getElementById('modal-editar');
+      const confirmCadastro = document.getElementById('confirm-cadastrar');
+      const confirmExcluir = document.getElementById('confirm-excluir-produto');
       if (event.target == modalAdd) Fechar_Modal();
       if (event.target == modalEdit) Fechar_Modal_Editar();
+      if (event.target == confirmCadastro) confirmCadastro.classList.remove('aberto');
+      if (event.target == confirmExcluir) confirmExcluir.classList.remove('aberto');
   }
+
+  const formAdicionar = document.getElementById('form-adicionar');
+  let cadastroConfirmado = false;
+  formAdicionar.addEventListener('submit', function (event) {
+    if (cadastroConfirmado) return;
+    if (!formAdicionar.reportValidity()) return;
+    event.preventDefault();
+    document.getElementById('confirm-cadastrar-nome').textContent =
+      document.querySelector('#form-adicionar #id_nome')?.value || 'Novo produto';
+    document.getElementById('confirm-cadastrar-codigo').textContent =
+      document.querySelector('#form-adicionar #id_codigo')?.value || '—';
+    document.getElementById('confirm-cadastrar-qtd').textContent =
+      document.querySelector('#form-adicionar #id_quantidade')?.value || '—';
+    const preco = document.querySelector('#form-adicionar #id_preco')?.value || '0';
+    document.getElementById('confirm-cadastrar-preco').textContent = `R$ ${preco}`;
+    document.getElementById('confirm-cadastrar').classList.add('aberto');
+  });
+
+  document.getElementById('btn-cancelar-cadastro').addEventListener('click', () => {
+    document.getElementById('confirm-cadastrar').classList.remove('aberto');
+  });
+  document.getElementById('btn-confirmar-cadastro').addEventListener('click', () => {
+    cadastroConfirmado = true;
+    document.getElementById('confirm-cadastrar').classList.remove('aberto');
+    formAdicionar.submit();
+  });
+
+  document.getElementById('link-excluir').addEventListener('click', (event) => {
+    event.preventDefault();
+    const href = document.getElementById('link-excluir').getAttribute('href');
+    if (!href || href === '#') return;
+    document.getElementById('confirm-excluir-produto').classList.add('aberto');
+  });
+  document.getElementById('btn-cancelar-excluir').addEventListener('click', () => {
+    document.getElementById('confirm-excluir-produto').classList.remove('aberto');
+  });
+  document.getElementById('btn-confirmar-excluir').addEventListener('click', () => {
+    const href = document.getElementById('link-excluir').getAttribute('href');
+    if (href && href !== '#') window.location.href = href;
+  });
 </script>
 {% include "partials/loja_config.html" %}
 </html>

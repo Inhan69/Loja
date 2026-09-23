@@ -4,10 +4,10 @@ import json
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProdutoForm, Edit_ProdutoForm, ClientForm, EditClientForm
-from .models import Produto, Client, Venda
+from .models import Produto, Client, Venda, PagamentoParcial
 from django.http import HttpRequest, JsonResponse
 from django.db import transaction
-from django.db.models import Count, IntegerField, Sum
+from django.db.models import Count, F, IntegerField, Sum
 from django.db.models.functions import Cast, Coalesce, TruncDate
 from django.utils import timezone
 from .search_filters import CAMPO_PADRAO_CLIENTE, CAMPO_PADRAO_PRODUTO, filtrar_clientes, filtrar_produtos
@@ -19,6 +19,71 @@ def _money(valor):
     if valor is None:
         return ZERO
     return Decimal(valor)
+
+
+def _saldo_venda(venda):
+    restante = _money(venda.total) - _money(venda.valor_pago)
+    return restante if restante > 0 else ZERO
+
+
+def _rotulo_status(venda):
+    if venda.status == "anotado" and _money(venda.valor_pago) > 0:
+        return "Haver"
+    return venda.get_status_display()
+
+
+def _badge_status(venda):
+    if venda.status == "anotado" and _money(venda.valor_pago) > 0:
+        return "haver"
+    return venda.status
+
+
+def _rotulo_pagamento(tipo, parcelas=1):
+    rotulo = dict(Venda.PAGAMENTO_CHOICES).get(tipo, tipo)
+    if tipo == "cartao_credito":
+        return f"{rotulo} ({max(1, int(parcelas or 1))}x)"
+    return rotulo
+
+
+def _ler_parcelas(dados, tipo_pagamento):
+    if tipo_pagamento != "cartao_credito":
+        return 1
+    try:
+        parcelas = int(str(dados.get("parcelas", "1")).strip() or "1")
+    except (TypeError, ValueError):
+        return None
+    if parcelas < 1 or parcelas > 12:
+        return None
+    return parcelas
+
+
+def _venda_api(venda):
+    ultimo = venda.pagamentos_parciais.order_by("-dt_pagamento").first()
+    tipo = venda.tipo_pagamento
+    parcelas = venda.parcelas or 1
+    if venda.status == "anotado" and ultimo:
+        tipo = ultimo.tipo_pagamento
+        parcelas = ultimo.parcelas or 1
+    return {
+        "id": venda.id,
+        "produto": venda.produto.nome,
+        "codigo": venda.produto.codigo,
+        "quantidade": str(venda.quantidade),
+        "total": str(venda.total),
+        "valor_pago": str(_money(venda.valor_pago)),
+        "saldo": str(_saldo_venda(venda)),
+        "desconto": str(venda.desconto),
+        "tipo_pagamento": venda.tipo_pagamento,
+        "parcelas": parcelas,
+        "tipo_pagamento_label": _rotulo_pagamento(tipo, parcelas)
+        if venda.status != "anotado" or ultimo
+        else venda.get_tipo_pagamento_display(),
+        "status": venda.status,
+        "status_badge": _badge_status(venda),
+        "status_label": _rotulo_status(venda),
+        "observacao": venda.observacao,
+        "dt_venda": venda.dt_venda.strftime("%d/%m/%Y %H:%M"),
+    }
 
 
 def _normalizar_dia(valor):
@@ -52,13 +117,20 @@ def Dashboard(request):
     vendas = Venda.objects.select_related("produto", "cliente")
     vendas_pagas = vendas.filter(status="pago")
     vendas_anotadas = vendas.filter(status="anotado")
-    vendas_mes = vendas_pagas.filter(dt_venda__date__gte=inicio_mes)
 
     faturamento_hoje = _money(
-        vendas_pagas.filter(dt_venda__date=hoje).aggregate(total=Sum("total"))["total"]
+        vendas_pagas.filter(dt_venda__date=hoje, valor_pago=0).aggregate(total=Sum("total"))["total"]
+    ) + _money(
+        PagamentoParcial.objects.filter(dt_pagamento__date=hoje).aggregate(total=Sum("valor"))["total"]
     )
-    faturamento_mes = _money(vendas_mes.aggregate(total=Sum("total"))["total"])
-    total_anotado = _money(vendas_anotadas.aggregate(total=Sum("total"))["total"])
+    faturamento_mes = _money(
+        vendas_pagas.filter(dt_venda__date__gte=inicio_mes, valor_pago=0).aggregate(total=Sum("total"))["total"]
+    ) + _money(
+        PagamentoParcial.objects.filter(dt_pagamento__date__gte=inicio_mes).aggregate(total=Sum("valor"))["total"]
+    )
+    total_anotado = _money(
+        vendas_anotadas.aggregate(total=Sum(F("total") - F("valor_pago")))["total"]
+    )
     ticket_medio = _money(vendas_pagas.aggregate(total=Sum("total"))["total"])
     qtd_pagas = vendas_pagas.count()
     if qtd_pagas:
@@ -103,21 +175,14 @@ def Dashboard(request):
             total=Coalesce(Sum("total"), ZERO),
             qtd=Coalesce(Sum("quantidade"), ZERO),
         )
-        .order_by("-total")[:8]
+        .order_by("-total")
     )
 
-    anotados = list(
-        vendas_anotadas.order_by("-dt_venda")[:12]
-    )
-    clientes_pendentes = list(
-        vendas_anotadas.filter(cliente__isnull=False)
-        .values("cliente__id", "cliente__nome")
-        .annotate(total=Coalesce(Sum("total"), ZERO), qtd=Count("id"))
-        .order_by("-total")[:8]
-    )
+    anotados = list(vendas_anotadas.order_by("-dt_venda"))
+    qtd_havers = vendas_anotadas.filter(valor_pago__gt=0).count()
 
     estoque_baixo = list(
-        Produto.objects.filter(quantidade__lte=5).order_by("quantidade", "nome")[:8]
+        Produto.objects.filter(quantidade__lte=5).order_by("quantidade", "nome")
     )
 
     contexto = {
@@ -131,7 +196,7 @@ def Dashboard(request):
         "total_produtos": Produto.objects.count(),
         "total_clientes": Client.objects.count(),
         "anotados": anotados,
-        "clientes_pendentes": clientes_pendentes,
+        "qtd_havers": qtd_havers,
         "top_produtos": top_produtos,
         "estoque_baixo": estoque_baixo,
         "grafico_vendas": {
@@ -217,6 +282,7 @@ def notas_cliente(request: HttpRequest, id: int):
     vendas = (
         Venda.objects.filter(cliente=cliente)
         .select_related("produto")
+        .prefetch_related("pagamentos_parciais")
         .order_by("-dt_venda")
     )
 
@@ -237,23 +303,7 @@ def notas_cliente(request: HttpRequest, id: int):
                 if cliente.dt_nascimento
                 else "",
             },
-            "vendas": [
-                {
-                    "id": venda.id,
-                    "produto": venda.produto.nome,
-                    "codigo": venda.produto.codigo,
-                    "quantidade": str(venda.quantidade),
-                    "total": str(venda.total),
-                    "desconto": str(venda.desconto),
-                    "tipo_pagamento": venda.tipo_pagamento,
-                    "tipo_pagamento_label": venda.get_tipo_pagamento_display(),
-                    "status": venda.status,
-                    "status_label": venda.get_status_display(),
-                    "observacao": venda.observacao,
-                    "dt_venda": venda.dt_venda.strftime("%d/%m/%Y %H:%M"),
-                }
-                for venda in vendas
-            ],
+            "vendas": [_venda_api(venda) for venda in vendas],
             "pagamentos": [
                 {"valor": valor, "rotulo": rotulo}
                 for valor, rotulo in Venda.PAGAMENTO_CHOICES
@@ -267,14 +317,6 @@ def pagar_venda(request: HttpRequest, id: int):
     if request.method != "POST":
         return JsonResponse({"error": "Método não permitido."}, status=405)
 
-    venda = get_object_or_404(Venda, id=id)
-
-    if venda.status != "anotado":
-        return JsonResponse(
-            {"success": False, "error": "Somente itens anotados podem ser pagos."},
-            status=400,
-        )
-
     try:
         dados = json.loads(request.body.decode("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError):
@@ -287,20 +329,78 @@ def pagar_venda(request: HttpRequest, id: int):
             status=400,
         )
 
-    venda.tipo_pagamento = tipo_pagamento
-    venda.status = "pago"
-    venda.save()
+    parcelas = _ler_parcelas(dados, tipo_pagamento)
+    if parcelas is None:
+        return JsonResponse(
+            {"success": False, "error": "Informe as parcelas do cartão de crédito (1x a 12x)."},
+            status=400,
+        )
+
+    with transaction.atomic():
+        venda = get_object_or_404(
+            Venda.objects.select_for_update().select_related("produto"),
+            id=id,
+        )
+
+        if venda.status != "anotado":
+            return JsonResponse(
+                {"success": False, "error": "Somente itens anotados podem ser pagos."},
+                status=400,
+            )
+
+        saldo = _saldo_venda(venda).quantize(Decimal("0.01"))
+        if saldo <= 0:
+            return JsonResponse(
+                {"success": False, "error": "Este item não possui valor em aberto."},
+                status=400,
+            )
+
+        bruto = dados.get("valor", None)
+        if bruto in (None, ""):
+            valor = saldo
+        else:
+            try:
+                valor = Decimal(str(bruto).replace(",", ".").strip())
+            except (InvalidOperation, TypeError):
+                return JsonResponse(
+                    {"success": False, "error": "Informe um valor válido."},
+                    status=400,
+                )
+
+        valor = valor.quantize(Decimal("0.01"))
+        if valor <= 0:
+            return JsonResponse(
+                {"success": False, "error": "O valor pago deve ser maior que zero."},
+                status=400,
+            )
+        if valor > saldo:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Não é possível pagar além do valor em aberto.",
+                    "saldo": str(saldo),
+                },
+                status=400,
+            )
+
+        PagamentoParcial.objects.create(
+            venda=venda,
+            valor=valor,
+            tipo_pagamento=tipo_pagamento,
+            parcelas=parcelas,
+        )
+        venda.valor_pago = _money(venda.valor_pago) + valor
+        if venda.valor_pago >= venda.total:
+            venda.valor_pago = venda.total
+            venda.status = "pago"
+            venda.tipo_pagamento = tipo_pagamento
+            venda.parcelas = parcelas
+        venda.save()
 
     return JsonResponse(
         {
             "success": True,
-            "venda": {
-                "id": venda.id,
-                "tipo_pagamento": venda.tipo_pagamento,
-                "tipo_pagamento_label": venda.get_tipo_pagamento_display(),
-                "status": venda.status,
-                "status_label": venda.get_status_display(),
-            },
+            "venda": _venda_api(venda),
         }
     )
 
@@ -387,6 +487,8 @@ def editar_cliente(request: HttpRequest, id: int):
 
     if not dados.get("dt_nascimento"):
         dados["dt_nascimento"] = ""
+    if dados.get("numero") in ("", None):
+        dados["numero"] = None
 
     form = EditClientForm(dados, instance=cliente)
     if not form.is_valid():
@@ -443,7 +545,7 @@ def Vendas(request):
     return render(request, "pag_vendas.html", contexto)
 
 
-def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, observacao=""):
+def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, observacao="", parcelas=1):
     preco_com_desconto = produto.preco - (desconto * produto.preco / Decimal("100"))
     total = preco_com_desconto * quantidade
     if total < 0:
@@ -453,6 +555,8 @@ def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, ob
     produto.save()
 
     status = "anotado" if tipo_pagamento == "anotado" else "pago"
+    if tipo_pagamento != "cartao_credito":
+        parcelas = 1
 
     Venda.objects.create(
         produto=produto,
@@ -463,6 +567,7 @@ def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, ob
         tipo_pagamento=tipo_pagamento,
         status=status,
         total=total,
+        parcelas=parcelas,
     )
 
 
@@ -497,6 +602,9 @@ def registrar_venda(request: HttpRequest):
                 return redirect("front_end:vendas")
 
         observacao = request.POST.get("observacao", "").strip()[:200]
+        parcelas = _ler_parcelas(request.POST, tipo_pagamento)
+        if parcelas is None:
+            return redirect("front_end:vendas")
 
         for item in items:
             produto = get_object_or_404(Produto, id=item.get("produto_id"))
@@ -515,6 +623,7 @@ def registrar_venda(request: HttpRequest):
                 tipo_pagamento,
                 cliente=cliente,
                 observacao=observacao,
+                parcelas=parcelas,
             )
 
         return redirect("front_end:vendas")
@@ -530,7 +639,13 @@ def registrar_venda(request: HttpRequest):
     if quantidade <= 0 or quantidade > produto.quantidade:
         return redirect("front_end:produtos")
 
-    _criar_venda(produto, quantidade, desconto, tipo_pagamento)
+    _criar_venda(
+        produto,
+        quantidade,
+        desconto,
+        tipo_pagamento,
+        parcelas=_ler_parcelas(request.POST, tipo_pagamento) or 1,
+    )
 
     return redirect("front_end:vendas")
 

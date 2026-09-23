@@ -660,6 +660,11 @@
             color: #b45309;
         }
 
+        .badge-status.haver {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
         .badge-status.pago {
             background: #d1fae5;
             color: #047857;
@@ -730,6 +735,66 @@
         .valor-venda {
             color: #10b981;
             font-weight: 700;
+        }
+
+        .valor-venda.haver {
+            color: #d97706;
+        }
+
+        .saldo-hint {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #9ca3af;
+        }
+
+        .modal-body input[type="number"],
+        .modal-body select {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #d7dfef;
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .modal-body input[type="number"]:focus,
+        .modal-body select:focus {
+            border-color: var(--loja-acento, #2b87ff);
+        }
+
+        .modal-info-parcelas {
+            display: none;
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: #eef4ff;
+            border: 1px solid #cfe0ff;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        .modal-info-parcelas.visible {
+            display: block;
+        }
+
+        .modal-info-parcelas strong {
+            display: block;
+            margin-top: 2px;
+            font-size: 16px;
+            color: #1d4ed8;
+        }
+
+        .modal-resumo-haver {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 10px;
         }
 
         .modal-overlay {
@@ -1070,18 +1135,18 @@
                     </div>
 
                     <div class="field">
-                        <label for="telefone">Telefone *</label>
-                        <input id="telefone" name="telefone" type="text" placeholder="(00) 00000-0000" value="{{ form.telefone.value|default:'' }}" required>
+                        <label for="telefone">Telefone</label>
+                        <input id="telefone" name="telefone" type="text" placeholder="(00) 00000-0000" value="{{ form.telefone.value|default:'' }}">
                     </div>
 
                     <div class="field col-span-2">
-                        <label for="rua">Rua *</label>
-                        <input id="rua" name="rua" type="text" placeholder="Digite a rua" value="{{ form.rua.value|default:'' }}" required>
+                        <label for="rua">Rua</label>
+                        <input id="rua" name="rua" type="text" placeholder="Digite a rua" value="{{ form.rua.value|default:'' }}">
                     </div>
 
                     <div class="field">
-                        <label for="bairro">Bairro *</label>
-                        <input id="bairro" name="bairro" type="text" placeholder="Digite o bairro" value="{{ form.bairro.value|default:'' }}" required>
+                        <label for="bairro">Bairro</label>
+                        <input id="bairro" name="bairro" type="text" placeholder="Digite o bairro" value="{{ form.bairro.value|default:'' }}">
                     </div>
 
                     <div class="field">
@@ -1090,8 +1155,8 @@
                     </div>
 
                     <div class="field col-span-2">
-                        <label for="numero">Número *</label>
-                        <input id="numero" name="numero" type="number" placeholder="Digite o número" value="{{ form.numero.value|default:'' }}" min="1" required>
+                        <label for="numero">Número</label>
+                        <input id="numero" name="numero" type="number" placeholder="Digite o número" value="{{ form.numero.value|default:'' }}" min="1">
                     </div>
                 </div>
 
@@ -1127,16 +1192,52 @@
         </div>
     </div>
 
+    <div id="modal-confirmar-cliente" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h4>Confirmar cadastro</h4>
+                <p id="modal-confirmar-cliente-nome"></p>
+            </div>
+            <div class="modal-body">
+                <p style="margin:0; font-size:14px; color:#666; text-align:left;">
+                    O cliente será inscrito na lista. Confira os dados antes de salvar.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn-cancel" onclick="fecharModalConfirmarCliente()">Cancelar</button>
+                <button type="button" class="modal-btn-confirm" onclick="confirmarCadastroCliente()">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-pagar" class="modal-overlay hidden">
         <div class="modal-box">
             <div class="modal-header">
-                <h4>Confirmar pagamento</h4>
+                <h4>Pagar item da nota</h4>
                 <p id="modal-pagar-produto"></p>
             </div>
             <div class="modal-body">
                 <label for="modal-tipo-pagamento">Forma de pagamento</label>
                 <select id="modal-tipo-pagamento"></select>
-                <div class="modal-valor" id="modal-pagar-valor"></div>
+                <div id="modal-parcelas-wrap" class="view-hidden">
+                    <label for="modal-pagar-parcelas" style="margin-top:12px;">Parcelas</label>
+                    <select id="modal-pagar-parcelas">
+                        {% for n in "123456789012"|make_list %}
+                        <option value="{{ forloop.counter }}">{{ forloop.counter }}x</option>
+                        {% endfor %}
+                    </select>
+                    <div class="modal-info-parcelas" id="modal-info-parcelas">
+                        <span id="modal-parcelas-resumo">Selecione as parcelas</span>
+                        <strong id="modal-parcelas-valor"></strong>
+                    </div>
+                </div>
+                <label for="modal-pagar-valor-input" style="margin-top:12px;">Valor a pagar</label>
+                <input type="number" id="modal-pagar-valor-input" min="1" step="1" inputmode="decimal">
+                <div class="modal-resumo-haver">
+                    <span>Total do item: <strong id="modal-pagar-total">R$ 0,00</strong></span>
+                    <span>Já pago: <strong id="modal-pagar-pago">R$ 0,00</strong></span>
+                </div>
+                <div class="modal-valor" id="modal-pagar-valor">Haver: R$ 0,00</div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="modal-btn-cancel" onclick="fecharModalPagar()">Cancelar</button>
@@ -1237,6 +1338,28 @@
         mostrarLista();
     }
 
+    let cadastroClienteConfirmado = false;
+    const formCliente = document.getElementById("client-form");
+
+    function fecharModalConfirmarCliente() {
+        document.getElementById("modal-confirmar-cliente").classList.add("hidden");
+    }
+
+    function confirmarCadastroCliente() {
+        cadastroClienteConfirmado = true;
+        fecharModalConfirmarCliente();
+        formCliente.requestSubmit();
+    }
+
+    formCliente.addEventListener("submit", (event) => {
+        if (cadastroClienteConfirmado) return;
+        if (!formCliente.reportValidity()) return;
+        event.preventDefault();
+        document.getElementById("modal-confirmar-cliente-nome").textContent =
+            document.getElementById("nome").value.trim() || "Novo cliente";
+        document.getElementById("modal-confirmar-cliente").classList.remove("hidden");
+    });
+
     function parseNumero(valor) {
         if (valor == null || valor === "") return 0;
         if (typeof valor === "number") return Number.isFinite(valor) ? valor : 0;
@@ -1295,7 +1418,7 @@
             const total = parseNumero(venda.total);
             if (venda.status === "anotado") {
                 pendentes += 1;
-                totalAberto += total;
+                totalAberto += saldoVenda(venda);
             } else if (venda.status === "pago") {
                 pagos += 1;
             }
@@ -1337,7 +1460,7 @@
     }
 
     function badgeStatus(venda) {
-        const cls = venda.status || "pago";
+        const cls = venda.status_badge || venda.status || "pago";
         const label = venda.status_label || "Pago";
         return `<span class="badge-status ${cls}">${escapeHtml(label)}</span>`;
     }
@@ -1380,14 +1503,20 @@
     }
 
     function textoResumoCliente(cliente, totalItens) {
-        return `CPF ${cliente.cpf} · ${cliente.telefone} · ${totalItens} item(ns)`;
+        const partes = [`CPF ${cliente.cpf}`];
+        if (cliente.telefone) partes.push(cliente.telefone);
+        partes.push(`${totalItens} item(ns)`);
+        return partes.join(" · ");
     }
 
     function textoEnderecoCliente(cliente) {
+        const endereco = [cliente.rua, cliente.numero, cliente.bairro].filter((parte) => parte !== "" && parte != null);
         const nasc = cliente.dt_nascimento && cliente.dt_nascimento !== "-"
-            ? ` · Nasc. ${cliente.dt_nascimento}`
+            ? `Nasc. ${cliente.dt_nascimento}`
             : "";
-        return `${cliente.rua}, ${cliente.numero} · ${cliente.bairro}${nasc}`;
+        if (!endereco.length && !nasc) return "Endereço não informado";
+        const ruaNumero = [cliente.rua, cliente.numero].filter((parte) => parte !== "" && parte != null).join(", ");
+        return [ruaNumero, cliente.bairro, nasc].filter(Boolean).join(" · ");
     }
 
     function renderizarResumoCliente(cliente, totalItens) {
@@ -1456,6 +1585,14 @@
         const acoesEl = document.getElementById(`venda-acoes-${venda.id}`);
 
         if (statusEl) statusEl.innerHTML = badgeStatus(venda);
+        const totalEl = document.getElementById(`venda-total-${venda.id}`);
+        if (totalEl) {
+            totalEl.innerHTML = htmlValorVenda(venda);
+            totalEl.classList.toggle(
+                "haver",
+                venda.status === "anotado" && parseNumero(venda.valor_pago) > 0
+            );
+        }
         if (pagamentoEl) {
             pagamentoEl.innerHTML = `<span class="badge-pagamento">${escapeHtml(venda.tipo_pagamento_label || venda.tipo_pagamento)}</span>`;
         }
@@ -1477,20 +1614,99 @@
         filtrarItensAnotados();
     }
 
+    function saldoVenda(venda) {
+        if (venda.saldo != null && venda.saldo !== "") return parseNumero(venda.saldo);
+        return Math.max(parseNumero(venda.total) - parseNumero(venda.valor_pago), 0);
+    }
+
+    function htmlValorVenda(venda) {
+        const total = parseNumero(venda.total);
+        const pago = parseNumero(venda.valor_pago);
+        const saldo = saldoVenda(venda);
+        if (venda.status === "anotado" && pago > 0) {
+            return `${formatarMoeda(saldo)}<span class="saldo-hint">haver · pago ${formatarMoeda(pago)} de ${formatarMoeda(total)}</span>`;
+        }
+        if (venda.status === "anotado") {
+            return `${formatarMoeda(total)}<span class="saldo-hint">haver integral</span>`;
+        }
+        return formatarMoeda(total);
+    }
+
+    function arredondarDinheiro(valor) {
+        return Math.round((parseNumero(valor) + Number.EPSILON) * 100) / 100;
+    }
+
+    function valorPagarAtual() {
+        return arredondarDinheiro(document.getElementById("modal-pagar-valor-input").value);
+    }
+
+    function limitarValorPagar(formatar) {
+        if (!vendaAcaoAtual) return 0;
+        const campo = document.getElementById("modal-pagar-valor-input");
+        const saldo = arredondarDinheiro(saldoVenda(vendaAcaoAtual));
+        campo.min = "1";
+        campo.max = saldo.toFixed(2);
+        let valor = valorPagarAtual();
+        if (valor > saldo) {
+            valor = saldo;
+            campo.value = saldo.toFixed(2);
+        }
+        if (valor < 0) {
+            valor = 0;
+            campo.value = "";
+        }
+        if (formatar && campo.value !== "") campo.value = valor.toFixed(2);
+        atualizarParcelasPagar();
+        return valor;
+    }
+
+    function atualizarParcelasPagar() {
+        const wrap = document.getElementById("modal-parcelas-wrap");
+        const info = document.getElementById("modal-info-parcelas");
+        const tipo = document.getElementById("modal-tipo-pagamento").value;
+        const credito = tipo === "cartao_credito";
+        wrap.classList.toggle("view-hidden", !credito);
+        info.classList.toggle("visible", credito);
+        if (!credito) return;
+
+        const parcelas = parseInt(document.getElementById("modal-pagar-parcelas").value, 10) || 1;
+        const valor = valorPagarAtual();
+        document.getElementById("modal-parcelas-resumo").textContent =
+            valor > 0 ? `${parcelas} parcela(s) de:` : "Informe o valor a pagar";
+        document.getElementById("modal-parcelas-valor").textContent =
+            valor > 0 ? formatarMoeda(valor / parcelas) : "";
+    }
+
+    function preencherValorPagar(valor) {
+        const campo = document.getElementById("modal-pagar-valor-input");
+        const saldo = vendaAcaoAtual ? arredondarDinheiro(saldoVenda(vendaAcaoAtual)) : arredondarDinheiro(valor);
+        const limitado = Math.min(arredondarDinheiro(valor), saldo);
+        campo.max = saldo.toFixed(2);
+        campo.value = limitado.toFixed(2);
+        atualizarParcelasPagar();
+    }
+
     function abrirModalPagar(vendaId) {
         const venda = obterVendaPorId(vendaId);
         if (!venda || venda.status !== "anotado") return;
 
         vendaAcaoAtual = venda;
+        const saldo = arredondarDinheiro(saldoVenda(venda));
         document.getElementById("modal-pagar-produto").textContent = venda.produto;
-        document.getElementById("modal-pagar-valor").textContent = formatarMoeda(venda.total);
+        document.getElementById("modal-pagar-total").textContent = formatarMoeda(venda.total);
+        document.getElementById("modal-pagar-pago").textContent = formatarMoeda(venda.valor_pago);
+        document.getElementById("modal-pagar-valor").textContent = `Em aberto: ${formatarMoeda(saldo)}`;
+        document.getElementById("modal-pagar-parcelas").value = "1";
 
         const select = document.getElementById("modal-tipo-pagamento");
         select.innerHTML = pagamentosDisponiveis.map(
             (p) => `<option value="${escapeHtml(p.valor)}">${escapeHtml(p.rotulo)}</option>`
         ).join("");
+        select.value = pagamentosDisponiveis[0]?.valor || "dinheiro";
 
+        preencherValorPagar(saldo);
         document.getElementById("modal-pagar").classList.remove("hidden");
+        document.getElementById("modal-pagar-valor-input").focus();
     }
 
     function fecharModalPagar() {
@@ -1503,6 +1719,26 @@
 
         const tipoPagamento = document.getElementById("modal-tipo-pagamento").value;
         const vendaId = vendaAcaoAtual.id;
+        const saldo = arredondarDinheiro(saldoVenda(vendaAcaoAtual));
+        const valor = limitarValorPagar(true);
+        const parcelas = parseInt(document.getElementById("modal-pagar-parcelas").value, 10) || 0;
+
+        if (valor <= 0) {
+            alert("Informe um valor maior que zero.");
+            return;
+        }
+        if (valor > saldo) {
+            alert("Não é possível pagar além do valor em aberto.");
+            preencherValorPagar(saldo);
+            return;
+        }
+        if (tipoPagamento === "cartao_credito") {
+            if (parcelas < 1 || parcelas > 12) {
+                alert("Selecione as parcelas do cartão de crédito (1x a 12x).");
+                return;
+            }
+            atualizarParcelasPagar();
+        }
 
         try {
             const response = await fetch(`/vendas/${vendaId}/pagar/`, {
@@ -1511,12 +1747,17 @@
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrfToken,
                 },
-                body: JSON.stringify({ tipo_pagamento: tipoPagamento }),
+                body: JSON.stringify({
+                    tipo_pagamento: tipoPagamento,
+                    valor,
+                    parcelas: tipoPagamento === "cartao_credito" ? parcelas : 1,
+                }),
             });
 
             const data = await response.json();
             if (!response.ok || !data.success) {
                 alert(data.error || "Não foi possível registrar o pagamento.");
+                if (data.saldo != null) preencherValorPagar(data.saldo);
                 return;
             }
 
@@ -1724,15 +1965,15 @@
                             </div>
                             <div class="field">
                                 <label for="notes-telefone">Telefone</label>
-                                <input id="notes-telefone" type="text" required>
+                                <input id="notes-telefone" type="text">
                             </div>
                             <div class="field col-span-2">
                                 <label for="notes-rua">Rua</label>
-                                <input id="notes-rua" type="text" required>
+                                <input id="notes-rua" type="text">
                             </div>
                             <div class="field">
                                 <label for="notes-bairro">Bairro</label>
-                                <input id="notes-bairro" type="text" required>
+                                <input id="notes-bairro" type="text">
                             </div>
                             <div class="field">
                                 <label for="notes-nascimento">Data de Nascimento</label>
@@ -1740,7 +1981,7 @@
                             </div>
                             <div class="field">
                                 <label for="notes-numero">Número</label>
-                                <input id="notes-numero" type="number" min="1" required>
+                                <input id="notes-numero" type="number" min="1">
                             </div>
                         </div>
                         <div class="notes-form-actions">
@@ -1908,7 +2149,7 @@
                     <td>${escapeHtml(venda.dt_venda)}</td>
                     <td>${escapeHtml(venda.produto)}</td>
                     <td>${parseFloat(venda.quantidade).toLocaleString("pt-BR", { maximumFractionDigits: 3 })}</td>
-                    <td class="valor-venda">${formatarMoeda(venda.total)}</td>
+                    <td id="venda-total-${venda.id}" class="valor-venda ${venda.status === "anotado" && parseNumero(venda.valor_pago) > 0 ? "haver" : ""}">${htmlValorVenda(venda)}</td>
                     <td id="venda-status-${venda.id}">${badgeStatus(venda)}</td>
                     <td id="venda-pagamento-${venda.id}"><span class="badge-pagamento">${escapeHtml(venda.tipo_pagamento_label || venda.tipo_pagamento)}</span></td>
                     <td class="observacao-cell">${escapeHtml(venda.observacao || "-")}</td>
@@ -1940,7 +2181,7 @@
             telefone: document.getElementById("notes-telefone").value.trim(),
             rua: document.getElementById("notes-rua").value.trim(),
             bairro: document.getElementById("notes-bairro").value.trim(),
-            numero: document.getElementById("notes-numero").value,
+            numero: document.getElementById("notes-numero").value || null,
             dt_nascimento: document.getElementById("notes-nascimento").value || null,
         };
 
@@ -2032,6 +2273,15 @@
         emptyComBusca: 'Nenhum cliente encontrado para "{termo}".',
         reloadOnClear: true,
     });
+
+    const campoValorPagar = document.getElementById("modal-pagar-valor-input");
+    const selectTipoPagar = document.getElementById("modal-tipo-pagamento");
+    const selectParcelasPagar = document.getElementById("modal-pagar-parcelas");
+    campoValorPagar.addEventListener("input", () => limitarValorPagar(false));
+    campoValorPagar.addEventListener("change", () => limitarValorPagar(true));
+    campoValorPagar.addEventListener("blur", () => limitarValorPagar(true));
+    selectTipoPagar.addEventListener("change", atualizarParcelasPagar);
+    selectParcelasPagar.addEventListener("change", atualizarParcelasPagar);
 </script>
 {% include "partials/loja_config.html" %}
 </html>

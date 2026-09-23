@@ -90,7 +90,39 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
       background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    }
+
+    .panel-busca {
+      margin-left: auto;
+      height: 34px;
+      min-width: 160px;
+      flex: 1;
+      max-width: 240px;
+      border: 1px solid #dde3ef;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+      background: #fff;
+    }
+
+    .panel-busca:focus {
+      border-color: var(--loja-acento, #2b87ff);
+      box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.1);
+    }
+
+    .grid-bottom .panel {
+      display: flex;
+      flex-direction: column;
+      max-height: 520px;
+    }
+
+    .grid-bottom .panel-body.scroll {
+      flex: 1;
+      min-height: 0;
+      max-height: 380px;
     }
 
     .panel-mark {
@@ -196,7 +228,6 @@
     }
 
     .scroll {
-      max-height: 340px;
       overflow: auto;
       scrollbar-width: none;
     }
@@ -228,9 +259,9 @@
       <em>Ticket médio R$ {{ ticket_medio|floatformat:2 }}</em>
     </article>
     <article class="kpi laranja">
-      <span>A receber (anotado)</span>
+      <span>Haver a receber</span>
       <strong>R$ {{ total_anotado|floatformat:2 }}</strong>
-      <em>{{ qtd_anotadas }} item(ns) pendente(s)</em>
+      <em>{{ qtd_havers }} haver(s) · {{ qtd_anotadas }} item(ns) em aberto</em>
     </article>
     <article class="kpi roxo">
       <span>Cadastros</span>
@@ -276,24 +307,12 @@
       <div class="panel-header">
         <div class="panel-mark laranja"></div>
         <div>
-          <h2>Preços anotados</h2>
-          <small>Itens em aberto com cliente</small>
+          <h2>Haver e anotados</h2>
+          <small>Itens em aberto com cliente, produto e saldo</small>
         </div>
+        <input type="search" class="panel-busca" data-lista="lista-anotados" placeholder="Buscar cliente, CPF, produto...">
       </div>
       <div class="panel-body scroll">
-        {% if clientes_pendentes %}
-        <div class="lista-simples" style="margin-bottom:14px;">
-          {% for item in clientes_pendentes %}
-          <div class="lista-item">
-            <div>
-              <strong>{{ item.cliente__nome }}</strong>
-              <span>{{ item.qtd }} item(ns) em aberto</span>
-            </div>
-            <span class="valor pendente">R$ {{ item.total|floatformat:2 }}</span>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
         {% if anotados %}
         <table>
           <thead>
@@ -301,26 +320,34 @@
               <th>Cliente</th>
               <th>Produto</th>
               <th>Qtd</th>
-              <th>Valor</th>
+              <th>Total</th>
+              <th>Pago</th>
+              <th>Saldo</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="lista-anotados">
             {% for venda in anotados %}
-            <tr>
+            <tr class="linha-busca"
+              data-search="{{ venda.cliente.nome }} {{ venda.cliente.cpf }} {{ venda.cliente.telefone }} {{ venda.produto.nome }} {{ venda.produto.codigo }} {{ venda.observacao }} {{ venda.get_status_display }}">
               <td>
                 <strong>{{ venda.cliente.nome|default:"Sem cliente" }}</strong>
+                <div class="muted">CPF {{ venda.cliente.cpf|default:"—" }}{% if venda.cliente.telefone %} · {{ venda.cliente.telefone }}{% endif %}</div>
                 <div class="muted">{{ venda.dt_venda|date:"d/m/Y H:i" }}</div>
               </td>
               <td>
                 {{ venda.produto.nome }}
                 <div class="muted">#{{ venda.produto.codigo }} · R$ {{ venda.produto.preco|floatformat:2 }}</div>
+                {% if venda.observacao %}<div class="muted">{{ venda.observacao }}</div>{% endif %}
               </td>
               <td>{{ venda.quantidade|floatformat:"-3" }}</td>
-              <td class="valor pendente">R$ {{ venda.total|floatformat:2 }}</td>
+              <td>R$ {{ venda.total|floatformat:2 }}</td>
+              <td>R$ {{ venda.valor_pago|floatformat:2 }}</td>
+              <td class="valor pendente">R$ {{ venda.saldo|floatformat:2 }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        <div class="empty vazio-busca" data-vazio="lista-anotados" style="display:none;">Nenhum item corresponde à busca.</div>
         {% else %}
         <div class="empty">Nenhum valor anotado no momento.</div>
         {% endif %}
@@ -332,22 +359,34 @@
         <div class="panel-mark"></div>
         <div>
           <h2>Mais vendidos</h2>
-          <small>Por faturamento pago</small>
+          <small>Faturamento, quantidade e código</small>
         </div>
+        <input type="search" class="panel-busca" data-lista="lista-vendidos" placeholder="Buscar produto ou código...">
       </div>
-      <div class="panel-body">
+      <div class="panel-body scroll">
         {% if top_produtos %}
-        <div class="lista-simples">
-          {% for item in top_produtos %}
-          <div class="lista-item">
-            <div>
-              <strong>{{ item.produto__nome }}</strong>
-              <span>#{{ item.produto__codigo }} · {{ item.qtd|floatformat:"-3" }} un.</span>
-            </div>
-            <span class="valor">R$ {{ item.total|floatformat:2 }}</span>
-          </div>
-          {% endfor %}
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Qtd</th>
+              <th>Faturamento</th>
+            </tr>
+          </thead>
+          <tbody id="lista-vendidos">
+            {% for item in top_produtos %}
+            <tr class="linha-busca" data-search="{{ item.produto__nome }} {{ item.produto__codigo }}">
+              <td>
+                <strong>{{ item.produto__nome }}</strong>
+                <div class="muted">#{{ item.produto__codigo }}</div>
+              </td>
+              <td>{{ item.qtd|floatformat:"-3" }} un.</td>
+              <td class="valor">R$ {{ item.total|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="empty vazio-busca" data-vazio="lista-vendidos" style="display:none;">Nenhum produto corresponde à busca.</div>
         {% else %}
         <div class="empty">Ainda não há vendas pagas.</div>
         {% endif %}
@@ -359,24 +398,38 @@
         <div class="panel-mark vermelho"></div>
         <div>
           <h2>Estoque baixo</h2>
-          <small>Até 5 unidades</small>
+          <small>Código, preço e quantidade</small>
         </div>
+        <input type="search" class="panel-busca" data-lista="lista-estoque" placeholder="Buscar produto ou código...">
       </div>
-      <div class="panel-body">
+      <div class="panel-body scroll">
         {% if estoque_baixo %}
-        <div class="lista-simples">
-          {% for produto in estoque_baixo %}
-          <div class="lista-item">
-            <div>
-              <strong>{{ produto.nome }}</strong>
-              <span>#{{ produto.codigo }} · R$ {{ produto.preco|floatformat:2 }}</span>
-            </div>
-            <span class="badge {% if produto.quantidade <= 0 %}zero{% else %}baixo{% endif %}">
-              {{ produto.quantidade|floatformat:"-3" }} un.
-            </span>
-          </div>
-          {% endfor %}
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Preço</th>
+              <th>Estoque</th>
+            </tr>
+          </thead>
+          <tbody id="lista-estoque">
+            {% for produto in estoque_baixo %}
+            <tr class="linha-busca" data-search="{{ produto.nome }} {{ produto.codigo }} {{ produto.preco }}">
+              <td>
+                <strong>{{ produto.nome }}</strong>
+                <div class="muted">#{{ produto.codigo }} · {{ produto.dt_adicao|date:"d/m/Y" }}</div>
+              </td>
+              <td>R$ {{ produto.preco|floatformat:2 }}</td>
+              <td>
+                <span class="badge {% if produto.quantidade <= 0 %}zero{% else %}baixo{% endif %}">
+                  {{ produto.quantidade|floatformat:"-3" }} un.
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="empty vazio-busca" data-vazio="lista-estoque" style="display:none;">Nenhum produto corresponde à busca.</div>
         {% else %}
         <div class="empty">Nenhum produto com estoque baixo.</div>
         {% endif %}
@@ -475,6 +528,22 @@
     function formatarMoeda(valor) {
       return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
+
+    document.querySelectorAll(".panel-busca").forEach((campo) => {
+      campo.addEventListener("input", () => {
+        const termo = campo.value.trim().toLowerCase();
+        const lista = document.getElementById(campo.dataset.lista);
+        if (!lista) return;
+        let visiveis = 0;
+        lista.querySelectorAll(".linha-busca").forEach((linha) => {
+          const ok = !termo || (linha.dataset.search || "").toLowerCase().includes(termo);
+          linha.style.display = ok ? "" : "none";
+          if (ok) visiveis += 1;
+        });
+        const vazio = document.querySelector(`[data-vazio="${campo.dataset.lista}"]`);
+        if (vazio) vazio.style.display = visiveis ? "none" : "block";
+      });
+    });
   </script>
   {% include "partials/loja_config.html" %}
 </body>

@@ -40,42 +40,60 @@ class Edit_ProdutoForm(forms.ModelForm):
             field.widget.attrs.update({'style': estilo})
 
 
+def _limpar_telefone(valor):
+    telefone = re.sub(r"\D", "", str(valor or ""))
+    if not telefone:
+        return ""
+    if len(telefone) != 11:
+        raise forms.ValidationError("Telefone deve conter exatamente 11 dígitos (DDD + número).")
+    return telefone
+
+
 class ClientForm(forms.ModelForm):
     cpf = forms.CharField(max_length=14)
-    telefone = forms.CharField(max_length=16)
+    telefone = forms.CharField(max_length=16, required=False)
 
     class Meta:
         model = Client
         fields = ['nome', 'cpf', 'telefone', 'rua', 'bairro', 'dt_nascimento', 'numero']
 
-    def clean_cpf(self):
-        cpf = self.cleaned_data.get("cpf", "")
-        cpf = re.sub(r"\D", "", cpf)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["nome"].required = True
+        self.fields["cpf"].required = True
+        for campo in ("telefone", "rua", "bairro", "dt_nascimento", "numero"):
+            self.fields[campo].required = False
 
+    def clean_cpf(self):
+        cpf = re.sub(r"\D", "", self.cleaned_data.get("cpf", ""))
         if len(cpf) != 11:
             raise forms.ValidationError("CPF deve conter exatamente 11 dígitos.")
         return cpf
 
     def clean_telefone(self):
-        telefone = self.cleaned_data.get("telefone", "")
-        telefone = re.sub(r"\D", "", telefone)
+        return _limpar_telefone(self.cleaned_data.get("telefone", ""))
 
-        if len(telefone) != 11:
-            raise forms.ValidationError("Telefone deve conter exatamente 11 dígitos (DDD + número).")
-        return telefone
+    def clean_numero(self):
+        numero = self.cleaned_data.get("numero")
+        return numero if numero not in ("", None) else None
 
 
 class EditClientForm(forms.ModelForm):
-    telefone = forms.CharField(max_length=16)
+    telefone = forms.CharField(max_length=16, required=False)
 
     class Meta:
         model = Client
         fields = ["nome", "telefone", "rua", "bairro", "dt_nascimento", "numero"]
 
-    def clean_telefone(self):
-        telefone = self.cleaned_data.get("telefone", "")
-        telefone = re.sub(r"\D", "", telefone)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["nome"].required = True
+        for campo in ("telefone", "rua", "bairro", "dt_nascimento", "numero"):
+            self.fields[campo].required = False
 
-        if len(telefone) != 11:
-            raise forms.ValidationError("Telefone deve conter exatamente 11 dígitos (DDD + número).")
-        return telefone
+    def clean_telefone(self):
+        return _limpar_telefone(self.cleaned_data.get("telefone", ""))
+
+    def clean_numero(self):
+        numero = self.cleaned_data.get("numero")
+        return numero if numero not in ("", None) else None

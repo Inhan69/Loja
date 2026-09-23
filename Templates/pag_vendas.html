@@ -625,6 +625,42 @@
     .btn-finalizar:hover { background: #059669; }
     .btn-finalizar:disabled { background: #d1d5db; }
 
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .confirm-overlay.aberto { display: flex; }
+    .confirm-box {
+      background: #fff;
+      border-radius: 14px;
+      width: min(440px, 100%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+    .confirm-header { padding: 18px 20px 12px; border-bottom: 1px solid #eee; }
+    .confirm-header h4 { margin: 0 0 4px; font-size: 17px; color: #1f2937; }
+    .confirm-header p { margin: 0; font-size: 13px; color: #6b7280; }
+    .confirm-body { padding: 16px 20px; }
+    .confirm-lista { max-height: 180px; overflow: auto; margin: 0 0 12px; padding: 0; list-style: none; }
+    .confirm-lista li {
+      display: flex; justify-content: space-between; gap: 10px;
+      font-size: 13px; color: #374151; padding: 6px 0; border-bottom: 1px solid #eef2f8;
+    }
+    .confirm-total { display: flex; justify-content: space-between; font-weight: 700; color: #065f46; }
+    .confirm-actions { display: flex; gap: 10px; padding: 14px 20px 18px; border-top: 1px solid #eee; }
+    .confirm-actions button {
+      flex: 1; height: 40px; border: none; border-radius: 8px;
+      font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .confirm-cancelar { background: #f3f4f6; color: #455a64; }
+    .confirm-ok { background: #10b981; color: #fff; }
+
     @media (max-width: 980px) {
       body {
         overflow: auto;
@@ -791,7 +827,7 @@
 
           <div class="field hidden" id="parcelas-field">
             <label for="parcelas">Parcelas</label>
-            <select id="parcelas">
+            <select name="parcelas" id="parcelas">
               {% for n in "123456789012"|make_list %}
               <option value="{{ forloop.counter }}">{{ forloop.counter }}x</option>
               {% endfor %}
@@ -831,6 +867,23 @@
         <div class="resumo-linha"><span>Subtotal</span><span id="modal-subtotal">R$ 0,00</span></div>
         <div class="resumo-linha"><span>Desconto</span><span id="modal-desconto">- R$ 0,00</span></div>
         <div class="total resumo-linha"><span>Total</span><span id="modal-total">R$ 0,00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-venda" class="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-header">
+        <h4>Confirmar inscrição dos itens</h4>
+        <p id="confirm-venda-resumo">Revise o carrinho antes de finalizar</p>
+      </div>
+      <div class="confirm-body">
+        <ul id="confirm-venda-lista" class="confirm-lista"></ul>
+        <div class="confirm-total"><span>Total</span><span id="confirm-venda-total">R$ 0,00</span></div>
+      </div>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-cancelar" id="btn-cancelar-venda">Cancelar</button>
+        <button type="button" class="confirm-ok" id="btn-confirmar-venda">Confirmar</button>
       </div>
     </div>
   </div>
@@ -1279,6 +1332,28 @@
       salvarCheckout();
     }
 
+    let vendaConfirmada = false;
+    const overlayConfirmarVenda = $("confirm-venda");
+
+    function fecharConfirmVenda() {
+      overlayConfirmarVenda.classList.remove("aberto");
+    }
+
+    function abrirConfirmVenda() {
+      const { itens, total } = valoresCarrinho();
+      const cliente = els.clienteId.value ? els.clienteNome.textContent : "Cliente avulso";
+      const pagamento = els.clienteId.value
+        ? "Anotado"
+        : els.tipoPagamento.options[els.tipoPagamento.selectedIndex]?.text || els.tipoPagamento.value;
+      $("confirm-venda-resumo").textContent = `${itens.length} item(ns) · ${cliente} · ${pagamento}`;
+      $("confirm-venda-lista").innerHTML = itens.map((item) => {
+        const linhaTotal = parseNumero(item.preco) * parseNumero(item.quantidade);
+        return `<li><span>${item.nome} × ${item.quantidade}</span><strong>${formatarMoeda(linhaTotal)}</strong></li>`;
+      }).join("");
+      $("confirm-venda-total").textContent = formatarMoeda(total);
+      overlayConfirmarVenda.classList.add("aberto");
+    }
+
     els.formCheckout.addEventListener("submit", (event) => {
       const itens = Object.values(carrinho).map((item) => ({ produto_id: item.produto_id, quantidade: item.quantidade }));
       if (!itens.length) { event.preventDefault(); return; }
@@ -1289,10 +1364,33 @@
         event.preventDefault();
         alert("Selecione um cliente para anotar a venda.");
         return;
+      } else if (els.tipoPagamento.value === "cartao_credito") {
+        const parcelas = parseInt(els.parcelas.value, 10) || 0;
+        if (parcelas < 1 || parcelas > 12) {
+          event.preventDefault();
+          alert("Selecione as parcelas do cartão de crédito (1x a 12x).");
+          return;
+        }
+      }
+
+      if (!vendaConfirmada) {
+        event.preventDefault();
+        abrirConfirmVenda();
+        return;
       }
 
       els.itemsInput.value = JSON.stringify(itens);
       limparSessaoVendas();
+    });
+
+    $("btn-cancelar-venda").addEventListener("click", fecharConfirmVenda);
+    overlayConfirmarVenda.addEventListener("click", (event) => {
+      if (event.target === overlayConfirmarVenda) fecharConfirmVenda();
+    });
+    $("btn-confirmar-venda").addEventListener("click", () => {
+      vendaConfirmada = true;
+      fecharConfirmVenda();
+      els.formCheckout.requestSubmit();
     });
   </script>
   {% include "partials/loja_config.html" %}

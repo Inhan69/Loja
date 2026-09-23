@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxLengthValidator
 
 class Produto(models.Model):
-    nome = models.CharField(max_length=120)
+    nome = models.CharField(max_length=120, unique=True)
     codigo = models.CharField(unique=True, max_length=4)
     quantidade = models.DecimalField(max_digits=10, decimal_places=3)
     preco = models.DecimalField(max_digits=12, decimal_places=2)
@@ -14,11 +14,11 @@ class Produto(models.Model):
 class Client(models.Model):
     nome = models.CharField(max_length=40)
     cpf = models.CharField("CPF", max_length=11, unique=True)
-    telefone = models.CharField(max_length=11, unique=True) 
-    rua = models.CharField(max_length=30)
-    bairro = models.CharField(max_length=20)
+    telefone = models.CharField(max_length=11, blank=True) 
+    rua = models.CharField(max_length=30, blank=True)
+    bairro = models.CharField(max_length=20,blank=True)
     dt_nascimento = models.DateField(null=True, blank=True) 
-    numero = models.PositiveIntegerField("Número")
+    numero = models.PositiveIntegerField("Número", null=True, blank=True)
     dt_criacao = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -49,7 +49,29 @@ class Venda(models.Model):
     tipo_pagamento = models.CharField(max_length=20, choices=PAGAMENTO_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pago")
     total = models.DecimalField(max_digits=12, decimal_places=2)
+    valor_pago = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    parcelas = models.PositiveSmallIntegerField(default=1)
     dt_venda = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.produto.nome} - R${self.total}"
+
+    @property
+    def saldo(self):
+        restante = self.total - self.valor_pago
+        return restante if restante > 0 else 0
+
+    @property
+    def tem_haver(self):
+        return self.status == "anotado" and self.valor_pago > 0
+
+
+class PagamentoParcial(models.Model):
+    venda = models.ForeignKey(Venda, on_delete=models.CASCADE, related_name="pagamentos_parciais")
+    valor = models.DecimalField(max_digits=12, decimal_places=2)
+    tipo_pagamento = models.CharField(max_length=20)
+    parcelas = models.PositiveSmallIntegerField(default=1)
+    dt_pagamento = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"R${self.valor} · venda {self.venda_id}"
