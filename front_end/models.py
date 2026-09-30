@@ -73,5 +73,8 @@ class PagamentoParcial(models.Model):
     parcelas = models.PositiveSmallIntegerField(default=1)
     dt_pagamento = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"R${self.valor} · venda {self.venda_id}"
+    def rotulo_pagamento(self):
+        rotulo = dict(Venda.PAGAMENTO_CHOICES).get(self.tipo_pagamento, self.tipo_pagamento)
+        if self.tipo_pagamento == "cartao_credito":
+            return f"{rotulo} ({self.parcelas}x)"
+        return rotulo

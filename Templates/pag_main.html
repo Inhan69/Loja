@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <style>
+    <style>
     * { font-family: "Segoe UI", Arial, sans-serif; box-sizing: border-box; scrollbar-width: none;}
 
     body {
@@ -94,12 +94,52 @@
       background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
     }
 
-    .panel-busca {
-      margin-left: auto;
-      height: 34px;
-      min-width: 160px;
+    .panel-filtros {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex: 1;
-      max-width: 240px;
+      min-width: 220px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    .panel-filtros .filtro-grupo {
+      display: inline-flex;
+      align-items: center;
+      height: 34px;
+      background: #fff;
+      border: 1px solid #dde3ef;
+      border-radius: 8px;
+      padding: 0 8px 0 10px;
+    }
+
+    .panel-filtros .filtro-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: #9ca3af;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    .panel-filtros select {
+      height: 32px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      outline: none;
+      max-width: 150px;
+    }
+
+    .panel-busca {
+      height: 34px;
+      min-width: 140px;
+      flex: 1;
+      max-width: 220px;
       border: 1px solid #dde3ef;
       border-radius: 8px;
       padding: 0 12px;
@@ -183,10 +223,96 @@
       font-weight: 700;
     }
 
-    td strong { color: #1f2937; }
-    .valor { font-weight: 700; color: var(--loja-acento, #2b87ff); white-space: nowrap; }
-    .valor.pendente { color: #d97706; }
-    .muted { color: #6b7280; }
+    .grupo-haver {
+      cursor: pointer;
+    }
+
+    .grupo-haver.quitado .linha-resumo td,
+    .grupo-haver.quitado .linha-resumo strong,
+    .grupo-haver.quitado .linha-resumo .muted,
+    .grupo-haver.quitado .linha-resumo .valor {
+      color: #9ca3af;
+      text-decoration: line-through;
+      text-decoration-color: #9ca3af;
+    }
+
+    .grupo-haver.quitado .haver-select {
+      text-decoration: none;
+      color: #6b7280;
+      background: #f3f4f6;
+    }
+
+    .haver-select {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      min-width: 148px;
+      height: 32px;
+      border: 1px solid #dde3ef;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      color: #d97706;
+      padding: 0 10px;
+      cursor: pointer;
+    }
+
+    .haver-select::after {
+      content: "▾";
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .grupo-haver.aberto .haver-select {
+      border-color: var(--loja-acento, #2b87ff);
+      box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.1);
+    }
+
+    .linha-opcoes {
+      display: none;
+    }
+
+    .grupo-haver.aberto .linha-opcoes {
+      display: table-row;
+    }
+
+    .haver-opcoes {
+      margin: 0 0 10px;
+      padding: 8px;
+      list-style: none;
+      border: 1px solid #dde3ef;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .haver-opcoes li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #374151;
+      text-decoration: none;
+    }
+
+    .haver-opcoes li + li {
+      margin-top: 4px;
+      border-top: 1px solid #eef2f8;
+    }
+
+    .haver-opcoes strong {
+      color: #d97706;
+      white-space: nowrap;
+    }
+
+    .haver-opcoes .vazio {
+      color: #9ca3af;
+      justify-content: center;
+    }
 
     .lista-simples {
       display: flex;
@@ -219,9 +345,13 @@
     .badge.ok { background: #e8f8f1; color: #059669; }
     .badge.baixo { background: #fff7ed; color: #d97706; }
     .badge.zero { background: #fef2f2; color: #dc2626; }
+    .badge.anotado { background: #fef3c7; color: #b45309; }
+    .badge.haver { background: #ffedd5; color: #c2410c; }
+    .badge.pago { background: #d1fae5; color: #047857; }
+    .badge.devolvido { background: #f3f4f6; color: #6b7280; }
 
     .empty {
-      text-align: center;
+            text-align: center;
       color: #9ca3af;
       padding: 28px 12px;
       font-size: 14px;
@@ -243,8 +373,8 @@
       .kpis, .grid, .grid-bottom {
         grid-template-columns: 1fr;
       }
-    }
-  </style>
+        }
+    </style>
 </head>
 <body>
   <section class="kpis">
@@ -308,27 +438,58 @@
         <div class="panel-mark laranja"></div>
         <div>
           <h2>Haver e anotados</h2>
-          <small>Itens em aberto com cliente, produto e saldo</small>
+          <small>Registro de todos os havores e anotações</small>
         </div>
-        <input type="search" class="panel-busca" data-lista="lista-anotados" placeholder="Buscar cliente, CPF, produto...">
+        <div class="panel-filtros">
+          <div class="filtro-grupo">
+            <span class="filtro-label">Filtro</span>
+            <select class="panel-filtro-campo" data-lista="lista-anotados" aria-label="Filtrar por">
+              <option value="search">Todos</option>
+              <option value="cliente">Cliente</option>
+              <option value="cpf">CPF</option>
+              <option value="produto">Produto</option>
+              <option value="codigo">Código</option>
+              <option value="status">Status</option>
+            </select>
+          </div>
+          <input type="search" class="panel-busca" data-lista="lista-anotados" placeholder="Buscar...">
+          <div class="filtro-grupo">
+            <span class="filtro-label">Ordem</span>
+            <select class="panel-ordem" data-lista="lista-anotados" aria-label="Ordenar por">
+              <option value="data-asc" selected>Data crescente</option>
+              <option value="data-desc">Data decrescente</option>
+              <option value="cliente-asc">Cliente A–Z</option>
+              <option value="produto-asc">Produto A–Z</option>
+              <option value="saldo-desc">Maior saldo</option>
+              <option value="saldo-asc">Menor saldo</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="panel-body scroll">
         {% if anotados %}
-        <table>
+        <table id="lista-anotados">
           <thead>
             <tr>
               <th>Cliente</th>
               <th>Produto</th>
               <th>Qtd</th>
               <th>Total</th>
-              <th>Pago</th>
+              <th>Pagamentos</th>
               <th>Saldo</th>
             </tr>
           </thead>
-          <tbody id="lista-anotados">
             {% for venda in anotados %}
-            <tr class="linha-busca"
-              data-search="{{ venda.cliente.nome }} {{ venda.cliente.cpf }} {{ venda.cliente.telefone }} {{ venda.produto.nome }} {{ venda.produto.codigo }} {{ venda.observacao }} {{ venda.get_status_display }}">
+            <tbody class="linha-busca grupo-haver {% if venda.status == 'pago' or venda.status == 'devolvido' %}quitado{% endif %}"
+              data-search="{{ venda.cliente.nome }} {{ venda.cliente.cpf }} {{ venda.cliente.telefone }} {{ venda.produto.nome }} {{ venda.produto.codigo }} {{ venda.observacao }} {{ venda.status }}"
+              data-cliente="{{ venda.cliente.nome }}"
+              data-cpf="{{ venda.cliente.cpf }}"
+              data-produto="{{ venda.produto.nome }}"
+              data-codigo="{{ venda.produto.codigo }}"
+              data-status="{% if venda.status == 'anotado' and venda.valor_pago %}Haver{% else %}{{ venda.get_status_display }}{% endif %}"
+              data-data="{{ venda.dt_venda|date:'c' }}"
+              data-saldo="{{ venda.saldo }}">
+            <tr class="linha-resumo">
               <td>
                 <strong>{{ venda.cliente.nome|default:"Sem cliente" }}</strong>
                 <div class="muted">CPF {{ venda.cliente.cpf|default:"—" }}{% if venda.cliente.telefone %} · {{ venda.cliente.telefone }}{% endif %}</div>
@@ -341,15 +502,35 @@
               </td>
               <td>{{ venda.quantidade|floatformat:"-3" }}</td>
               <td>R$ {{ venda.total|floatformat:2 }}</td>
-              <td>R$ {{ venda.valor_pago|floatformat:2 }}</td>
-              <td class="valor pendente">R$ {{ venda.saldo|floatformat:2 }}</td>
+              <td>
+                {% with pags=venda.pagamentos_parciais.all %}
+                <button type="button" class="haver-select" aria-expanded="false">
+                  {% if pags %}{{ pags|length }} pag. · R$ {{ venda.valor_pago|floatformat:2 }}{% else %}Nenhum pagamento{% endif %}
+                </button>
+                {% endwith %}
+              </td>
+              <td class="valor {% if venda.status == 'anotado' %}pendente{% endif %}">R$ {{ venda.saldo|floatformat:2 }}</td>
             </tr>
+            <tr class="linha-opcoes">
+              <td colspan="6">
+                <ul class="haver-opcoes">
+                  {% for pagamento in venda.pagamentos_parciais.all %}
+                  <li>
+                    <span>{{ pagamento.dt_pagamento|date:"d/m/Y H:i" }} · {{ pagamento.rotulo_pagamento }}</span>
+                    <strong>R$ {{ pagamento.valor|floatformat:2 }}</strong>
+                  </li>
+                  {% empty %}
+                  <li class="vazio">Ainda não houve pagamento neste haver.</li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+            </tbody>
             {% endfor %}
-          </tbody>
         </table>
         <div class="empty vazio-busca" data-vazio="lista-anotados" style="display:none;">Nenhum item corresponde à busca.</div>
         {% else %}
-        <div class="empty">Nenhum valor anotado no momento.</div>
+        <div class="empty">Nenhum haver ou anotação registrada.</div>
         {% endif %}
       </div>
     </article>
@@ -359,9 +540,29 @@
         <div class="panel-mark"></div>
         <div>
           <h2>Mais vendidos</h2>
-          <small>Faturamento, quantidade e código</small>
+          <small>Faturamento, quantidade e última venda</small>
         </div>
-        <input type="search" class="panel-busca" data-lista="lista-vendidos" placeholder="Buscar produto ou código...">
+        <div class="panel-filtros">
+          <div class="filtro-grupo">
+            <span class="filtro-label">Filtro</span>
+            <select class="panel-filtro-campo" data-lista="lista-vendidos" aria-label="Filtrar por">
+              <option value="search">Todos</option>
+              <option value="produto">Nome</option>
+              <option value="codigo">Código</option>
+            </select>
+          </div>
+          <input type="search" class="panel-busca" data-lista="lista-vendidos" placeholder="Buscar...">
+          <div class="filtro-grupo">
+            <span class="filtro-label">Ordem</span>
+            <select class="panel-ordem" data-lista="lista-vendidos" aria-label="Ordenar por">
+              <option value="data-asc" selected>Data crescente</option>
+              <option value="data-desc">Data decrescente</option>
+              <option value="total-desc">Maior faturamento</option>
+              <option value="qtd-desc">Mais vendidos</option>
+              <option value="produto-asc">Nome A–Z</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="panel-body scroll">
         {% if top_produtos %}
@@ -375,10 +576,16 @@
           </thead>
           <tbody id="lista-vendidos">
             {% for item in top_produtos %}
-            <tr class="linha-busca" data-search="{{ item.produto__nome }} {{ item.produto__codigo }}">
+            <tr class="linha-busca"
+              data-search="{{ item.produto__nome }} {{ item.produto__codigo }}"
+              data-produto="{{ item.produto__nome }}"
+              data-codigo="{{ item.produto__codigo }}"
+              data-qtd="{{ item.qtd }}"
+              data-total="{{ item.total }}"
+              data-data="{{ item.ultima_venda|date:'c' }}">
               <td>
                 <strong>{{ item.produto__nome }}</strong>
-                <div class="muted">#{{ item.produto__codigo }}</div>
+                <div class="muted">#{{ item.produto__codigo }}{% if item.ultima_venda %} · {{ item.ultima_venda|date:"d/m/Y" }}{% endif %}</div>
               </td>
               <td>{{ item.qtd|floatformat:"-3" }} un.</td>
               <td class="valor">R$ {{ item.total|floatformat:2 }}</td>
@@ -400,7 +607,27 @@
           <h2>Estoque baixo</h2>
           <small>Código, preço e quantidade</small>
         </div>
-        <input type="search" class="panel-busca" data-lista="lista-estoque" placeholder="Buscar produto ou código...">
+        <div class="panel-filtros">
+          <div class="filtro-grupo">
+            <span class="filtro-label">Filtro</span>
+            <select class="panel-filtro-campo" data-lista="lista-estoque" aria-label="Filtrar por">
+              <option value="search">Todos</option>
+              <option value="produto">Nome</option>
+              <option value="codigo">Código</option>
+            </select>
+          </div>
+          <input type="search" class="panel-busca" data-lista="lista-estoque" placeholder="Buscar...">
+          <div class="filtro-grupo">
+            <span class="filtro-label">Ordem</span>
+            <select class="panel-ordem" data-lista="lista-estoque" aria-label="Ordenar por">
+              <option value="data-asc" selected>Data crescente</option>
+              <option value="data-desc">Data decrescente</option>
+              <option value="qtd-asc">Menor estoque</option>
+              <option value="preco-desc">Maior preço</option>
+              <option value="produto-asc">Nome A–Z</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="panel-body scroll">
         {% if estoque_baixo %}
@@ -414,7 +641,13 @@
           </thead>
           <tbody id="lista-estoque">
             {% for produto in estoque_baixo %}
-            <tr class="linha-busca" data-search="{{ produto.nome }} {{ produto.codigo }} {{ produto.preco }}">
+            <tr class="linha-busca"
+              data-search="{{ produto.nome }} {{ produto.codigo }} {{ produto.preco }}"
+              data-produto="{{ produto.nome }}"
+              data-codigo="{{ produto.codigo }}"
+              data-preco="{{ produto.preco }}"
+              data-qtd="{{ produto.quantidade }}"
+              data-data="{{ produto.dt_adicao|date:'c' }}">
               <td>
                 <strong>{{ produto.nome }}</strong>
                 <div class="muted">#{{ produto.codigo }} · {{ produto.dt_adicao|date:"d/m/Y" }}</div>
@@ -529,20 +762,71 @@
       return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
-    document.querySelectorAll(".panel-busca").forEach((campo) => {
-      campo.addEventListener("input", () => {
-        const termo = campo.value.trim().toLowerCase();
-        const lista = document.getElementById(campo.dataset.lista);
-        if (!lista) return;
-        let visiveis = 0;
-        lista.querySelectorAll(".linha-busca").forEach((linha) => {
-          const ok = !termo || (linha.dataset.search || "").toLowerCase().includes(termo);
-          linha.style.display = ok ? "" : "none";
-          if (ok) visiveis += 1;
-        });
-        const vazio = document.querySelector(`[data-vazio="${campo.dataset.lista}"]`);
-        if (vazio) vazio.style.display = visiveis ? "none" : "block";
+    function valorOrdenacao(linha, chave) {
+      const bruto = linha.dataset[chave] || "";
+      if (chave === "data") {
+        const tempo = Date.parse(bruto);
+        return Number.isNaN(tempo) ? 0 : tempo;
+      }
+      const numero = parseFloat(String(bruto).replace(",", "."));
+      if (bruto !== "" && Number.isFinite(numero) && /^-?\d/.test(String(bruto).trim())) {
+        return numero;
+      }
+      return String(bruto).toLowerCase();
+    }
+
+    function aplicarPainel(listaId) {
+      const lista = document.getElementById(listaId);
+      if (!lista) return;
+      const busca = document.querySelector(`.panel-busca[data-lista="${listaId}"]`);
+      const campo = document.querySelector(`.panel-filtro-campo[data-lista="${listaId}"]`);
+      const ordem = document.querySelector(`.panel-ordem[data-lista="${listaId}"]`);
+      const termo = (busca?.value || "").trim().toLowerCase();
+      const filtro = campo?.value || "search";
+      const [chave, direcao] = (ordem?.value || "data-asc").split("-");
+      const linhas = [...lista.querySelectorAll(":scope > .linha-busca, :scope > tr.linha-busca")];
+      if (!linhas.length) return;
+
+      linhas.sort((a, b) => {
+        const va = valorOrdenacao(a, chave);
+        const vb = valorOrdenacao(b, chave);
+        let cmp = 0;
+        if (typeof va === "number" && typeof vb === "number") cmp = va - vb;
+        else cmp = String(va).localeCompare(String(vb), "pt-BR", { numeric: true, sensitivity: "base" });
+        return direcao === "desc" ? -cmp : cmp;
       });
+      linhas.forEach((linha) => lista.appendChild(linha));
+
+      let visiveis = 0;
+      linhas.forEach((linha) => {
+        const alvo = (linha.dataset[filtro] || linha.dataset.search || "").toLowerCase();
+        const ok = !termo || alvo.includes(termo);
+        linha.style.display = ok ? "" : "none";
+        if (ok) visiveis += 1;
+      });
+      const vazio = document.querySelector(`[data-vazio="${listaId}"]`);
+      if (vazio) vazio.style.display = visiveis ? "none" : "block";
+    }
+
+    document.querySelectorAll(".panel-busca, .panel-filtro-campo, .panel-ordem").forEach((el) => {
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => aplicarPainel(el.dataset.lista));
+    });
+    ["lista-anotados", "lista-vendidos", "lista-estoque"].forEach(aplicarPainel);
+
+    const listaAnotados = document.getElementById("lista-anotados");
+    listaAnotados?.addEventListener("click", (event) => {
+      const grupo = event.target.closest(".grupo-haver");
+      if (!grupo || !listaAnotados.contains(grupo)) return;
+      if (event.target.closest(".linha-opcoes")) return;
+      const jaAberto = grupo.classList.contains("aberto");
+      listaAnotados.querySelectorAll(".grupo-haver.aberto").forEach((item) => {
+        item.classList.remove("aberto");
+        item.querySelector(".haver-select")?.setAttribute("aria-expanded", "false");
+      });
+      if (!jaAberto) {
+        grupo.classList.add("aberto");
+        grupo.querySelector(".haver-select")?.setAttribute("aria-expanded", "true");
+      }
     });
   </script>
   {% include "partials/loja_config.html" %}

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> {% load static %}
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -94,16 +94,15 @@
         }
         
         .bt_painel {
-            display: block;
+            display: flex;
             align-items: center;
             width: 100%;
             height: 55px;
-            line-height: 55px;
             text-decoration: none;
             color: #d7d7d7;
-            padding-left: 40px;
+            padding-left: 36px;
             padding-right: 10px;
-            text-overflow: ellipsis;
+            border-left: 4px solid transparent;
         }
 
         .bt_painel:hover{
@@ -118,6 +117,14 @@
             border-left: 4px solid var(--loja-destaque, #5aa2ff);
         }
 
+        .texto_menu {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
         .container{
             width: 100%;
             height: 100%;
@@ -128,6 +135,14 @@
             margin-top: auto;
             margin-bottom: 20px;
         }
+
+        .icone_menu {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
 
         .atalhos-hint {
             margin-left: auto;
@@ -164,11 +179,26 @@
 
     <div class="body_principal">
         <div class="painel_lateral">
-            <a href="{% url 'front_end:dashboard' %}" data-pagina="dashboard" class="bt_painel ativo" target="conteudo">Dashboard</a>
-            <a href="{% url 'front_end:produtos' %}" data-pagina="produtos" class="bt_painel" target="conteudo">Produtos</a>
-            <a href="{% url 'front_end:clientes' %}" data-pagina="clientes" class="bt_painel" target="conteudo">Clientes</a>
-            <a href="{% url 'front_end:vendas' %}" data-pagina="vendas" class="bt_painel" target="conteudo">Vendas</a>
-            <a id="config" href="{% url 'front_end:configuracoes' %}" data-pagina="configuracoes" class="bt_painel" target="conteudo">Configurações</a> 
+            <a href="{% url 'front_end:dashboard' %}" data-pagina="dashboard" class="bt_painel ativo" target="conteudo">
+                <img src="{% static 'front_end/img/alinhamento-do-grafico.png' %}" alt="" class="icone_menu"> 
+                    <span class="texto_menu">Dashboard</span>
+            </a>
+            <a href="{% url 'front_end:produtos' %}" data-pagina="produtos" class="bt_painel" target="conteudo">
+                <img src="{% static 'front_end/img/adicionar-ao-carrinho.png' %}" alt="" class="icone_menu"> 
+                    <span class="texto_menu">Produtos</span>
+            </a>
+            <a href="{% url 'front_end:clientes' %}" data-pagina="clientes" class="bt_painel" target="conteudo">
+                <img src="{% static 'front_end/img/adicionar-usuario.png' %}" alt="" class="icone_menu"> 
+                    <span class="texto_menu">Clientes</span>
+            </a>
+            <a href="{% url 'front_end:vendas' %}" data-pagina="vendas" class="bt_painel" target="conteudo">
+                <img src="{% static 'front_end/img/circulo-usd.png' %}" alt="" class="icone_menu"> 
+                    <span class="texto_menu">Vendas</span>
+            </a>
+            <a id="config" href="{% url 'front_end:configuracoes' %}" data-pagina="configuracoes" class="bt_painel" target="conteudo">
+                <img src="{% static 'front_end/img/definicoes.png' %}" alt="" class="icone_menu"> 
+                    <span class="texto_menu">Configurações</span>
+            </a> 
         </div>
 
         <div class="container">

@@ -1761,8 +1761,13 @@
                 return;
             }
 
-            atualizarLinhaVenda({ ...vendaAcaoAtual, ...data.venda });
+            const vendaAtualizada = { ...vendaAcaoAtual, ...data.venda };
             fecharModalPagar();
+            if (vendaAtualizada.status === "pago") {
+                removerLinhaVenda(vendaId);
+            } else {
+                atualizarLinhaVenda(vendaAtualizada);
+            }
         } catch (error) {
             alert("Erro ao registrar pagamento.");
         }

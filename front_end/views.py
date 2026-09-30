@@ -7,7 +7,7 @@ from .forms import ProdutoForm, Edit_ProdutoForm, ClientForm, EditClientForm
 from .models import Produto, Client, Venda, PagamentoParcial
 from django.http import HttpRequest, JsonResponse
 from django.db import transaction
-from django.db.models import Count, F, IntegerField, Sum
+from django.db.models import Count, F, IntegerField, Max, Prefetch, Q, Sum
 from django.db.models.functions import Cast, Coalesce, TruncDate
 from django.utils import timezone
 from .search_filters import CAMPO_PADRAO_CLIENTE, CAMPO_PADRAO_PRODUTO, filtrar_clientes, filtrar_produtos
@@ -174,15 +174,27 @@ def Dashboard(request):
         .annotate(
             total=Coalesce(Sum("total"), ZERO),
             qtd=Coalesce(Sum("quantidade"), ZERO),
+            ultima_venda=Max("dt_venda"),
         )
-        .order_by("-total")
+        .order_by("ultima_venda")
     )
 
-    anotados = list(vendas_anotadas.order_by("-dt_venda"))
+    anotados = list(
+        vendas.filter(
+            Q(status="anotado") | Q(tipo_pagamento="anotado") | Q(valor_pago__gt=0)
+        )
+        .prefetch_related(
+            Prefetch(
+                "pagamentos_parciais",
+                queryset=PagamentoParcial.objects.order_by("dt_pagamento"),
+            )
+        )
+        .order_by("dt_venda")
+    )
     qtd_havers = vendas_anotadas.filter(valor_pago__gt=0).count()
 
     estoque_baixo = list(
-        Produto.objects.filter(quantidade__lte=5).order_by("quantidade", "nome")
+        Produto.objects.filter(quantidade__lte=5).order_by("dt_adicao")
     )
 
     contexto = {
@@ -281,6 +293,7 @@ def notas_cliente(request: HttpRequest, id: int):
     cliente = get_object_or_404(Client, id=id)
     vendas = (
         Venda.objects.filter(cliente=cliente)
+        .exclude(status="pago")
         .select_related("produto")
         .prefetch_related("pagamentos_parciais")
         .order_by("-dt_venda")
