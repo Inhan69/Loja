@@ -100,21 +100,25 @@
             height: 55px;
             text-decoration: none;
             color: #d7d7d7;
-            padding-left: 36px;
+            padding-left: 30px;
             padding-right: 10px;
             border-left: 4px solid transparent;
         }
 
         .bt_painel:hover{
             cursor: pointer;
-            background: #3a3d45;
+            background: color-mix(in srgb, var(--loja-sidebar, #1f2126) 72%, #000000 28%);
             color: white;
         }
 
         .bt_painel.ativo{
-            background:#35393f;
-            color:white;
+            background: color-mix(in srgb, var(--loja-sidebar, #1f2126) 62%, #000000 38%);
+            color: white;
             border-left: 4px solid var(--loja-destaque, #5aa2ff);
+        }
+
+        .bt_painel.ativo:hover{
+            background: color-mix(in srgb, var(--loja-sidebar, #1f2126) 52%, #000000 48%);
         }
 
         .texto_menu {

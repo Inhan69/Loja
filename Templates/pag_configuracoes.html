@@ -23,19 +23,24 @@
 
     .panel {
       background: var(--loja-painel, #fff);
-      border: 1px solid #e7ebf4;
+      border: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 12%, #e7ebf4);
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 10px 30px color-mix(in srgb, var(--loja-sidebar, #1f2126) 12%, transparent);
       overflow: hidden;
       min-width: 0;
     }
 
     .panel-header {
       padding: 16px 18px;
-      border-bottom: 1px solid #eef2f8;
+      border-bottom: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, #eef2f8);
       display: flex;
       align-items: center;
       gap: 10px;
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, var(--loja-painel, #fff)) 0%,
+        var(--loja-painel, #fff) 58%
+      );
     }
 
     .panel-mark {

@@ -24,13 +24,30 @@
     }
 
     .kpi {
+      position: relative;
       background: var(--loja-painel, #fff);
-      border: 1px solid #e7ebf4;
+      border: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 12%, #e7ebf4);
       border-radius: 16px;
-      padding: 16px 18px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      padding: 16px 18px 16px 20px;
+      box-shadow: 0 10px 30px color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, transparent);
       min-width: 0;
+      overflow: hidden;
     }
+
+    .kpi::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--loja-destaque, #5aa2ff);
+    }
+
+    .kpi.azul::before { background: var(--loja-acento, #2b87ff); }
+    .kpi.verde::before { background: #059669; }
+    .kpi.laranja::before { background: #d97706; }
+    .kpi.roxo::before { background: #6d28d9; }
 
     .kpi span {
       display: block;
@@ -38,14 +55,14 @@
       font-weight: 700;
       letter-spacing: 0.3px;
       text-transform: uppercase;
-      color: #9ca3af;
+      color: color-mix(in srgb, var(--loja-texto, #1f2937) 45%, #9ca3af);
       margin-bottom: 8px;
     }
 
     .kpi strong {
       display: block;
       font-size: 22px;
-      color: #111827;
+      color: var(--loja-texto, #1f2937);
       letter-spacing: -0.3px;
     }
 
@@ -54,7 +71,7 @@
       margin-top: 6px;
       font-style: normal;
       font-size: 12px;
-      color: #6b7280;
+      color: color-mix(in srgb, var(--loja-texto, #1f2937) 55%, #6b7280);
     }
 
     .kpi.azul strong { color: var(--loja-acento, #2b87ff); }
@@ -78,20 +95,24 @@
     .panel {
       background: var(--loja-painel, #fff);
       border-radius: 16px;
-      border: 1px solid #e7ebf4;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      border: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 12%, #e7ebf4);
+      box-shadow: 0 10px 30px color-mix(in srgb, var(--loja-sidebar, #1f2126) 12%, transparent);
       min-width: 0;
       overflow: hidden;
     }
 
     .panel-header {
       padding: 16px 18px;
-      border-bottom: 1px solid #eef2f8;
+      border-bottom: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, #eef2f8);
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, var(--loja-painel, #fff)) 0%,
+        var(--loja-painel, #fff) 58%
+      );
     }
 
     .panel-filtros {
@@ -108,8 +129,8 @@
       display: inline-flex;
       align-items: center;
       height: 34px;
-      background: #fff;
-      border: 1px solid #dde3ef;
+      background: color-mix(in srgb, var(--loja-painel, #fff) 88%, var(--loja-fundo, #f4f6f9) 12%);
+      border: 1px solid color-mix(in srgb, var(--loja-acento, #2b87ff) 18%, #dde3ef);
       border-radius: 8px;
       padding: 0 8px 0 10px;
     }
@@ -130,27 +151,28 @@
       background: transparent;
       font-size: 12px;
       font-weight: 600;
-      color: #374151;
+      color: var(--loja-texto, #1f2937);
       outline: none;
       max-width: 150px;
     }
 
     .panel-busca {
       height: 34px;
-      min-width: 140px;
+      min-width: 80px;
       flex: 1;
-      max-width: 220px;
-      border: 1px solid #dde3ef;
+      max-width: 300px;
+      border: 1px solid color-mix(in srgb, var(--loja-acento, #2b87ff) 18%, #dde3ef);
       border-radius: 8px;
       padding: 0 12px;
       font-size: 13px;
       outline: none;
-      background: #fff;
+      background: color-mix(in srgb, var(--loja-painel, #fff) 88%, var(--loja-fundo, #f4f6f9) 12%);
+      color: var(--loja-texto, #1f2937);
     }
 
     .panel-busca:focus {
       border-color: var(--loja-acento, #2b87ff);
-      box-shadow: 0 0 0 3px rgba(43, 135, 255, 0.1);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--loja-acento, #2b87ff) 18%, transparent);
     }
 
     .grid-bottom .panel {
@@ -180,6 +202,11 @@
     .panel-header h2 {
       margin: 0;
       font-size: 16px;
+      color: var(--loja-texto, #1f2937);
+    }
+
+    .panel-header-text {
+      margin-right: 9vw;
     }
 
     .panel-header small {
@@ -326,9 +353,9 @@
       gap: 12px;
       align-items: center;
       padding: 10px 12px;
-      border: 1px solid #eef2f8;
+      border: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 8%, #eef2f8);
       border-radius: 12px;
-      background: #fafbff;
+      background: color-mix(in srgb, var(--loja-painel, #fff) 82%, var(--loja-fundo, #f4f6f9) 18%);
     }
 
     .lista-item strong { display: block; font-size: 13px; }
@@ -436,7 +463,7 @@
     <article class="panel">
       <div class="panel-header">
         <div class="panel-mark laranja"></div>
-        <div>
+        <div class="panel-header-text">
           <h2>Haver e anotados</h2>
           <small>Registro de todos os havores e anotações</small>
         </div>
@@ -538,7 +565,7 @@
     <article class="panel">
       <div class="panel-header">
         <div class="panel-mark"></div>
-        <div>
+        <div class="panel-header-text">
           <h2>Mais vendidos</h2>
           <small>Faturamento, quantidade e última venda</small>
         </div>
@@ -603,7 +630,7 @@
     <article class="panel">
       <div class="panel-header">
         <div class="panel-mark vermelho"></div>
-        <div>
+        <div class="panel-header-text">
           <h2>Estoque baixo</h2>
           <small>Código, preço e quantidade</small>
         </div>

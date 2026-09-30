@@ -66,12 +66,16 @@
 
     .panel-header {
       padding: 18px 20px;
-      border-bottom: 1px solid #eef2f8;
+      border-bottom: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, #eef2f8);
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, var(--loja-painel, #fff)) 0%,
+        var(--loja-painel, #fff) 58%
+      );
     }
 
     .panel-title {
@@ -93,7 +97,7 @@
     .panel-header h2 {
       margin: 0;
       font-size: 18px;
-      color: #1f2937;
+      color: var(--loja-texto, #1f2937);
     }
 
     .panel-header small {
