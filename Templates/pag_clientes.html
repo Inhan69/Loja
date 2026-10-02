@@ -7,11 +7,11 @@
     {% include 'partials/filtros_busca.html' %}
     <style>
         *{
-            text-align: center;
             font-family: "Segoe UI", Arial;
         }
 
         body {
+            text-align: center;
             margin: 0;
             overflow: hidden;
             background: var(--loja-fundo, #f5f7fb);
@@ -40,7 +40,6 @@
             background: var(--loja-painel, #fff);
             padding: 20px;
             border-radius: 8px;
-            width: 94%;
             margin: 10px auto;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             height: calc(70vh - 30px);
@@ -118,10 +117,6 @@
 
         .field input:focus {
             border-color: var(--loja-acento, #2b87ff);
-        }
-
-        .col-span-2 {
-            grid-column: span 2;
         }
 
         .col-span-4 {
@@ -279,7 +274,8 @@
                 
         #notes-itens-container {
             flex: 1;
-            min-height: 21vh;
+            max-height: 19.8vh;
+            min-height: 19.8vh;
             display: flex;
             flex-direction: column;
         }
@@ -320,7 +316,7 @@
         .notes-profile {
             background: linear-gradient(135deg, var(--loja-acento, #2b87ff) 0%, #1a6fd4 100%);
             border-radius: 14px;
-            padding: 20px 22px;
+            padding: 10px 22px;
             margin-bottom: 18px;
             box-shadow: 0 8px 24px rgba(43, 135, 255, 0.25);
             color: #fff;
@@ -438,7 +434,7 @@
             background: #fff;
             border: 1px solid #e7ebf4;
             border-radius: 12px;
-            padding: 14px 16px;
+            padding: 8px 16px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
         }
 
@@ -550,7 +546,7 @@
             font-size: 15px;
             font-weight: 700;
             margin: 0;
-            padding: 14px 18px 10px;
+            padding: 0px 18px;
             border-bottom: 1px solid #eee;
             background: linear-gradient(to right, #fafbff, #fff);
             display: flex;
@@ -679,7 +675,6 @@
             display: flex;
             gap: 6px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
         .btn-acao {
@@ -750,7 +745,7 @@
 
         .modal-body input[type="number"],
         .modal-body select {
-            width: 100%;
+            width: 26%;
             height: 40px;
             border: 1px solid #d7dfef;
             border-radius: 8px;
@@ -759,6 +754,7 @@
             outline: none;
             box-sizing: border-box;
             background: #fff;
+            margin-bottom: 10px;
         }
 
         .modal-body input[type="number"]:focus,
@@ -843,7 +839,7 @@
         }
 
         .modal-body label {
-            display: block;
+            display: contents;
             font-size: 13px;
             font-weight: 600;
             color: #666;
@@ -858,7 +854,7 @@
             border-radius: 8px;
             padding: 0 12px;
             font-size: 14px;
-            text-align: left;
+            text-align: center;
             outline: none;
         }
 
@@ -1022,17 +1018,6 @@
             font-weight: bold;  
         }
 
-        .total-clients {
-            background-color: #f1f3f4;
-            color: #0076a8;
-            font-size: large;
-            padding: 0 5vw 0  15px;
-            display: flex;
-            align-items: center;
-            text-align: left;
-            border: 1px solid #ddd;
-            border-left: none;
-        }
     </style>
 </head>
 <body>
@@ -1060,12 +1045,13 @@
                     <input id="search-input" name="q" type="search" class="campo-busca" placeholder="Pesquisar..." value="{{ busca }}" autocomplete="off">
                     <button class="btn-busca-filtro" type="submit">Q PESQUISAR</button>
                 </div>
+                <div class="div-total"> 
+                    <span class="total-text">TOTAL</span>
+                    <span id="total-clientes" class="total-table">{{ total_clientes }} cliente(s)</span>
+                </div>
             </form>
 
-            <div class="div-total"> 
-                <span class="total-text">TOTAL</span>
-                <span id="total-clientes" class="total-clients">{{ total_clientes }} cliente(s)</span>
-            </div>
+            
         </div>
     </div>
 
@@ -1231,11 +1217,17 @@
                         <strong id="modal-parcelas-valor"></strong>
                     </div>
                 </div>
+                <label for="modal-pagar-desconto" style="margin-top:12px;">Desconto (%)</label>
+                <input type="number" id="modal-pagar-desconto" min="0" max="100" step="1" value="0">
                 <label for="modal-pagar-valor-input" style="margin-top:12px;">Valor a pagar</label>
-                <input type="number" id="modal-pagar-valor-input" min="1" step="1" inputmode="decimal">
+                <input type="number" id="modal-pagar-valor-input" min="0" step="1" inputmode="decimal">
                 <div class="modal-resumo-haver">
                     <span>Total do item: <strong id="modal-pagar-total">R$ 0,00</strong></span>
                     <span>Já pago: <strong id="modal-pagar-pago">R$ 0,00</strong></span>
+                </div>
+                <div class="modal-resumo-haver">
+                    <span>Desconto: <strong id="modal-pagar-desconto-valor">R$ 0,00</strong></span>
+                    <span>Com desconto: <strong id="modal-pagar-com-desconto">R$ 0,00</strong></span>
                 </div>
                 <div class="modal-valor" id="modal-pagar-valor">Haver: R$ 0,00</div>
             </div>
@@ -1636,6 +1628,32 @@
         return Math.round((parseNumero(valor) + Number.EPSILON) * 100) / 100;
     }
 
+    function descontoPagarPct() {
+        return Math.min(Math.max(parseNumero(document.getElementById("modal-pagar-desconto").value), 0), 100);
+    }
+
+    function saldoAbertoOriginal() {
+        return vendaAcaoAtual ? arredondarDinheiro(saldoVenda(vendaAcaoAtual)) : 0;
+    }
+
+    function valorDescontoPagar() {
+        return arredondarDinheiro(saldoAbertoOriginal() * descontoPagarPct() / 100);
+    }
+
+    function saldoAbertoComDesconto() {
+        return arredondarDinheiro(Math.max(saldoAbertoOriginal() - valorDescontoPagar(), 0));
+    }
+
+    function atualizarResumoDescontoPagar() {
+        if (!vendaAcaoAtual) return;
+        const saldo = saldoAbertoOriginal();
+        const desconto = valorDescontoPagar();
+        const comDesconto = saldoAbertoComDesconto();
+        document.getElementById("modal-pagar-desconto-valor").textContent = `- ${formatarMoeda(desconto)}`;
+        document.getElementById("modal-pagar-com-desconto").textContent = formatarMoeda(comDesconto);
+        document.getElementById("modal-pagar-valor").textContent = `Em aberto: ${formatarMoeda(saldo)}`;
+    }
+
     function valorPagarAtual() {
         return arredondarDinheiro(document.getElementById("modal-pagar-valor-input").value);
     }
@@ -1643,8 +1661,8 @@
     function limitarValorPagar(formatar) {
         if (!vendaAcaoAtual) return 0;
         const campo = document.getElementById("modal-pagar-valor-input");
-        const saldo = arredondarDinheiro(saldoVenda(vendaAcaoAtual));
-        campo.min = "1";
+        const saldo = saldoAbertoComDesconto();
+        campo.min = saldo > 0 ? "0.01" : "0";
         campo.max = saldo.toFixed(2);
         let valor = valorPagarAtual();
         if (valor > saldo) {
@@ -1656,6 +1674,7 @@
             campo.value = "";
         }
         if (formatar && campo.value !== "") campo.value = valor.toFixed(2);
+        atualizarResumoDescontoPagar();
         atualizarParcelasPagar();
         return valor;
     }
@@ -1679,10 +1698,11 @@
 
     function preencherValorPagar(valor) {
         const campo = document.getElementById("modal-pagar-valor-input");
-        const saldo = vendaAcaoAtual ? arredondarDinheiro(saldoVenda(vendaAcaoAtual)) : arredondarDinheiro(valor);
+        const saldo = saldoAbertoComDesconto();
         const limitado = Math.min(arredondarDinheiro(valor), saldo);
         campo.max = saldo.toFixed(2);
         campo.value = limitado.toFixed(2);
+        atualizarResumoDescontoPagar();
         atualizarParcelasPagar();
     }
 
@@ -1695,8 +1715,8 @@
         document.getElementById("modal-pagar-produto").textContent = venda.produto;
         document.getElementById("modal-pagar-total").textContent = formatarMoeda(venda.total);
         document.getElementById("modal-pagar-pago").textContent = formatarMoeda(venda.valor_pago);
-        document.getElementById("modal-pagar-valor").textContent = `Em aberto: ${formatarMoeda(saldo)}`;
         document.getElementById("modal-pagar-parcelas").value = "1";
+        document.getElementById("modal-pagar-desconto").value = "0";
 
         const select = document.getElementById("modal-tipo-pagamento");
         select.innerHTML = pagamentosDisponiveis.map(
@@ -1704,9 +1724,10 @@
         ).join("");
         select.value = pagamentosDisponiveis[0]?.valor || "dinheiro";
 
+        atualizarResumoDescontoPagar();
         preencherValorPagar(saldo);
         document.getElementById("modal-pagar").classList.remove("hidden");
-        document.getElementById("modal-pagar-valor-input").focus();
+        document.getElementById("modal-pagar-desconto").focus();
     }
 
     function fecharModalPagar() {
@@ -1719,11 +1740,16 @@
 
         const tipoPagamento = document.getElementById("modal-tipo-pagamento").value;
         const vendaId = vendaAcaoAtual.id;
-        const saldo = arredondarDinheiro(saldoVenda(vendaAcaoAtual));
+        const saldo = saldoAbertoComDesconto();
+        const desconto = descontoPagarPct();
         const valor = limitarValorPagar(true);
         const parcelas = parseInt(document.getElementById("modal-pagar-parcelas").value, 10) || 0;
 
-        if (valor <= 0) {
+        if (valor < 0) {
+            alert("Informe um valor válido.");
+            return;
+        }
+        if (saldo > 0 && valor <= 0) {
             alert("Informe um valor maior que zero.");
             return;
         }
@@ -1732,7 +1758,7 @@
             preencherValorPagar(saldo);
             return;
         }
-        if (tipoPagamento === "cartao_credito") {
+        if (tipoPagamento === "cartao_credito" && valor > 0) {
             if (parcelas < 1 || parcelas > 12) {
                 alert("Selecione as parcelas do cartão de crédito (1x a 12x).");
                 return;
@@ -1750,6 +1776,7 @@
                 body: JSON.stringify({
                     tipo_pagamento: tipoPagamento,
                     valor,
+                    desconto,
                     parcelas: tipoPagamento === "cartao_credito" ? parcelas : 1,
                 }),
             });
@@ -2280,11 +2307,21 @@
     });
 
     const campoValorPagar = document.getElementById("modal-pagar-valor-input");
+    const campoDescontoPagar = document.getElementById("modal-pagar-desconto");
     const selectTipoPagar = document.getElementById("modal-tipo-pagamento");
     const selectParcelasPagar = document.getElementById("modal-pagar-parcelas");
     campoValorPagar.addEventListener("input", () => limitarValorPagar(false));
     campoValorPagar.addEventListener("change", () => limitarValorPagar(true));
     campoValorPagar.addEventListener("blur", () => limitarValorPagar(true));
+    campoDescontoPagar.addEventListener("input", () => {
+        preencherValorPagar(saldoAbertoComDesconto());
+    });
+    campoDescontoPagar.addEventListener("change", () => {
+        const campo = document.getElementById("modal-pagar-desconto");
+        let pct = Math.min(Math.max(parseNumero(campo.value), 0), 100);
+        campo.value = String(pct);
+        preencherValorPagar(saldoAbertoComDesconto());
+    });
     selectTipoPagar.addEventListener("change", atualizarParcelasPagar);
     selectParcelasPagar.addEventListener("change", atualizarParcelasPagar);
 </script>

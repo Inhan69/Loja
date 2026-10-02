@@ -6,22 +6,18 @@
   <title>Vendas</title>
   {% include 'partials/filtros_busca.html' %}
   <style>
-    :root { --prod-cols: 60px 1fr 90px 88px 92px; --borda: #eef2f8; --texto: var(--loja-texto, #1f2937); --muted: #6b7280; }
+    :root { --prod-cols: 52px minmax(0, 1fr) 78px 78px 82px; --borda: #eef2f8; --texto: var(--loja-texto, #1f2937); --muted: #6b7280; }
 
     * {font-family: "Segoe UI", Arial, sans-serif; box-sizing: border-box; }
 
     body {
-      margin: 0; padding: 18px 20px; overflow: hidden;
+      margin: 0; padding: 10px 12px; overflow: hidden;
       background: var(--loja-fundo, #f4f6f9);
       height: 100vh; display: flex; flex-direction: column; color: var(--loja-texto, #2c2c2c);
     }
 
     .page-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      display: none;
     }
 
     .page-stats {
@@ -35,8 +31,8 @@
       background: white;
       border: 1px solid #e5eaf4;
       border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 13px;
+      padding: 4px 10px;
+      font-size: 12px;
       color: #4b5563;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
@@ -48,8 +44,8 @@
     .layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+      gap: 10px;
       min-height: 0;
     }
 
@@ -65,12 +61,12 @@
     }
 
     .panel-header {
-      padding: 18px 20px;
+      padding: 10px 12px;
       border-bottom: 1px solid color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, #eef2f8);
       display: flex;
       align-items: center;
       gap: 12px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       background: linear-gradient(
         90deg,
         color-mix(in srgb, var(--loja-sidebar, #1f2126) 10%, var(--loja-painel, #fff)) 0%,
@@ -86,7 +82,7 @@
 
     .panel-mark {
       width: 4px;
-      height: 36px;
+      height: 28px;
       border-radius: 4px;
       flex-shrink: 0;
     }
@@ -96,16 +92,12 @@
 
     .panel-header h2 {
       margin: 0;
-      font-size: 18px;
+      font-size: 15px;
       color: var(--loja-texto, #1f2937);
     }
 
     .panel-header small {
-      display: block;
-      margin-top: 2px;
-      font-size: 12px;
-      color: #9ca3af;
-      font-weight: 500;
+      display: none;
     }
 
     .cart-badge {
@@ -121,17 +113,18 @@
 
     .search-form {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       margin-left: auto;
       flex: 1;
-      max-width: 560px;
+      min-width: 0;
+      max-width: 420px;
       align-items: center;
     }
 
     .produtos-lista,
     .carrinho-lista,
     .cliente-suggestions,
-    .modal-carrinho-lista { scrollbar-width: none; -ms-overflow-style: none; }
+    .modal-carrinho-lista { scrollbar-width: thin; -ms-overflow-style: none; }
     .produtos-lista::-webkit-scrollbar,
     .carrinho-lista::-webkit-scrollbar,
     .cliente-suggestions::-webkit-scrollbar,
@@ -145,8 +138,8 @@
       display: grid;
       grid-template-columns: var(--prod-cols);
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
+      gap: 8px;
+      padding: 8px 12px;
       border-bottom: 1px solid #eef2f8;
       transition: 0.15s;
     }
@@ -212,11 +205,19 @@
     .estoque-badge.baixo { background: #fff7ed; color: #d97706; }
     .estoque-badge.zero { background: #fef2f2; color: #dc2626; }
 
+    .barra-busca-filtros.compacto .filtro-grupo,
+    .barra-busca-filtros.compacto .busca-grupo,
+    .barra-busca-filtros.compacto .campo-busca,
+    .barra-busca-filtros.compacto .btn-busca-filtro { height: 32px; }
+
+    .barra-busca-filtros .campo-busca { width: min(200px, 24vw); }
+    .barra-busca-filtros .btn-busca-filtro { padding: 0 12px; font-size: 12px; }
+    .filtro-grupo-inline { height: 32px; }
     .btn { border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.15s; }
     .btn:disabled { cursor: not-allowed; }
 
     .btn-add {
-      height: 32px; background: var(--loja-acento, #2b87ff); color: white; font-size: 12px; padding: 0 10px;
+      height: 28px; background: var(--loja-acento, #2b87ff); color: white; font-size: 11px; padding: 0 8px;
     }
     .btn-add:hover { background: #1f6fe0; }
     .btn-add:disabled { background: #d1d5db; }
@@ -224,8 +225,8 @@
     .lista-header {
       display: grid;
       grid-template-columns: var(--prod-cols);
-      gap: 10px;
-      padding: 8px 16px;
+      gap: 8px;
+      padding: 6px 12px;
       background: #fafbff;
       border-bottom: 1px solid #eef2f8;
       font-size: 11px;
@@ -252,8 +253,8 @@
     .carrinho-item {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 8px 12px;
-      padding: 12px 16px;
+      gap: 4px 8px;
+      padding: 8px 12px;
       border-bottom: 1px solid #eef2f8;
     }
 
@@ -299,8 +300,8 @@
     }
 
     .qtd-controls button {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border: none;
       border-radius: 6px;
       background: white;
@@ -321,21 +322,24 @@
 
     .checkout {
       border-top: 1px solid #eef2f8;
-      padding: 16px 18px 18px;
+      padding: 8px 12px 10px;
       background: #fafbff;
+      overflow-y: auto;
+      flex-shrink: 0;
+      max-height: 437px;
     }
 
     .checkout-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 6px 8px;
+      margin-bottom: 8px;
     }
 
     .field {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
     .field.full {
@@ -356,9 +360,9 @@
     .field textarea {
       width: 100%;
       border: 1px solid #dde3ef;
-      border-radius: 10px;
-      padding: 0 12px;
-      font-size: 14px;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 13px;
       background: white;
       outline: none;
       transition: 0.2s;
@@ -367,12 +371,12 @@
     .field select,
     .field input[type="number"],
     .field input[type="search"] {
-      height: 40px;
+      height: 32px;
     }
 
     .field textarea {
-      min-height: 40px;
-      padding: 10px 12px;
+      min-height: 32px;
+      padding: 6px 10px;
       resize: none;
       overflow: hidden;
       line-height: 1.45;
@@ -415,8 +419,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      min-height: 40px;
-      padding: 6px 10px;
+      min-height: 32px;
+      padding: 4px 8px;
       background: #eef6ff;
       border: 1px solid #cfe0ff;
       border-radius: 10px;
@@ -454,40 +458,44 @@
     .totais {
       background: white;
       border: 1px solid #e5eaf4;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 14px;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
     }
 
-    .resumo-linha { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
-    .totais .resumo-linha { margin-bottom: 8px; }
+    .resumo-linha { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+    .totais .resumo-linha { margin-bottom: 4px; }
     .totais .resumo-linha span:last-child { font-weight: 600; color: #374151; }
 
     .totais .desconto-linha span:last-child {
       color: #d97706;
     }
 
+    .totais .acrescimo-linha span:last-child {
+      color: #059669;
+    }
+
     .totais .total-final {
       margin: 0;
-      margin-top: 10px;
-      padding: 12px;
-      border-radius: 10px;
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 8px;
       background: #ecfdf5;
       border: 1px solid #a7f3d0;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       color: #065f46;
     }
 
     .totais .total-final span:last-child {
       color: #059669;
-      font-size: 20px;
+      font-size: 16px;
     }
 
     .info-parcelas {
       display: none;
-      margin-bottom: 14px;
-      padding: 12px 14px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
       background: #eef4ff;
       border: 1px solid #cfe0ff;
       border-radius: 10px;
@@ -623,8 +631,8 @@
     }
 
     .btn-finalizar {
-      width: 100%; height: 44px; border-radius: 10px;
-      background: #10b981; color: white; font-size: 15px; font-weight: 700;
+      width: 100%; height: 36px; border-radius: 8px;
+      background: #10b981; color: white; font-size: 14px; font-weight: 700;
     }
     .btn-finalizar:hover { background: #059669; }
     .btn-finalizar:disabled { background: #d1d5db; }
@@ -665,7 +673,7 @@
     .confirm-cancelar { background: #f3f4f6; color: #455a64; }
     .confirm-ok { background: #10b981; color: #fff; }
 
-    @media (max-width: 980px) {
+    @media (max-width: 720px) {
       body {
         overflow: auto;
         height: auto;
@@ -675,9 +683,13 @@
         grid-template-columns: 1fr;
       }
 
+      .checkout {
+        max-height: none;
+      }
+
       .produto-linha,
       .lista-header {
-        grid-template-columns: 60px 1fr 80px;
+        grid-template-columns: 52px 1fr 80px;
       }
 
       .produto-linha .estoque-badge,
@@ -824,7 +836,7 @@
               <option value="{{ valor }}">{{ rotulo }}</option>
               {% endfor %}
             </select>
-            <small id="pagamento-anotado-hint" class="hidden" style="color:#6b7280;font-size:12px;font-weight:700;border-radius:8px;padding:10px;border:1px solid #d7dfef;">
+            <small id="pagamento-anotado-hint" class="hidden" style="color:#6b7280;font-size:11px;font-weight:700;border-radius:8px;padding:6px 8px;border:1px solid #d7dfef;">
               <strong style="color:var(--loja-acento, #2b87ff);">Cliente selecionado: </strong> a venda será anotada.
             </small>
           </div>
@@ -842,6 +854,10 @@
             <label for="desconto">Desconto (%)</label>
             <input type="number" name="desconto" id="desconto" value="10" min="0" max="100" step="1">
           </div>
+          <div class="field">
+            <label for="acrescimo">Acréscimo (%)</label>
+            <input type="number" name="acrescimo" id="acrescimo" value="0" min="0" max="100" step="1">
+          </div>
         </div>
 
         <div id="info-parcelas" class="info-parcelas">
@@ -852,6 +868,7 @@
         <div class="totais">
           <div class="resumo-linha"><span>Subtotal</span><span id="subtotal">R$ 0,00</span></div>
           <div class="resumo-linha desconto-linha"><span>Desconto</span><span id="desconto-valor">- R$ 0,00</span></div>
+          <div class="resumo-linha acrescimo-linha"><span>Acréscimo</span><span id="acrescimo-valor">+ R$ 0,00</span></div>
           <div class="total-final resumo-linha"><span>Total</span><span id="total">R$ 0,00</span></div>
         </div>
 
@@ -870,6 +887,7 @@
       <div class="modal-carrinho-resumo">
         <div class="resumo-linha"><span>Subtotal</span><span id="modal-subtotal">R$ 0,00</span></div>
         <div class="resumo-linha"><span>Desconto</span><span id="modal-desconto">- R$ 0,00</span></div>
+        <div class="resumo-linha"><span>Acréscimo</span><span id="modal-acrescimo">+ R$ 0,00</span></div>
         <div class="total resumo-linha"><span>Total</span><span id="modal-total">R$ 0,00</span></div>
       </div>
     </div>
@@ -919,6 +937,7 @@
         cliente_id: els.clienteId.value,
         tipo_pagamento: els.tipoPagamento.value,
         desconto: els.desconto.value,
+        acrescimo: els.acrescimo.value,
         parcelas: els.parcelas.value,
       }));
     }
@@ -955,11 +974,14 @@
       modalLista: $("modal-carrinho-lista"),
       subtotal: $("subtotal"),
       descontoValor: $("desconto-valor"),
+      acrescimoValor: $("acrescimo-valor"),
       total: $("total"),
       modalSubtotal: $("modal-subtotal"),
       modalDesconto: $("modal-desconto"),
+      modalAcrescimo: $("modal-acrescimo"),
       modalTotal: $("modal-total"),
       desconto: $("desconto"),
+      acrescimo: $("acrescimo"),
       tipoPagamento: $("tipo_pagamento"),
       pagamentoHint: $("pagamento-anotado-hint"),
       parcelas: $("parcelas"),
@@ -1094,6 +1116,7 @@
       ajustarTextarea(els.observacao);
       if (salvo.tipo_pagamento) els.tipoPagamento.value = salvo.tipo_pagamento;
       if (salvo.desconto != null && salvo.desconto !== "") els.desconto.value = salvo.desconto;
+      if (salvo.acrescimo != null && salvo.acrescimo !== "") els.acrescimo.value = salvo.acrescimo;
       if (salvo.parcelas) els.parcelas.value = salvo.parcelas;
       if (salvo.cliente_id) {
         const cliente = clientes.find((c) => String(c.id) === String(salvo.cliente_id));
@@ -1210,24 +1233,33 @@
     }
 
     function valoresCarrinho() {
-      const descontoPct = parseNumero(els.desconto.value);
+      const descontoPct = Math.min(Math.max(parseNumero(els.desconto.value), 0), 100);
+      const acrescimoPct = Math.min(Math.max(parseNumero(els.acrescimo.value), 0), 100);
       const itens = Object.values(carrinho);
       const subtotal = itens.reduce((acc, item) => acc + parseNumero(item.preco) * parseNumero(item.quantidade), 0);
       const descontoValor = subtotal * descontoPct / 100;
-      return { itens, subtotal, descontoValor, total: Math.max(subtotal - descontoValor, 0) };
+      const acrescimoValor = subtotal * acrescimoPct / 100;
+      return {
+        itens,
+        subtotal,
+        descontoValor,
+        acrescimoValor,
+        total: Math.max(subtotal - descontoValor + acrescimoValor, 0),
+      };
     }
 
-    function atualizarResumoTotais({ subtotal, descontoValor, total }, modal = false) {
+    function atualizarResumoTotais({ subtotal, descontoValor, acrescimoValor, total }, modal = false) {
       const alvos = modal
-        ? [els.modalSubtotal, els.modalDesconto, els.modalTotal]
-        : [els.subtotal, els.descontoValor, els.total];
+        ? [els.modalSubtotal, els.modalDesconto, els.modalAcrescimo, els.modalTotal]
+        : [els.subtotal, els.descontoValor, els.acrescimoValor, els.total];
       alvos[0].textContent = formatarMoeda(subtotal);
       alvos[1].textContent = `- ${formatarMoeda(descontoValor)}`;
-      alvos[2].textContent = formatarMoeda(total);
+      alvos[2].textContent = `+ ${formatarMoeda(acrescimoValor)}`;
+      alvos[3].textContent = formatarMoeda(total);
     }
 
     function renderizarCarrinhoAmpliado() {
-      const { itens, subtotal, descontoValor, total } = valoresCarrinho();
+      const { itens, subtotal, descontoValor, acrescimoValor, total } = valoresCarrinho();
       els.modalLista.innerHTML = itens.map((item) => {
         const linhaTotal = parseNumero(item.preco) * parseNumero(item.quantidade);
         const restante = estoqueRestante(item.produto_id);
@@ -1244,7 +1276,7 @@
           <div class="carrinho-item-actions">${htmlAcoesItem(item.produto_id, item.quantidade)}</div>
         </div>`;
       }).join("");
-      atualizarResumoTotais({ subtotal, descontoValor, total }, true);
+      atualizarResumoTotais({ subtotal, descontoValor, acrescimoValor, total }, true);
     }
 
     function removerItem(id) {
@@ -1253,7 +1285,7 @@
     }
 
     function renderizarCarrinho() {
-      const { itens, subtotal, descontoValor, total } = valoresCarrinho();
+      const { itens, subtotal, descontoValor, acrescimoValor, total } = valoresCarrinho();
       const modalAberto = els.modal.classList.contains("aberto");
 
       atualizarBadges();
@@ -1264,7 +1296,7 @@
         els.btnFinalizar.disabled = true;
         els.btnAmpliar.disabled = true;
         fecharModalCarrinho();
-        atualizarResumoTotais({ subtotal: 0, descontoValor: 0, total: 0 });
+        atualizarResumoTotais({ subtotal: 0, descontoValor: 0, acrescimoValor: 0, total: 0 });
         atualizarParcelas(0);
         salvarCarrinho();
         return;
@@ -1281,15 +1313,15 @@
       }).join("");
 
       els.btnFinalizar.disabled = false;
-      atualizarResumoTotais({ subtotal, descontoValor, total });
+      atualizarResumoTotais({ subtotal, descontoValor, acrescimoValor, total });
       atualizarParcelas(total);
       if (modalAberto) renderizarCarrinhoAmpliado();
       salvarCarrinho();
     }
 
     function calcularTotais() {
-      const { subtotal, descontoValor, total } = valoresCarrinho();
-      atualizarResumoTotais({ subtotal, descontoValor, total });
+      const { subtotal, descontoValor, acrescimoValor, total } = valoresCarrinho();
+      atualizarResumoTotais({ subtotal, descontoValor, acrescimoValor, total });
       atualizarParcelas(total);
     }
 
@@ -1318,6 +1350,7 @@
     }
 
     els.desconto.addEventListener("input", () => { calcularTotais(); salvarCheckout(); });
+    els.acrescimo.addEventListener("input", () => { calcularTotais(); salvarCheckout(); });
     els.tipoPagamento.addEventListener("change", atualizarFormaPagamento);
     els.parcelas.addEventListener("change", () => { calcularTotais(); salvarCheckout(); });
     els.btnAmpliar.addEventListener("click", abrirModalCarrinho);

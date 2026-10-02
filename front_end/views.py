@@ -45,6 +45,19 @@ def _rotulo_pagamento(tipo, parcelas=1):
     return rotulo
 
 
+def _ler_percentual(dados, chave, padrao="0"):
+    bruto = dados.get(chave, padrao)
+    if bruto in (None, ""):
+        bruto = padrao
+    try:
+        valor = Decimal(str(bruto).replace(",", ".").strip())
+    except (InvalidOperation, TypeError, AttributeError):
+        return None
+    if valor < 0 or valor > 100:
+        return None
+    return valor
+
+
 def _ler_parcelas(dados, tipo_pagamento):
     if tipo_pagamento != "cartao_credito":
         return 1
@@ -73,6 +86,7 @@ def _venda_api(venda):
         "valor_pago": str(_money(venda.valor_pago)),
         "saldo": str(_saldo_venda(venda)),
         "desconto": str(venda.desconto),
+        "acrescimo": str(venda.acrescimo),
         "tipo_pagamento": venda.tipo_pagamento,
         "parcelas": parcelas,
         "tipo_pagamento_label": _rotulo_pagamento(tipo, parcelas)
@@ -368,6 +382,22 @@ def pagar_venda(request: HttpRequest, id: int):
                 status=400,
             )
 
+        desconto_pct = _ler_percentual(dados, "desconto")
+        if desconto_pct is None:
+            return JsonResponse(
+                {"success": False, "error": "Informe um desconto entre 0% e 100%."},
+                status=400,
+            )
+
+        desconto_valor = (saldo * desconto_pct / Decimal("100")).quantize(Decimal("0.01"))
+        if desconto_valor > saldo:
+            desconto_valor = saldo
+        if desconto_valor > 0:
+            venda.total = (_money(venda.total) - desconto_valor).quantize(Decimal("0.01"))
+            if venda.total < _money(venda.valor_pago):
+                venda.total = _money(venda.valor_pago)
+            saldo = _saldo_venda(venda).quantize(Decimal("0.01"))
+
         bruto = dados.get("valor", None)
         if bruto in (None, ""):
             valor = saldo
@@ -381,6 +411,25 @@ def pagar_venda(request: HttpRequest, id: int):
                 )
 
         valor = valor.quantize(Decimal("0.01"))
+        if valor < 0:
+            return JsonResponse(
+                {"success": False, "error": "Informe um valor válido."},
+                status=400,
+            )
+        if saldo <= 0:
+            if valor > 0:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Não é possível pagar além do valor em aberto.",
+                        "saldo": "0.00",
+                    },
+                    status=400,
+                )
+            venda.status = "pago"
+            venda.save()
+            return JsonResponse({"success": True, "venda": _venda_api(venda)})
+
         if valor <= 0:
             return JsonResponse(
                 {"success": False, "error": "O valor pago deve ser maior que zero."},
@@ -558,11 +607,22 @@ def Vendas(request):
     return render(request, "pag_vendas.html", contexto)
 
 
-def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, observacao="", parcelas=1):
-    preco_com_desconto = produto.preco - (desconto * produto.preco / Decimal("100"))
-    total = preco_com_desconto * quantidade
+def _criar_venda(
+    produto,
+    quantidade,
+    desconto,
+    tipo_pagamento,
+    cliente=None,
+    observacao="",
+    parcelas=1,
+    acrescimo=ZERO,
+):
+    desconto = max(min(desconto, Decimal("100")), ZERO)
+    acrescimo = max(min(acrescimo, Decimal("100")), ZERO)
+    fator = Decimal("1") - (desconto / Decimal("100")) + (acrescimo / Decimal("100"))
+    total = (produto.preco * fator * quantidade).quantize(Decimal("0.01"))
     if total < 0:
-        total = Decimal("0")
+        total = ZERO
 
     produto.quantidade -= quantidade
     produto.save()
@@ -577,6 +637,7 @@ def _criar_venda(produto, quantidade, desconto, tipo_pagamento, cliente=None, ob
         observacao=observacao,
         quantidade=quantidade,
         desconto=desconto,
+        acrescimo=acrescimo,
         tipo_pagamento=tipo_pagamento,
         status=status,
         total=total,
@@ -603,10 +664,12 @@ def registrar_venda(request: HttpRequest):
         except json.JSONDecodeError:
             return redirect("front_end:vendas")
 
-        try:
-            desconto_geral = Decimal(request.POST.get("desconto", "0") or "0")
-        except InvalidOperation:
-            desconto_geral = Decimal("0")
+        desconto_geral = _ler_percentual(request.POST, "desconto")
+        acrescimo_geral = _ler_percentual(request.POST, "acrescimo")
+        if desconto_geral is None:
+            desconto_geral = ZERO
+        if acrescimo_geral is None:
+            acrescimo_geral = ZERO
 
         cliente = None
         if cliente_id:
@@ -637,6 +700,7 @@ def registrar_venda(request: HttpRequest):
                 cliente=cliente,
                 observacao=observacao,
                 parcelas=parcelas,
+                acrescimo=acrescimo_geral,
             )
 
         return redirect("front_end:vendas")
@@ -645,9 +709,11 @@ def registrar_venda(request: HttpRequest):
 
     try:
         quantidade = Decimal(request.POST.get("quantidade", "1"))
-        desconto = Decimal(request.POST.get("desconto", "0"))
     except InvalidOperation:
         return redirect("front_end:produtos")
+
+    desconto = _ler_percentual(request.POST, "desconto") or ZERO
+    acrescimo = _ler_percentual(request.POST, "acrescimo") or ZERO
 
     if quantidade <= 0 or quantidade > produto.quantidade:
         return redirect("front_end:produtos")
@@ -658,6 +724,7 @@ def registrar_venda(request: HttpRequest):
         desconto,
         tipo_pagamento,
         parcelas=_ler_parcelas(request.POST, tipo_pagamento) or 1,
+        acrescimo=acrescimo,
     )
 
     return redirect("front_end:vendas")

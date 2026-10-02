@@ -58,7 +58,7 @@
       border-radius: 4px;
       font-weight: 500;
       font-size: 15px;
-      padding: 0 40px;
+      padding: 0 24px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -94,18 +94,6 @@
       display: flex;
       align-items: center;
       font-weight: bold;
-    }
-
-    .total-produtos {
-      background-color: #f1f3f4;
-      color: #0076a8;
-      font-size: large;
-      padding: 0 5vw 0  15px;
-      display: flex;
-      align-items: center;
-      text-align: left;
-      border: 1px solid #ddd;
-      border-left: none;
     }
 
     .products-container {
@@ -413,12 +401,13 @@
           <input id="search-input" name="q" type="search" class="campo-busca" placeholder="Pesquisar..." value="{{ busca }}" autocomplete="off">
           <button class="btn-busca-filtro" type="submit">Q PESQUISAR</button>
         </div>
+        <div class="div-total">
+          <span class="total-text">TOTAL</span>
+          <span id="total-table" class="total-table">{{ total_produtos }} produto(s)</span>
+        </div>
       </form>
 
-      <div class="div-total">
-        <span class="total-text">TOTAL</span>
-        <span id="total-produtos" class="total-produtos">{{ total_produtos }} produto(s)</span>
-      </div>
+      
     </div>
   </div>
 
@@ -576,7 +565,7 @@ function Abrir_Modal_Editar(id, nome, quantidade, preco) {
     selectSelector: '#search-campo',
     containerSelector: '#produtos-tbody',
     itemSelector: '.produto-row',
-    totalSelector: '#total-produtos',
+    totalSelector: '#total-table',
     emptySelector: '#empty-produtos',
     totalBase: totalProdutosBase,
     totalSingular: 'produto',

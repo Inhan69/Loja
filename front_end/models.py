@@ -46,6 +46,7 @@ class Venda(models.Model):
     observacao = models.CharField(max_length=200, blank=True, default="")
     quantidade = models.DecimalField(max_digits=10, decimal_places=3)
     desconto = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    acrescimo = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     tipo_pagamento = models.CharField(max_length=20, choices=PAGAMENTO_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pago")
     total = models.DecimalField(max_digits=12, decimal_places=2)
