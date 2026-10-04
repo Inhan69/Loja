@@ -218,7 +218,7 @@
     }
 
     .panel-body {
-      padding: 16px 18px 18px;
+      padding: 16px 8px 18px;
     }
 
     .chart-wrap {
@@ -298,6 +298,10 @@
 
     .linha-opcoes {
       display: none;
+    }
+
+    .linha-opcoes:focus {
+      outline: none;
     }
 
     .grupo-haver.aberto .linha-opcoes {
@@ -536,7 +540,7 @@
               </td>
               <td class="valor {% if venda.status == 'anotado' %}pendente{% endif %}">R$ {{ venda.saldo|floatformat:2 }}</td>
             </tr>
-            <tr class="linha-opcoes">
+            <tr class="linha-opcoes" tabindex="-1">
               <td colspan="6">
                 <ul class="haver-opcoes">
                   {% for pagamento in venda.pagamentos_parciais.all %}
@@ -850,7 +854,12 @@
       });
       if (!jaAberto) {
         grupo.classList.add("aberto");
-        grupo.querySelector(".haver-select")?.setAttribute("aria-expanded", "true");
+        const botao = grupo.querySelector(".haver-select");
+        botao?.setAttribute("aria-expanded", "true");
+
+        const opcoes = grupo.querySelector(".linha-opcoes");
+        opcoes?.focus({ preventScroll: true });
+        opcoes?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     });
   </script>

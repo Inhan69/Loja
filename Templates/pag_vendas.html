@@ -134,6 +134,11 @@
       flex: 1; overflow-y: auto; padding: 8px 0;
     }
 
+    .carrinho-lista {
+      background: #eef3f0;
+      padding: 8px;
+    }
+
     .produto-linha {
       display: grid;
       grid-template-columns: var(--prod-cols);
@@ -255,7 +260,12 @@
       grid-template-columns: 1fr auto;
       gap: 4px 8px;
       padding: 8px 12px;
-      border-bottom: 1px solid #eef2f8;
+      margin-bottom: 6px;
+      background: #fff;
+      border: 1px solid #dfe8e3;
+      border-left: 3px solid #2b87ff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }
 
     .carrinho-item:hover {
@@ -321,12 +331,15 @@
     .btn-remove { background: none; color: #dc2626; font-size: 12px; padding: 4px 0; border-radius: 0; }
 
     .checkout {
-      border-top: 1px solid #eef2f8;
+      border-top: 2px solid #d5dfe9;
       padding: 8px 12px 10px;
       background: #fafbff;
-      overflow-y: auto;
       flex-shrink: 0;
-      max-height: 437px;
+      max-height: 443px;
+    }
+
+    .checkout.cartao-credito {
+      max-height: 490px;
     }
 
     .checkout-grid {
@@ -340,6 +353,25 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+    }
+
+    .sub-field {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .sub-field label {
+      width: 11vw; 
+      overflow: auto; 
+      text-overflow: ellipsis;
+    }
+
+    .box-text-field {
+      display: flex; 
+      flex-direction: row; 
+      gap: 6px;
     }
 
     .field.full {
@@ -687,6 +719,10 @@
         max-height: none;
       }
 
+      .checkout, .checkout.cartao-credito {
+        max-height: none;
+      }
+
       .produto-linha,
       .lista-header {
         grid-template-columns: 52px 1fr 80px;
@@ -851,12 +887,14 @@
           </div>
 
           <div class="field">
-            <label for="desconto">Desconto (%)</label>
-            <input type="number" name="desconto" id="desconto" value="10" min="0" max="100" step="1">
-          </div>
-          <div class="field">
-            <label for="acrescimo">Acréscimo (%)</label>
-            <input type="number" name="acrescimo" id="acrescimo" value="0" min="0" max="100" step="1">
+            <div class="sub-field">
+              <label for="desconto">Desconto (%)</label>
+              <label for="acrescimo">Acréscimo (%)</label>
+            </div>
+            <div class="box-text-field">
+              <input type="number" name="desconto" id="desconto" value="10" min="0" max="100" step="1">
+              <input type="number" name="acrescimo" id="acrescimo" value="0" min="0" max="100" step="1">
+            </div>
           </div>
         </div>
 
@@ -1326,7 +1364,10 @@
     }
 
     function atualizarParcelas(total) {
-      if (els.tipoPagamento.value !== "cartao_credito") {
+      const ehCredito = els.tipoPagamento.value === "cartao_credito";
+      els.formCheckout.classList.toggle("cartao-credito", ehCredito);
+
+      if (!ehCredito) {
         els.infoParcelas.classList.remove("visible");
         els.parcelasField.classList.add("hidden");
         return;
